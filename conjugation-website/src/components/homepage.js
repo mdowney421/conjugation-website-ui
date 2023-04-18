@@ -1,6 +1,6 @@
 import React from "react";
 
-const HomePage = () => {
+const HomePage = (props) => {
 
   return (
 		<>
@@ -21,8 +21,8 @@ const HomePage = () => {
 				</div>
 				<div className='row'>
 					<div className='col d-flex justify-content-center'>
-						<button type="button" className="btn btn-success mx-3">I want to look up verbs!</button>
-						<button type="button" className="btn btn-success mx-3">I want to practice conjugating!</button>
+						<button type="button" className="btn btn-outline-success mx-3" onClick={() => props.setActivePage('verbs')}>I want to look up verbs!</button>
+						<button type="button" className="btn btn-outline-success mx-3" onClick={() => props.setActivePage('practice')}>I want to practice conjugating!</button>
 					</div>
 				</div>
 			</div>
