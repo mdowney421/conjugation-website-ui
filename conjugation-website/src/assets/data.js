@@ -2,37 +2,57 @@ const data = [
   {
     verb: 'ser',
 		translation: 'to be (essential / permanent quality)',
-		present: {
+		presente: {
+			tenseName: 'presente',
 			isRegular: false,
-			conjugations: ['soy', 'eres', 'es', 'somos', 'sois', 'son']
+			conjugations: ['soy', 'eres', 'es', 'somos', 'son', 'sois']
 		},
-		simplePast: {
+		preteritoIndefinido: {
+			tenseName: 'pretérito indefinido',
 			isRegular: false,
-			conjugations: ['fui', 'fuiste', 'fue', 'fuimos', 'fuisteis', 'fueron']
+			conjugations: ['fui', 'fuiste', 'fue', 'fuimos', 'fueron', 'fuisteis']
+		}
+  },
+	{
+    verb: 'hablar',
+		translation: 'to speak',
+		presente: {
+			tenseName: 'presente',
+			isRegular: true,
+			conjugations: ['hablo', 'hablas', 'habla', 'hablamos', 'hablan', 'habláis']
+		},
+		preteritoIndefinido: {
+			tenseName: 'pretérito indefinido',
+			isRegular: true,
+			conjugations: ['hablé', 'hablaste', 'habló', 'hablamos', 'hablaron', 'hablasteis']
 		}
   },
 	{
     verb: 'haber',
 		translation: 'to have (to do something, auxilliary verb)',
-		present: {
+		presente: {
+			tenseName: 'presente',
 			isRegular: false,
-			conjugations: ['he', 'has', 'ha', 'hemos', 'habéis', 'han']
+			conjugations: ['he', 'has', 'ha', 'hemos', 'han', 'habéis']
 		},
-		simplePast: {
+		preteritoIndefinido: {
+			tenseName: 'pretérito indefinido',
 			isRegular: false,
-			conjugations: ['hube', 'hubiste', 'hubo', 'hubimos', 'hubisteis', 'hubieron']
+			conjugations: ['hube', 'hubiste', 'hubo', 'hubimos', 'hubieron', 'hubisteis']
 		}
   },
 	{
 		verb: 'estar',
 		translation: 'to be (health / location / state)',
-		present: {
+		presente: {
+			tenseName: 'presente',
 			isRegular: false,
-			conjugations: ['estoy', 'estás', 'está', 'estamos', 'estáis', 'están']
+			conjugations: ['estoy', 'estás', 'está', 'estamos', 'están', 'estáis']
 		},
-		simplePast: {
+		preteritoIndefinido: {
+			tenseName: 'pretérito indefinido',
 			isRegular: false,
-			conjugations: ['estuve', 'estuviste', 'estuvo', 'estuvimos', 'estuvisteis', 'estuvieron']
+			conjugations: ['estuve', 'estuviste', 'estuvo', 'estuvimos', 'estuvieron', 'estuvisteis']
 		}
 	}
 ]
