@@ -1,0 +1,382 @@
+{
+    "indicative": {
+        "present": {
+            "ar": [
+                "o",
+                "as",
+                "a",
+                "amos",
+                "an",
+                "áis"
+            ],
+            "er": [
+                "o",
+                "es",
+                "e",
+                "emos",
+                "en",
+                "éis"
+            ],
+            "ir": [
+                "o",
+                "es",
+                "e",
+                "imos",
+                "en",
+                "ís"
+            ]
+        },
+        "present perfect": {
+            "ar": [
+                "he ",
+                "has ",
+                "ha ",
+                "hemos ",
+                "han ",
+                "habéis "
+            ],
+            "er": [
+                "he ",
+                "has ",
+                "ha ",
+                "hemos ",
+                "han ",
+                "habéis "
+            ],
+            "ir": [
+                "he ",
+                "has ",
+                "ha ",
+                "hemos ",
+                "han ",
+                "habéis "
+            ]
+        },
+        "preterite": {
+            "ar": [
+                "é",
+                "aste",
+                "ó",
+                "amos",
+                "aron",
+                "asteis"
+            ],
+            "er": [
+                "í",
+                "iste",
+                "ió",
+                "imos",
+                "ieron",
+                "isteis"
+            ],
+            "ir": [
+                "í",
+                "iste",
+                "ió",
+                "imos",
+                "ieron",
+                "isteis"
+            ]
+        },
+        "preterite perfect": {
+            "ar": [
+                "hube ",
+                "hubiste ",
+                "hubo ",
+                "hubimos ",
+                "hubieron ",
+                "hubisteis "
+            ],
+            "er": [
+                "hube ",
+                "hubiste ",
+                "hubo ",
+                "hubimos ",
+                "hubieron ",
+                "hubisteis "
+            ],
+            "ir": [
+                "hube ",
+                "hubiste ",
+                "hubo ",
+                "hubimos ",
+                "hubieron ",
+                "hubisteis "
+            ]
+        },
+        "imperfect": {
+            "ar": [
+                "aba",
+                "abas",
+                "aba",
+                "ábamos",
+                "aban",
+                "abais"
+            ],
+            "er": [
+                "ía",
+                "ías",
+                "ía",
+                "íamos",
+                "ían",
+                "íais"
+            ],
+            "ir": [
+                "ía",
+                "ías",
+                "ía",
+                "íamos",
+                "ían",
+                "íais"
+            ]
+        },
+        "pluperfect": {
+            "ar": [
+                "había ",
+                "habías ",
+                "había ",
+                "habíamos ",
+                "habían ",
+                "habíais "
+            ],
+            "er": [
+                "había ",
+                "habías ",
+                "había ",
+                "habíamos ",
+                "habían ",
+                "habíais "
+            ],
+            "ir": [
+                "había ",
+                "habías ",
+                "había ",
+                "habíamos ",
+                "habían ",
+                "habíais "
+            ]
+        },
+        "conditional": {
+            "ar": [
+                "ía",
+                "ías",
+                "ía",
+                "íamos",
+                "ían",
+                "íais"
+            ],
+            "er": [
+                "ía",
+                "ías",
+                "ía",
+                "íamos",
+                "ían",
+                "íais"
+            ],
+            "ir": [
+                "ía",
+                "ías",
+                "ía",
+                "íamos",
+                "ían",
+                "íais"
+            ]
+        },
+        "conditional perfect": {
+            "ar": [
+                "habría ",
+                "habrías ",
+                "habría ",
+                "habríamos ",
+                "habrían ",
+                "habríais "
+            ],
+            "er": [
+                "habría ",
+                "habrías ",
+                "habría ",
+                "habríamos ",
+                "habrían ",
+                "habríais "
+            ],
+            "ir": [
+                "habría ",
+                "habrías ",
+                "habría ",
+                "habríamos ",
+                "habrían ",
+                "habríais "
+            ]
+        },
+        "future": {
+            "ar": [
+                "é",
+                "ás",
+                "á",
+                "emos",
+                "án",
+                "éis"
+            ],
+            "er": [
+                "é",
+                "ás",
+                "á",
+                "emos",
+                "án",
+                "éis"
+            ],
+            "ir": [
+                "é",
+                "ás",
+                "á",
+                "emos",
+                "án",
+                "éis"
+            ]
+        },
+        "future perfect": {
+            "ar": [
+                "habré ",
+                "habrás ",
+                "habrá ",
+                "habremos ",
+                "habrán ",
+                "habréis "
+            ],
+            "er": [
+                "habré ",
+                "habrás ",
+                "habrá ",
+                "habremos ",
+                "habrán ",
+                "habréis "
+            ],
+            "ir": [
+                "habré ",
+                "habrás ",
+                "habrá ",
+                "habremos ",
+                "habrán ",
+                "habréis "
+            ]
+        }
+    },
+    "subjunctive": {
+        "present": {
+            "ar": [
+                "e",
+                "es",
+                "e",
+                "emos",
+                "en",
+                "éis"
+            ],
+            "er": [
+                "a",
+                "as",
+                "a",
+                "amos",
+                "an",
+                "áis"
+            ],
+            "ir": [
+                "a",
+                "as",
+                "a",
+                "amos",
+                "an",
+                "áis"
+            ]
+        },
+        "present perfect": {
+            "ar": [
+                "haya ",
+                "hayas ",
+                "haya ",
+                "hayamos ",
+                "hayan ",
+                "hayáis "
+            ],
+            "er": [
+                "haya ",
+                "hayas ",
+                "haya ",
+                "hayamos ",
+                "hayan ",
+                "hayáis "
+            ],
+            "ir": [
+                "haya ",
+                "hayas ",
+                "haya ",
+                "hayamos ",
+                "hayan ",
+                "hayáis "
+            ]
+        },
+        "imperfect": {
+            "ar": [
+                "ra",
+                "ras",
+                "ra",
+                "ramos",
+                "ran",
+                "rais"
+            ],
+            "er": [
+                "ra",
+                "ras",
+                "ra",
+                "ramos",
+                "ran",
+                "rais"
+            ],
+            "ir": [
+                "ra",
+                "ras",
+                "ra",
+                "ramos",
+                "ran",
+                "rais"
+            ]
+        },
+        "pluperfect": {
+            "ar": [
+                "hubiera ",
+                "hubieras ",
+                "hubiera ",
+                "hubiéramos ",
+                "hubieran ",
+                "hubierais "
+            ],
+            "er": [
+                "hubiera ",
+                "hubieras ",
+                "hubiera ",
+                "hubiéramos ",
+                "hubieran ",
+                "hubierais "
+            ],
+            "ir": [
+                "hubiera ",
+                "hubieras ",
+                "hubiera ",
+                "hubiéramos ",
+                "hubieran ",
+                "hubierais "
+            ]
+        }
+    },
+    "participle": {
+        "present": {
+            "ar": "ando",
+            "er": "iendo",
+            "ir": "iendo"
+        },
+        "past": {
+            "ar": "ado",
+            "er": "ido",
+            "ir": "ido"
+        }
+    }
+}
