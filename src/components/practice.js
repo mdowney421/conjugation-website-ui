@@ -7,6 +7,21 @@ const PracticePage = (props) => {
   const [randomVerb, setRandomVerb] = useState();
   const [tenseSelection, setTenseSelection] = useState([]);
   const [questionNumber, setQuestionNumber] = useState(1);
+  const [isCorrectAnswer, setIsCorrectAnswer] = useState("");
+  const [userGuess, setUserGuess] = useState("");
+
+  const tenseList = [
+    "Present",
+    "Preterite",
+    "Future",
+    "Imperfect",
+    "Conditional",
+    "Present Perfect",
+    "Future Perfect",
+    "Past Perfect",
+    "Preterite (Archaic)",
+    "Conditional Perfect",
+  ];
 
   const handleFirstQuestion = (userResponse) => {
     setUseIrregularVerbs(userResponse);
@@ -29,6 +44,19 @@ const PracticePage = (props) => {
     }
   };
 
+  const handleInputChange = (event) => {
+    setUserGuess(event.target.value);
+  };
+
+  const handleSubmitGuess = (event) => {
+    event.preventDefault();
+    if (userGuess === randomVerb?.translation) {
+      setIsCorrectAnswer("true");
+    } else {
+      setIsCorrectAnswer("false");
+    }
+  };
+
   const fetchRandomVerbConjugation = async () => {
     try {
       const tensesParam = tenseSelection.join(",");
@@ -44,6 +72,7 @@ const PracticePage = (props) => {
         }
       );
       setRandomVerb(response.data[0]);
+      setQuestionNumber(0);
     } catch (error) {
       console.error("error fetching random verb conjugation: ", error);
     }
@@ -109,28 +138,22 @@ const PracticePage = (props) => {
             </p>
             <div className="row">
               <div className="col">
-                <button
-                  type="button"
-                  className={
-                    tenseSelection.includes("Present")
-                      ? "btn btn-success mx-3"
-                      : "btn btn-outline-success mx-3"
-                  }
-                  onClick={() => handleThirdQuestion("Present")}
-                >
-                  Present
-                </button>
-                <button
-                  type="button"
-                  className={
-                    tenseSelection.includes("Preterite")
-                      ? "btn btn-success mx-3"
-                      : "btn btn-outline-success mx-3"
-                  }
-                  onClick={() => handleThirdQuestion("Preterite")}
-                >
-                  Preterite
-                </button>
+                {tenseList.map((tense) => {
+                  return (
+                    <button
+                      type="button"
+                      className={
+                        tenseSelection.includes(tense)
+                          ? "btn btn-success mx-3"
+                          : "btn btn-outline-success mx-3"
+                      }
+                      onClick={() => handleThirdQuestion(tense)}
+                      key={tense}
+                    >
+                      {tense}
+                    </button>
+                  );
+                })}
               </div>
             </div>
             <div className="row">
@@ -145,36 +168,43 @@ const PracticePage = (props) => {
               </div>
             </div>
           </div>
-        ) : null}
-        <div className="constainer d-flex justify-content-center">
-          <div className="row">
-            <div className="col">
-              <p className="display-5">
-                Translate {randomVerb?.infinitive ?? null}
-              </p>
-              <p className="display-5">
-                in the {randomVerb?.form ?? null} form
-              </p>
-              <p className="display-5">
-                using the {randomVerb?.tense_english ?? null} tense
-              </p>
-              <form>
-                <div className="form-group">
-                  {/* <label for="conjugationGuess">RANDOMLY GENERATED VERB</label> */}
-                  <input
-                    type="conjugation"
-                    className="form-control"
-                    id="conjugationGuess"
-                    placeholder="Enter your conjugation"
-                  />
-                </div>
-                <button type="submit" className="btn btn-outline-success">
-                  Check Answer
-                </button>
-              </form>
+        ) : (
+          <div className="constainer d-flex justify-content-center">
+            <div className="row">
+              <div className="col">
+                <p className="display-5">
+                  Translate {randomVerb?.infinitive ?? null}
+                </p>
+                <p className="display-5">
+                  in the {randomVerb?.form ?? null} form
+                </p>
+                <p className="display-5">
+                  using the {randomVerb?.tense_english ?? null} tense
+                </p>
+                <form onSubmit={handleSubmitGuess}>
+                  <div className="form-group">
+                    {/* <label for="conjugationGuess">RANDOMLY GENERATED VERB</label> */}
+                    <input
+                      type="conjugation"
+                      className="form-control"
+                      id="conjugationGuess"
+                      placeholder="Enter your conjugation"
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <button type="submit" className="btn btn-outline-success">
+                    Check Answer
+                  </button>
+                </form>
+                {isCorrectAnswer === "true" ? (
+                  <p className="display-5">Correct!</p>
+                ) : isCorrectAnswer === "false" ? (
+                  <p className="display-5">Incorrect!</p>
+                ) : null}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );
