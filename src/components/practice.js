@@ -11,16 +11,16 @@ const PracticePage = (props) => {
   const [userGuess, setUserGuess] = useState("");
 
   const tenseList = [
-    "Present",
-    "Preterite",
-    "Future",
-    "Imperfect",
-    "Conditional",
-    "Present Perfect",
-    "Future Perfect",
-    "Past Perfect",
-    "Preterite (Archaic)",
-    "Conditional Perfect",
+    "present",
+    "preterite",
+    "future",
+    "imperfect",
+    "conditional",
+    "present perfect",
+    "future perfect",
+    "past perfect",
+    "preterite (archaic)",
+    "conditional perfect",
   ];
 
   const handleFirstQuestion = (userResponse) => {
@@ -50,7 +50,7 @@ const PracticePage = (props) => {
 
   const handleSubmitGuess = (event) => {
     event.preventDefault();
-    if (userGuess === randomVerb?.translation) {
+    if (userGuess === randomVerb?.form_spanish) {
       setIsCorrectAnswer("true");
     } else {
       setIsCorrectAnswer("false");
@@ -150,7 +150,7 @@ const PracticePage = (props) => {
                       onClick={() => handleThirdQuestion(tense)}
                       key={tense}
                     >
-                      {tense}
+                      {tense.charAt(0).toUpperCase() + tense.slice(1)}
                     </button>
                   );
                 })}
@@ -169,18 +169,10 @@ const PracticePage = (props) => {
             </div>
           </div>
         ) : (
-          <div className="constainer d-flex justify-content-center">
+          <div className="container d-flex justify-content-center">
             <div className="row">
               <div className="col">
-                <p className="display-5">
-                  Translate {randomVerb?.infinitive ?? null}
-                </p>
-                <p className="display-5">
-                  in the {randomVerb?.form ?? null} form
-                </p>
-                <p className="display-5">
-                  using the {randomVerb?.tense_english ?? null} tense
-                </p>
+                <p className="display-5">{randomVerb?.form_english ?? null}</p>
                 <form onSubmit={handleSubmitGuess}>
                   <div className="form-group">
                     {/* <label for="conjugationGuess">RANDOMLY GENERATED VERB</label> */}
