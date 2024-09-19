@@ -2,10 +2,10 @@ import { useState } from "react";
 import "./App.css";
 import "./../node_modules/bootstrap/dist/css/bootstrap.css";
 import "./../node_modules/bootstrap/dist/css/bootstrap-utilities.css";
-import Navbar from "./components/navbar";
-import HomePage from "./components/homepage";
+import Navbar from "./components/navBar";
+import LandingPage from "./components/landingPage";
 import VerbsPage from "./components/verbs";
-import PracticePage from "./components/practice";
+import PracticePage from "./components/practice/practice";
 
 const App = () => {
   const [activePage, setActivePage] = useState("home");
@@ -15,7 +15,7 @@ const App = () => {
       <Navbar setActivePage={setActivePage} />
 
       {activePage === "home" ? (
-        <HomePage setActivePage={setActivePage} />
+        <LandingPage setActivePage={setActivePage} />
       ) : null}
 
       {activePage === "verbs" ? <VerbsPage /> : null}

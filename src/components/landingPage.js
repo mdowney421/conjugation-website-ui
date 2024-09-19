@@ -1,7 +1,6 @@
 import React from "react";
-import axios from "axios";
 
-const HomePage = (props) => {
+const LandingPage = (props) => {
   return (
     <>
       <div className="jumbotron text-center">
@@ -45,4 +44,4 @@ const HomePage = (props) => {
   );
 };
 
-export default HomePage;
+export default LandingPage;
