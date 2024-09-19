@@ -26,17 +26,17 @@ const PracticePage = () => {
     "conditional perfect",
   ];
 
-  const handleFirstQuestion = (userResponse) => {
+  const handleIrregularityQuestion = (userResponse) => {
     setUseIrregularVerbs(userResponse);
     setQuestionNumber(2);
   };
 
-  const handleSecondQuestion = (userResponse) => {
+  const handleVosotrosQuestion = (userResponse) => {
     setUseVosotros(userResponse);
     setQuestionNumber(3);
   };
 
-  const handleThirdQuestion = (userResponse) => {
+  const handleTenseQuestion = (userResponse) => {
     if (tenseSelection.includes(userResponse)) {
       setTenseSelection(
         tenseSelection.filter((tense) => tense !== userResponse)
@@ -63,6 +63,8 @@ const PracticePage = () => {
     );
     setRandomVerb(verb);
     setQuestionNumber(0);
+    setIsCorrectAnswer("");
+    setUserGuess("");
   };
 
   return (
@@ -75,16 +77,16 @@ const PracticePage = () => {
       {questionNumber === 1 && (
         <VerbTypeSelection
           prompt="Do you want irregular verbs?"
-          onYes={() => handleFirstQuestion(true)}
-          onNo={() => handleFirstQuestion(false)}
+          onYes={() => handleIrregularityQuestion(true)}
+          onNo={() => handleIrregularityQuestion(false)}
         />
       )}
 
       {questionNumber === 2 && (
         <VerbTypeSelection
           prompt='Do you want to include "vosotros"?'
-          onYes={() => handleSecondQuestion(true)}
-          onNo={() => handleSecondQuestion(false)}
+          onYes={() => handleVosotrosQuestion(true)}
+          onNo={() => handleVosotrosQuestion(false)}
         />
       )}
 
@@ -92,7 +94,7 @@ const PracticePage = () => {
         <TenseSelection
           tenseList={tenseList}
           tenseSelection={tenseSelection}
-          handleThirdQuestion={handleThirdQuestion}
+          handleThirdQuestion={handleTenseQuestion}
           fetchRandomVerbConjugation={fetchRandomVerbConjugation}
         />
       )}
@@ -103,6 +105,8 @@ const PracticePage = () => {
           handleInputChange={handleInputChange}
           handleSubmitGuess={handleSubmitGuess}
           isCorrectAnswer={isCorrectAnswer}
+          fetchRandomVerbConjugation={fetchRandomVerbConjugation}
+          userGuess={userGuess}
         />
       )}
     </div>

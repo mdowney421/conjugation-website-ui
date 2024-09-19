@@ -3,6 +3,8 @@ const ConjugationInput = ({
   handleInputChange,
   handleSubmitGuess,
   isCorrectAnswer,
+  fetchRandomVerbConjugation,
+  userGuess,
 }) => {
   return (
     <div className="container d-flex justify-content-center">
@@ -17,16 +19,23 @@ const ConjugationInput = ({
                 id="conjugationGuess"
                 placeholder="Enter your conjugation"
                 onChange={handleInputChange}
+                value={userGuess}
               />
             </div>
-            <button type="submit" className="btn btn-outline-success">
+            <button type="submit" className="btn btn-outline-success mt-4">
               Check Answer
+            </button>
+            <button
+              className="btn btn-outline-success mt-4"
+              onClick={fetchRandomVerbConjugation}
+            >
+              Next Verb
             </button>
           </form>
           {isCorrectAnswer === "true" ? (
             <p className="display-5">Correct!</p>
           ) : isCorrectAnswer === "false" ? (
-            <p className="display-5">Incorrect!</p>
+            <p className="display-5">Try again!</p>
           ) : null}
         </div>
       </div>
