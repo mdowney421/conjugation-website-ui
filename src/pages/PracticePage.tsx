@@ -1,14 +1,10 @@
 import { useState } from "react";
 import PageHeader from "../components/PageHeader";
 import VerbTypeSelection from "../features/practice/VerbTypeSelection";
-import ChoiceSelection from "../features/practice/ChoiceSelection";
+import TenseSelection from "../features/practice/TenseSelection";
 import ConjugationInput from "../features/practice/ConjugationInput";
 import { fetchRandomVerbConjugation as fetchVerb } from "../languages/spanish/api";
 import type { Mood, Polarity, Tense, VerbConjugation } from "../languages/spanish/types";
-
-type MoodChoice = Mood | "both";
-type PolarityChoice = Polarity | "both";
-type TenseChoice = Tense | "all";
 
 const TENSES: Tense[] = [
   "present",
@@ -38,8 +34,7 @@ const INDICATIVE_ONLY_TENSES: Tense[] = [
   "preterite_perfect",
 ];
 // The imperative doesn't have indicative/subjunctive forms -- it has
-// affirmative/negative ones instead, so when this specific tense is
-// chosen, step 4 asks about polarity instead of mood.
+// affirmative/negative ones instead, resolved by resolvePolarity below.
 const IMPERATIVE_TENSE: Tense = "imperative";
 
 const PracticePage = () => {
@@ -47,9 +42,7 @@ const PracticePage = () => {
     boolean | undefined
   >();
   const [useVosotros, setUseVosotros] = useState<boolean | undefined>();
-  const [tenseChoice, setTenseChoice] = useState<TenseChoice | undefined>();
-  const [moodChoice, setMoodChoice] = useState<MoodChoice | undefined>();
-  const [polarityChoice, setPolarityChoice] = useState<PolarityChoice | undefined>();
+  const [tenseSelection, setTenseSelection] = useState<Tense[]>([]);
   const [randomVerb, setRandomVerb] = useState<VerbConjugation | null>(null);
   const [questionNumber, setQuestionNumber] = useState<number>(1);
   const [isCorrectAnswer, setIsCorrectAnswer] = useState<string>("");
@@ -68,67 +61,40 @@ const PracticePage = () => {
     setQuestionNumber(3);
   };
 
-  const handleTenseSelection = (choice: TenseChoice) => {
-    setTenseChoice(choice);
-    if ((INDICATIVE_ONLY_TENSES as TenseChoice[]).includes(choice)) {
-      // Preterite has no subjunctive form here, so the mood question
-      // would be moot -- skip straight to the quiz.
-      fetchRandomVerbConjugation(undefined, undefined, choice);
-      return;
-    }
-    setQuestionNumber(4);
+  const handleToggleTense = (tense: Tense) => {
+    setTenseSelection((prev) =>
+      prev.includes(tense)
+        ? prev.filter((selected) => selected !== tense)
+        : [...prev, tense],
+    );
   };
 
-  const handleMoodSelection = (choice: MoodChoice) => {
-    setMoodChoice(choice);
-    fetchRandomVerbConjugation(undefined, choice);
-  };
+  const resolveTense = (): Tense =>
+    tenseSelection[Math.floor(Math.random() * tenseSelection.length)];
 
-  const handlePolaritySelection = (choice: PolarityChoice) => {
-    setPolarityChoice(choice);
-    fetchRandomVerbConjugation(undefined, undefined, undefined, choice);
-  };
-
-  const resolveTense = (choice?: TenseChoice): Tense => {
-    const effective = choice ?? tenseChoice;
-    if (!effective || effective === "all") {
-      return TENSES[Math.floor(Math.random() * TENSES.length)];
-    }
-    return effective;
-  };
-
-  const resolveMood = (
-    resolvedTense: Tense,
-    choice?: MoodChoice,
-  ): Mood => {
-    // Preterite has no subjunctive form in this app, so any round
-    // that lands on it always uses the indicative. Same story for the
-    // imperative, which doesn't have a mood axis at all.
-    if ((INDICATIVE_ONLY_TENSES as Tense[]).includes(resolvedTense) || resolvedTense === IMPERATIVE_TENSE) {
+  const resolveMood = (resolvedTense: Tense): Mood => {
+    // Preterite (and its INDICATIVE_ONLY_TENSES siblings) have no
+    // subjunctive form in this app, so any round that lands on one of
+    // them always uses the indicative. Same story for the imperative,
+    // which doesn't have a mood axis at all. Every other tense is
+    // randomized so a multi-tense practice session sees both moods.
+    if (
+      (INDICATIVE_ONLY_TENSES as Tense[]).includes(resolvedTense) ||
+      resolvedTense === IMPERATIVE_TENSE
+    ) {
       return "indicative";
     }
-    const effective = choice ?? moodChoice;
-    if (effective === "both") {
-      return Math.random() < 0.5 ? "indicative" : "subjunctive";
-    }
-    return effective === "subjunctive" ? "subjunctive" : "indicative";
+    return Math.random() < 0.5 ? "indicative" : "subjunctive";
   };
 
-  const resolvePolarity = (
-    resolvedTense: Tense,
-    choice?: PolarityChoice,
-  ): Polarity => {
+  const resolvePolarity = (resolvedTense: Tense): Polarity => {
     // Polarity only means anything for the imperative -- the backend
     // ignores it for every other tense, so the exact value here
     // doesn't matter when resolvedTense isn't "imperative".
     if (resolvedTense !== IMPERATIVE_TENSE) {
       return "affirmative";
     }
-    const effective = choice ?? polarityChoice;
-    if (effective === "both") {
-      return Math.random() < 0.5 ? "affirmative" : "negative";
-    }
-    return effective === "negative" ? "negative" : "affirmative";
+    return Math.random() < 0.5 ? "affirmative" : "negative";
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,19 +121,14 @@ const PracticePage = () => {
     }
   };
 
-  const fetchRandomVerbConjugation = async (
-    vosotrosOverride?: boolean,
-    moodOverride?: MoodChoice,
-    tenseOverride?: TenseChoice,
-    polarityOverride?: PolarityChoice,
-  ) => {
-    const tense = resolveTense(tenseOverride);
+  const fetchRandomVerbConjugation = async () => {
+    const tense = resolveTense();
     const verb = await fetchVerb(
       useIrregularVerbs,
-      vosotrosOverride ?? useVosotros,
-      resolveMood(tense, moodOverride),
+      useVosotros,
+      resolveMood(tense),
       tense,
-      resolvePolarity(tense, polarityOverride),
+      resolvePolarity(tense),
     );
     setRandomVerb(verb ?? null);
     setQuestionNumber(0);
@@ -178,7 +139,7 @@ const PracticePage = () => {
     setHasMissed(false);
   };
 
-  const isSetupStep = questionNumber >= 1 && questionNumber <= 4;
+  const isSetupStep = questionNumber >= 1 && questionNumber <= 3;
 
   return (
     <>
@@ -190,7 +151,7 @@ const PracticePage = () => {
       <div className="practice-card">
         {isSetupStep && (
           <div className="step-progress">
-            {[1, 2, 3, 4].map((step) => (
+            {[1, 2, 3].map((step) => (
               <span
                 key={step}
                 className={`step-dot${
@@ -222,47 +183,11 @@ const PracticePage = () => {
         )}
 
         {questionNumber === 3 && (
-          <ChoiceSelection
-            title="Which tense do you want to practice?"
-            options={[
-              { value: "present", label: "Present" },
-              { value: "preterite", label: "Preterite" },
-              { value: "imperfect", label: "Imperfect" },
-              { value: "perfect", label: "Perfect" },
-              { value: "future", label: "Future" },
-              { value: "future_perfect", label: "Future Perfect" },
-              { value: "conditional", label: "Conditional" },
-              { value: "conditional_perfect", label: "Conditional Perfect" },
-              { value: "preterite_perfect", label: "Preterite Perfect" },
-              { value: "pluperfect", label: "Pluperfect" },
-              { value: "imperative", label: "Imperative" },
-              { value: "all", label: "All" },
-            ]}
-            onSelect={handleTenseSelection}
-          />
-        )}
-
-        {questionNumber === 4 && tenseChoice === IMPERATIVE_TENSE && (
-          <ChoiceSelection
-            title="Which form do you want to practice?"
-            options={[
-              { value: "affirmative", label: "Affirmative" },
-              { value: "negative", label: "Negative" },
-              { value: "both", label: "Both" },
-            ]}
-            onSelect={handlePolaritySelection}
-          />
-        )}
-
-        {questionNumber === 4 && tenseChoice !== IMPERATIVE_TENSE && (
-          <ChoiceSelection
-            title="Which mood do you want to practice?"
-            options={[
-              { value: "indicative", label: "Indicative" },
-              { value: "subjunctive", label: "Subjunctive" },
-              { value: "both", label: "Both" },
-            ]}
-            onSelect={handleMoodSelection}
+          <TenseSelection
+            tenseList={TENSES}
+            tenseSelection={tenseSelection}
+            onToggleTense={handleToggleTense}
+            onConfirm={fetchRandomVerbConjugation}
           />
         )}
 

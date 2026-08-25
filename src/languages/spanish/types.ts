@@ -15,6 +15,20 @@ export type Tense =
 
 export type Polarity = "affirmative" | "negative";
 
+export const TENSE_LABELS: Record<Tense, string> = {
+  present: "Present",
+  preterite: "Preterite",
+  imperfect: "Imperfect",
+  perfect: "Perfect",
+  future: "Future",
+  future_perfect: "Future Perfect",
+  conditional: "Conditional",
+  conditional_perfect: "Conditional Perfect",
+  preterite_perfect: "Preterite Perfect",
+  pluperfect: "Pluperfect",
+  imperative: "Imperative",
+};
+
 export type VerbEntry = [string, string];
 
 export type VerbConjugation = {

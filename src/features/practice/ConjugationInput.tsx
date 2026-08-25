@@ -1,21 +1,8 @@
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
 import Button from "../../components/Button";
 import QuestionCard from "../../components/QuestionCard";
-import type { Tense, VerbConjugation } from "../../languages/spanish/types";
-
-const TENSE_LABELS: Record<Tense, string> = {
-  present: "Present",
-  preterite: "Preterite",
-  imperfect: "Imperfect",
-  perfect: "Perfect",
-  future: "Future",
-  future_perfect: "Future Perfect",
-  conditional: "Conditional",
-  conditional_perfect: "Conditional Perfect",
-  preterite_perfect: "Preterite Perfect",
-  pluperfect: "Pluperfect",
-  imperative: "Imperative",
-};
+import { TENSE_LABELS } from "../../languages/spanish/types";
+import type { VerbConjugation } from "../../languages/spanish/types";
 
 type ConjugationInputProps = {
   randomVerb: VerbConjugation | null;

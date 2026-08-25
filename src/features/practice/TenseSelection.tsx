@@ -1,21 +1,20 @@
 import Button from "../../components/Button";
 import QuestionCard from "../../components/QuestionCard";
+import { TENSE_LABELS } from "../../languages/spanish/types";
+import type { Tense } from "../../languages/spanish/types";
 
 type TenseSelectionProps = {
-  tenseList: string[];
-  tenseSelection: string[];
-  handleThirdQuestion: (tense: string) => void;
-  fetchRandomVerbConjugation: () => void;
+  tenseList: Tense[];
+  tenseSelection: Tense[];
+  onToggleTense: (tense: Tense) => void;
+  onConfirm: () => void;
 };
-
-const capitalize = (value: string) =>
-  value.charAt(0).toUpperCase() + value.slice(1);
 
 const TenseSelection = ({
   tenseList,
   tenseSelection,
-  handleThirdQuestion,
-  fetchRandomVerbConjugation,
+  onToggleTense,
+  onConfirm,
 }: TenseSelectionProps) => {
   return (
     <QuestionCard title="Which tenses would you like to practice?">
@@ -25,16 +24,13 @@ const TenseSelection = ({
             key={tense}
             type="button"
             className={`chip${tenseSelection.includes(tense) ? " selected" : ""}`}
-            onClick={() => handleThirdQuestion(tense)}
+            onClick={() => onToggleTense(tense)}
           >
-            {capitalize(tense)}
+            {TENSE_LABELS[tense]}
           </button>
         ))}
       </div>
-      <Button
-        disabled={tenseSelection.length === 0}
-        onClick={fetchRandomVerbConjugation}
-      >
+      <Button disabled={tenseSelection.length === 0} onClick={onConfirm}>
         Let's conjugate!
       </Button>
     </QuestionCard>
