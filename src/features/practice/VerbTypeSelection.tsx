@@ -1,3 +1,6 @@
+import Button from "../../components/Button";
+import QuestionCard from "../../components/QuestionCard";
+
 type VerbTypeSelectionProps = {
   prompt: string;
   onYes: () => void;
@@ -6,17 +9,14 @@ type VerbTypeSelectionProps = {
 
 const VerbTypeSelection = ({ prompt, onYes, onNo }: VerbTypeSelectionProps) => {
   return (
-    <div className="question-card">
-      <h2>{prompt}</h2>
+    <QuestionCard title={prompt}>
       <div className="choice-row">
-        <button type="button" className="btn btn-primary" onClick={onYes}>
-          Yes
-        </button>
-        <button type="button" className="btn btn-outline" onClick={onNo}>
+        <Button onClick={onYes}>Yes</Button>
+        <Button variant="outline" onClick={onNo}>
           No
-        </button>
+        </Button>
       </div>
-    </div>
+    </QuestionCard>
   );
 };
 

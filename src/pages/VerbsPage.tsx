@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import PageHeader from "../components/PageHeader";
+import EmptyState from "../components/EmptyState";
 import { fetchAllVerbs } from "../languages/spanish/api";
 import type { VerbEntry } from "../languages/spanish/types";
 
@@ -25,10 +27,10 @@ const VerbsPage = () => {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Verbs</h1>
-        <p>Browse the full list and find the conjugation you need.</p>
-      </div>
+      <PageHeader
+        title="Verbs"
+        subtitle="Browse the full list and find the conjugation you need."
+      />
 
       <div className="verbs-toolbar">
         <input
@@ -43,9 +45,9 @@ const VerbsPage = () => {
 
       <div className="verbs-list">
         {isLoading ? (
-          <div className="empty-state">Loading verbs...</div>
+          <EmptyState>Loading verbs...</EmptyState>
         ) : filteredVerbs.length === 0 ? (
-          <div className="empty-state">No verbs found.</div>
+          <EmptyState>No verbs found.</EmptyState>
         ) : (
           filteredVerbs.map(([spanish, english], index) => (
             <Link

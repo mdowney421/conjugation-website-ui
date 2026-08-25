@@ -1,10 +1,12 @@
+import PageHeader from "../components/PageHeader";
+
 const AboutPage = () => {
   return (
     <>
-      <div className="page-header">
-        <h1>About The ConjuGator</h1>
-        <p>A free tool for learning Spanish verb conjugation.</p>
-      </div>
+      <PageHeader
+        title="About The ConjuGator"
+        subtitle="A free tool for learning Spanish verb conjugation."
+      />
 
       <div className="about-content">
         <h2>What it does</h2>

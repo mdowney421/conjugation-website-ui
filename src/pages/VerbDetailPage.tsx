@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import PageHeader from "../components/PageHeader";
+import EmptyState from "../components/EmptyState";
 import { fetchVerbConjugation } from "../languages/spanish/api";
 import type { VerbConjugationTable } from "../languages/spanish/types";
 
@@ -57,19 +59,17 @@ const VerbDetailPage = () => {
 
   return (
     <>
-      <div className="page-header">
-        <Link to="/verbs" className="back-link">
-          ← Back to verbs
-        </Link>
-        <h1>{indicativeTable?.infinitive_spanish ?? verb}</h1>
-        <p>{indicativeTable?.infinitive_english ?? "Present tense conjugations"}</p>
-      </div>
+      <PageHeader
+        title={indicativeTable?.infinitive_spanish ?? verb ?? ""}
+        subtitle={indicativeTable?.infinitive_english ?? "Present tense conjugations"}
+        backTo={{ to: "/verbs", label: "← Back to verbs" }}
+      />
 
       <div className="verb-detail">
         {isLoading ? (
-          <div className="empty-state">Loading conjugations...</div>
+          <EmptyState>Loading conjugations...</EmptyState>
         ) : notFound ? (
-          <div className="empty-state">Couldn't find that verb.</div>
+          <EmptyState>Couldn't find that verb.</EmptyState>
         ) : (
           <>
             {indicativeTable && (

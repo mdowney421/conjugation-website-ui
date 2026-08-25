@@ -1,4 +1,6 @@
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
+import Button from "../../components/Button";
+import QuestionCard from "../../components/QuestionCard";
 import type { VerbConjugation } from "../../languages/spanish/types";
 
 type ConjugationInputProps = {
@@ -39,7 +41,7 @@ const ConjugationInput = ({
   }, [randomVerb, isCorrect]);
 
   return (
-    <div className="question-card">
+    <QuestionCard>
       <div className="quiz-prompt">Conjugate</div>
       {randomVerb?.mood_english && (
         <div className={`quiz-mood ${randomVerb.mood_english}`}>
@@ -67,30 +69,21 @@ const ConjugationInput = ({
         />
 
         <div className="quiz-actions">
-          {!isCorrect && (
-            <button type="submit" className="btn btn-primary">
-              Check Answer
-            </button>
-          )}
+          {!isCorrect && <Button type="submit">Check Answer</Button>}
 
           {hasMissed && !showHint && !isCorrect && (
-            <button
-              type="button"
-              className="btn btn-ghost"
-              onClick={onShowHint}
-            >
+            <Button variant="ghost" onClick={onShowHint}>
               Show Hint
-            </button>
+            </Button>
           )}
 
           {(hasMissed || isCorrect) && (
-            <button
-              type="button"
-              className="btn btn-outline"
+            <Button
+              variant="outline"
               onClick={() => fetchRandomVerbConjugation()}
             >
               Next Verb
-            </button>
+            </Button>
           )}
         </div>
       </form>
@@ -106,7 +99,7 @@ const ConjugationInput = ({
           Hint: the infinitive is <strong>{randomVerb.infinitive_spanish}</strong>
         </div>
       )}
-    </div>
+    </QuestionCard>
   );
 };
 

@@ -1,3 +1,6 @@
+import Button from "../../components/Button";
+import QuestionCard from "../../components/QuestionCard";
+
 export type MoodChoice = "indicative" | "subjunctive" | "both";
 
 type MoodSelectionProps = {
@@ -6,32 +9,19 @@ type MoodSelectionProps = {
 
 const MoodSelection = ({ onSelect }: MoodSelectionProps) => {
   return (
-    <div className="question-card">
-      <h2>Which mood do you want to practice?</h2>
+    <QuestionCard title="Which mood do you want to practice?">
       <div className="choice-row">
-        <button
-          type="button"
-          className="btn btn-outline"
-          onClick={() => onSelect("indicative")}
-        >
+        <Button variant="outline" onClick={() => onSelect("indicative")}>
           Indicative
-        </button>
-        <button
-          type="button"
-          className="btn btn-outline"
-          onClick={() => onSelect("subjunctive")}
-        >
+        </Button>
+        <Button variant="outline" onClick={() => onSelect("subjunctive")}>
           Subjunctive
-        </button>
-        <button
-          type="button"
-          className="btn btn-outline"
-          onClick={() => onSelect("both")}
-        >
+        </Button>
+        <Button variant="outline" onClick={() => onSelect("both")}>
           Both
-        </button>
+        </Button>
       </div>
-    </div>
+    </QuestionCard>
   );
 };
 

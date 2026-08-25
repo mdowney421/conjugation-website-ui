@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PageHeader from "../components/PageHeader";
 import VerbTypeSelection from "../features/practice/VerbTypeSelection";
 import MoodSelection, {
   type MoodChoice,
@@ -86,13 +87,10 @@ const PracticePage = () => {
 
   return (
     <>
-      <div className="page-header">
-        <h1>Practice</h1>
-        <p>
-          Answer a few quick questions, then start conjugating in the
-          present tense.
-        </p>
-      </div>
+      <PageHeader
+        title="Practice"
+        subtitle="Answer a few quick questions, then start conjugating in the present tense."
+      />
 
       <div className="practice-card">
         {isSetupStep && (

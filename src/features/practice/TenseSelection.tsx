@@ -1,3 +1,6 @@
+import Button from "../../components/Button";
+import QuestionCard from "../../components/QuestionCard";
+
 type TenseSelectionProps = {
   tenseList: string[];
   tenseSelection: string[];
@@ -15,8 +18,7 @@ const TenseSelection = ({
   fetchRandomVerbConjugation,
 }: TenseSelectionProps) => {
   return (
-    <div className="question-card">
-      <h2>Which tenses would you like to practice?</h2>
+    <QuestionCard title="Which tenses would you like to practice?">
       <div className="chip-grid">
         {tenseList.map((tense) => (
           <button
@@ -29,15 +31,13 @@ const TenseSelection = ({
           </button>
         ))}
       </div>
-      <button
-        type="button"
-        className="btn btn-primary"
+      <Button
         disabled={tenseSelection.length === 0}
         onClick={fetchRandomVerbConjugation}
       >
         Let's conjugate!
-      </button>
-    </div>
+      </Button>
+    </QuestionCard>
   );
 };
 
