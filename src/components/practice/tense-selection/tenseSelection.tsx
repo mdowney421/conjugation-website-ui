@@ -5,6 +5,9 @@ type TenseSelectionProps = {
   fetchRandomVerbConjugation: () => void;
 };
 
+const capitalize = (value: string) =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+
 const TenseSelection = ({
   tenseList,
   tenseSelection,
@@ -12,37 +15,28 @@ const TenseSelection = ({
   fetchRandomVerbConjugation,
 }: TenseSelectionProps) => {
   return (
-    <div className="row">
-      <p className="display-5">Which tenses would you like to practice?</p>
-      <div className="row">
-        <div className="col">
-          {tenseList.map((tense) => (
-            <button
-              key={tense}
-              type="button"
-              className={
-                tenseSelection.includes(tense)
-                  ? "btn btn-success mx-3"
-                  : "btn btn-outline-success mx-3"
-              }
-              onClick={() => handleThirdQuestion(tense)}
-            >
-              {tense.charAt(0).toUpperCase() + tense.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="row">
-        <div className="col">
+    <div className="question-card">
+      <h2>Which tenses would you like to practice?</h2>
+      <div className="chip-grid">
+        {tenseList.map((tense) => (
           <button
+            key={tense}
             type="button"
-            className="btn btn-outline-success mx-3"
-            onClick={fetchRandomVerbConjugation}
+            className={`chip${tenseSelection.includes(tense) ? " selected" : ""}`}
+            onClick={() => handleThirdQuestion(tense)}
           >
-            Let's conjugate!
+            {capitalize(tense)}
           </button>
-        </div>
+        ))}
       </div>
+      <button
+        type="button"
+        className="btn btn-primary"
+        disabled={tenseSelection.length === 0}
+        onClick={fetchRandomVerbConjugation}
+      >
+        Let's conjugate!
+      </button>
     </div>
   );
 };

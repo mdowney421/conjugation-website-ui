@@ -73,49 +73,70 @@ const PracticePage = () => {
     setUserGuess("");
   };
 
+  const isSetupStep = questionNumber >= 1 && questionNumber <= 3;
+
   return (
-    <div className="container text-center">
-      <div className="row">
-        <div className="display-4">Practice</div>
+    <>
+      <div className="page-header">
+        <h1>Practice</h1>
+        <p>Answer a few quick questions, then start conjugating.</p>
       </div>
-      <hr className="my-5" />
 
-      {questionNumber === 1 && (
-        <VerbTypeSelection
-          prompt="Do you want irregular verbs?"
-          onYes={() => handleIrregularityQuestion(true)}
-          onNo={() => handleIrregularityQuestion(false)}
-        />
-      )}
+      <div className="practice-card">
+        {isSetupStep && (
+          <div className="step-progress">
+            {[1, 2, 3].map((step) => (
+              <span
+                key={step}
+                className={`step-dot${
+                  step === questionNumber
+                    ? " active"
+                    : step < questionNumber
+                      ? " done"
+                      : ""
+                }`}
+              />
+            ))}
+          </div>
+        )}
 
-      {questionNumber === 2 && (
-        <VerbTypeSelection
-          prompt='Do you want to include "vosotros"?'
-          onYes={() => handleVosotrosQuestion(true)}
-          onNo={() => handleVosotrosQuestion(false)}
-        />
-      )}
+        {questionNumber === 1 && (
+          <VerbTypeSelection
+            prompt="Do you want irregular verbs?"
+            onYes={() => handleIrregularityQuestion(true)}
+            onNo={() => handleIrregularityQuestion(false)}
+          />
+        )}
 
-      {questionNumber === 3 && (
-        <TenseSelection
-          tenseList={tenseList}
-          tenseSelection={tenseSelection}
-          handleThirdQuestion={handleTenseQuestion}
-          fetchRandomVerbConjugation={fetchRandomVerbConjugation}
-        />
-      )}
+        {questionNumber === 2 && (
+          <VerbTypeSelection
+            prompt='Do you want to include "vosotros"?'
+            onYes={() => handleVosotrosQuestion(true)}
+            onNo={() => handleVosotrosQuestion(false)}
+          />
+        )}
 
-      {questionNumber === 0 && (
-        <ConjugationInput
-          randomVerb={randomVerb}
-          handleInputChange={handleInputChange}
-          handleSubmitGuess={handleSubmitGuess}
-          isCorrectAnswer={isCorrectAnswer}
-          fetchRandomVerbConjugation={fetchRandomVerbConjugation}
-          userGuess={userGuess}
-        />
-      )}
-    </div>
+        {questionNumber === 3 && (
+          <TenseSelection
+            tenseList={tenseList}
+            tenseSelection={tenseSelection}
+            handleThirdQuestion={handleTenseQuestion}
+            fetchRandomVerbConjugation={fetchRandomVerbConjugation}
+          />
+        )}
+
+        {questionNumber === 0 && (
+          <ConjugationInput
+            randomVerb={randomVerb}
+            handleInputChange={handleInputChange}
+            handleSubmitGuess={handleSubmitGuess}
+            isCorrectAnswer={isCorrectAnswer}
+            fetchRandomVerbConjugation={fetchRandomVerbConjugation}
+            userGuess={userGuess}
+          />
+        )}
+      </div>
+    </>
   );
 };
 

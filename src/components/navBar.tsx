@@ -1,61 +1,50 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
 
-type Page = "home" | "verbs" | "practice" | "about";
+const links = [
+  { to: "/verbs", label: "Verbs" },
+  { to: "/practice", label: "Practice" },
+  { to: "/about", label: "About" },
+];
 
-type NavbarProps = {
-  setActivePage: Dispatch<SetStateAction<Page>>;
-};
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
 
-const Navbar = ({ setActivePage }: NavbarProps) => {
   return (
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
-      <div className="container-fluid">
-        <a
-          className="navbar-brand text-success"
-          onClick={() => setActivePage("home")}
+    <nav className="navbar">
+      <div className="navbar-inner">
+        <NavLink
+          to="/"
+          end
+          className="navbar-brand"
+          onClick={() => setIsOpen(false)}
         >
-          The ConjuGator
-        </a>
+          🐊 The ConjuGator
+        </NavLink>
+
         <button
-          className="navbar-toggler"
+          className="navbar-toggle"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
           aria-label="Toggle navigation"
+          aria-expanded={isOpen}
+          onClick={() => setIsOpen((open) => !open)}
         >
-          <span className="navbar-toggler-icon"></span>
+          <span />
         </button>
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <a className="nav-link" onClick={() => setActivePage("verbs")}>
-                Verbs
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" onClick={() => setActivePage("practice")}>
-                Practice
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" onClick={() => setActivePage("about")}>
-                About
-              </a>
-            </li>
-          </ul>
-          <form className="d-flex" role="search">
-            <input
-              className="form-control me-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button className="btn btn-outline-success" type="submit">
-              Search
-            </button>
-          </form>
+
+        <div className={`navbar-links${isOpen ? " open" : ""}`}>
+          {links.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `navbar-link${isActive ? " active" : ""}`
+              }
+              onClick={() => setIsOpen(false)}
+            >
+              {label}
+            </NavLink>
+          ))}
         </div>
       </div>
     </nav>

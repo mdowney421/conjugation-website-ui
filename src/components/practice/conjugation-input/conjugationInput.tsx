@@ -22,40 +22,50 @@ const ConjugationInput = ({
   fetchRandomVerbConjugation,
   userGuess,
 }: ConjugationInputProps) => {
+  const inputStateClass =
+    isCorrectAnswer === "true"
+      ? " correct"
+      : isCorrectAnswer === "false"
+        ? " incorrect"
+        : "";
+
   return (
-    <div className="container d-flex justify-content-center">
-      <div className="row">
-        <div className="col">
-          <p className="display-5">{randomVerb?.form_english ?? null}</p>
-          <form onSubmit={handleSubmitGuess}>
-            <div className="form-group">
-              <input
-                type="text"
-                className="form-control"
-                id="conjugationGuess"
-                placeholder="Enter your conjugation"
-                onChange={handleInputChange}
-                value={userGuess}
-              />
-            </div>
-            <button type="submit" className="btn btn-outline-success mt-4">
-              Check Answer
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-success mt-4"
-              onClick={fetchRandomVerbConjugation}
-            >
-              Next Verb
-            </button>
-          </form>
-          {isCorrectAnswer === "true" ? (
-            <p className="display-5">Correct!</p>
-          ) : isCorrectAnswer === "false" ? (
-            <p className="display-5">Try again!</p>
-          ) : null}
+    <div className="question-card">
+      <div className="quiz-prompt">Conjugate</div>
+      <div className="quiz-word">{randomVerb?.form_english ?? "..."}</div>
+
+      <form onSubmit={handleSubmitGuess}>
+        <input
+          type="text"
+          className={`quiz-input${inputStateClass}`}
+          id="conjugationGuess"
+          placeholder="Enter your conjugation"
+          onChange={handleInputChange}
+          value={userGuess}
+          autoComplete="off"
+          autoFocus
+        />
+
+        <div className="quiz-actions">
+          <button type="submit" className="btn btn-primary">
+            Check Answer
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={fetchRandomVerbConjugation}
+          >
+            Next Verb
+          </button>
         </div>
-      </div>
+      </form>
+
+      {isCorrectAnswer === "true" && (
+        <div className="feedback-banner correct">✓ Correct!</div>
+      )}
+      {isCorrectAnswer === "false" && (
+        <div className="feedback-banner incorrect">✗ Try again!</div>
+      )}
     </div>
   );
 };

@@ -6,25 +6,15 @@ type VerbTypeSelectionProps = {
 
 const VerbTypeSelection = ({ prompt, onYes, onNo }: VerbTypeSelectionProps) => {
   return (
-    <div className="row">
-      <p className="display-5">{prompt}</p>
-      <div className="row">
-        <div className="col">
-          <button
-            type="button"
-            className="btn btn-outline-success mx-3"
-            onClick={onYes}
-          >
-            Yes
-          </button>
-          <button
-            type="button"
-            className="btn btn-outline-success mx-3"
-            onClick={onNo}
-          >
-            No
-          </button>
-        </div>
+    <div className="question-card">
+      <h2>{prompt}</h2>
+      <div className="choice-row">
+        <button type="button" className="btn btn-primary" onClick={onYes}>
+          Yes
+        </button>
+        <button type="button" className="btn btn-outline" onClick={onNo}>
+          No
+        </button>
       </div>
     </div>
   );

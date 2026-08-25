@@ -1,29 +1,30 @@
-import { useState } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
-import "bootstrap/dist/css/bootstrap.css";
-import "bootstrap/dist/css/bootstrap-utilities.css";
 import Navbar from "./components/navBar";
 import LandingPage from "./components/landingPage";
 import VerbsPage from "./components/verbs";
 import PracticePage from "./components/practice/practice";
-
-type Page = "home" | "verbs" | "practice" | "about";
+import AboutPage from "./components/aboutPage";
+import Footer from "./components/footer";
 
 const App = () => {
-  const [activePage, setActivePage] = useState<Page>("home");
+  const location = useLocation();
 
   return (
-    <>
-      <Navbar setActivePage={setActivePage} />
+    <div className="App">
+      <Navbar />
 
-      {activePage === "home" ? (
-        <LandingPage setActivePage={setActivePage} />
-      ) : null}
+      <div className="page" key={location.pathname}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/verbs" element={<VerbsPage />} />
+          <Route path="/practice" element={<PracticePage />} />
+          <Route path="/about" element={<AboutPage />} />
+        </Routes>
+      </div>
 
-      {activePage === "verbs" ? <VerbsPage /> : null}
-
-      {activePage === "practice" ? <PracticePage /> : null}
-    </>
+      <Footer />
+    </div>
   );
 };
 
