@@ -1,6 +1,12 @@
 export type Mood = "indicative" | "subjunctive";
 
-export type Tense = "present" | "preterite" | "imperfect" | "perfect" | "conditional";
+export type Tense =
+  | "present"
+  | "preterite"
+  | "imperfect"
+  | "perfect"
+  | "conditional"
+  | "conditional_perfect";
 
 export type VerbEntry = [string, string];
 

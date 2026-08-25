@@ -40,6 +40,7 @@ const SECTIONS: SectionConfig[] = [
   { tense: "imperfect", mood: "indicative", label: "Imperfect Indicative" },
   { tense: "imperfect", mood: "subjunctive", label: "Imperfect Subjunctive" },
   { tense: "conditional", mood: "indicative", label: "Conditional Indicative" },
+  { tense: "conditional_perfect", mood: "indicative", label: "Conditional Perfect Indicative" },
   { tense: "perfect", mood: "indicative", label: "Perfect Indicative" },
   { tense: "perfect", mood: "subjunctive", label: "Perfect Subjunctive" },
 ];

@@ -653,7 +653,8 @@
 .quiz-mood.preterite,
 .quiz-mood.imperfect,
 .quiz-mood.perfect,
-.quiz-mood.conditional {
+.quiz-mood.conditional,
+.quiz-mood.conditional_perfect {
   background: var(--color-surface-alt);
   color: var(--color-text-muted);
   border: 1px solid var(--color-border);

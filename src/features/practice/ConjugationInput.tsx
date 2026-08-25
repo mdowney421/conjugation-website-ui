@@ -9,6 +9,7 @@ const TENSE_LABELS: Record<Tense, string> = {
   imperfect: "Imperfect",
   perfect: "Perfect",
   conditional: "Conditional",
+  conditional_perfect: "Conditional Perfect",
 };
 
 type ConjugationInputProps = {
