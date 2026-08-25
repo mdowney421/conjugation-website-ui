@@ -9,10 +9,11 @@ import type { Mood, Tense, VerbConjugation } from "../languages/spanish/types";
 type MoodChoice = Mood | "both";
 type TenseChoice = Tense | "all";
 
-const TENSES: Tense[] = ["present", "preterite", "imperfect", "perfect"];
-// Preterite has no subjunctive form in Spanish at all. Imperfect does
-// (and this app supports it), so it's excluded from this list.
-const INDICATIVE_ONLY_TENSES: Tense[] = ["preterite"];
+const TENSES: Tense[] = ["present", "preterite", "imperfect", "perfect", "conditional"];
+// Preterite and conditional have no subjunctive form in Spanish at
+// all. Imperfect does (and this app supports it), so it's excluded
+// from this list.
+const INDICATIVE_ONLY_TENSES: Tense[] = ["preterite", "conditional"];
 
 const PracticePage = () => {
   const [useIrregularVerbs, setUseIrregularVerbs] = useState<
@@ -175,6 +176,7 @@ const PracticePage = () => {
               { value: "preterite", label: "Preterite" },
               { value: "imperfect", label: "Imperfect" },
               { value: "perfect", label: "Perfect" },
+              { value: "conditional", label: "Conditional" },
               { value: "all", label: "All" },
             ]}
             onSelect={handleTenseSelection}
