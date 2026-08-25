@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
-import "./../node_modules/bootstrap/dist/css/bootstrap.css";
-import "./../node_modules/bootstrap/dist/css/bootstrap-utilities.css";
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/css/bootstrap-utilities.css";
 import Navbar from "./components/navBar";
 import LandingPage from "./components/landingPage";
 import VerbsPage from "./components/verbs";
