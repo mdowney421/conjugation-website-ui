@@ -12,6 +12,8 @@ type ConjugationInputProps = {
   userGuess: string;
   showHint: boolean;
   onShowHint: () => void;
+  showAnswer: boolean;
+  onShowAnswer: () => void;
   hasMissed: boolean;
 };
 
@@ -24,6 +26,8 @@ const ConjugationInput = ({
   userGuess,
   showHint,
   onShowHint,
+  showAnswer,
+  onShowAnswer,
   hasMissed,
 }: ConjugationInputProps) => {
   const isCorrect = isCorrectAnswer === "true";
@@ -43,17 +47,30 @@ const ConjugationInput = ({
   return (
     <QuestionCard>
       <div className="quiz-prompt">Conjugate</div>
-      {randomVerb?.mood_english && (
-        <div className={`quiz-mood ${randomVerb.mood_english}`}>
-          {randomVerb.mood_english === "subjunctive"
-            ? "Subjunctive"
-            : "Indicative"}
+      {(randomVerb?.tense_english || randomVerb?.mood_english) && (
+        <div className="quiz-badges">
+          {randomVerb?.tense_english && (
+            <div className={`quiz-mood ${randomVerb.tense_english}`}>
+              {randomVerb.tense_english === "preterite"
+                ? "Preterite"
+                : "Present"}
+            </div>
+          )}
+          {randomVerb?.mood_english && (
+            <div className={`quiz-mood ${randomVerb.mood_english}`}>
+              {randomVerb.mood_english === "subjunctive"
+                ? "Subjunctive"
+                : "Indicative"}
+            </div>
+          )}
         </div>
       )}
-      {randomVerb?.pronoun_english && (
-        <div className="quiz-pronoun">{randomVerb.pronoun_english}</div>
-      )}
-      <div className="quiz-word">{randomVerb?.form_english ?? "..."}</div>
+      <div className="quiz-sentence">
+        {randomVerb?.pronoun_english && (
+          <span className="quiz-pronoun">{randomVerb.pronoun_english}</span>
+        )}
+        <span className="quiz-word">{randomVerb?.form_english ?? "..."}</span>
+      </div>
 
       <form onSubmit={handleSubmitGuess}>
         <input
@@ -71,9 +88,12 @@ const ConjugationInput = ({
         <div className="quiz-actions">
           {!isCorrect && <Button type="submit">Check Answer</Button>}
 
-          {hasMissed && !showHint && !isCorrect && (
-            <Button variant="ghost" onClick={onShowHint}>
-              Show Hint
+          {hasMissed && !showAnswer && !isCorrect && (
+            <Button
+              variant="ghost"
+              onClick={showHint ? onShowAnswer : onShowHint}
+            >
+              {showHint ? "Show Answer" : "Show Hint"}
             </Button>
           )}
 
@@ -97,6 +117,11 @@ const ConjugationInput = ({
       {showHint && randomVerb?.infinitive_spanish && (
         <div className="hint-text">
           Hint: the infinitive is <strong>{randomVerb.infinitive_spanish}</strong>
+        </div>
+      )}
+      {showAnswer && randomVerb?.form_spanish && (
+        <div className="hint-text">
+          Answer: <strong>{randomVerb.form_spanish}</strong>
         </div>
       )}
     </QuestionCard>

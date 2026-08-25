@@ -8,8 +8,8 @@ const HomePage = () => {
         <div className="hero-emoji">🐊</div>
         <h1>The ConjuGator</h1>
         <p>
-          Welcome to your conjugation destination — a one-stop shop for
-          looking up and practicing Spanish verb conjugations.
+          Welcome to your conjugation destination — a one-stop shop for looking
+          up verbs and practicing conjugations.
         </p>
       </div>
 

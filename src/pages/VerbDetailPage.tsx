@@ -28,9 +28,11 @@ const ConjugationTable = ({ table }: { table: VerbConjugationTable }) => (
 
 const VerbDetailPage = () => {
   const { verb } = useParams<{ verb: string }>();
-  const [indicativeTable, setIndicativeTable] =
+  const [presentIndicativeTable, setPresentIndicativeTable] =
     useState<VerbConjugationTable | null>(null);
-  const [subjunctiveTable, setSubjunctiveTable] =
+  const [presentSubjunctiveTable, setPresentSubjunctiveTable] =
+    useState<VerbConjugationTable | null>(null);
+  const [preteriteTable, setPreteriteTable] =
     useState<VerbConjugationTable | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -40,16 +42,19 @@ const VerbDetailPage = () => {
 
     setIsLoading(true);
     setNotFound(false);
-    setIndicativeTable(null);
-    setSubjunctiveTable(null);
+    setPresentIndicativeTable(null);
+    setPresentSubjunctiveTable(null);
+    setPreteriteTable(null);
 
     Promise.all([
-      fetchVerbConjugation(verb, "indicative"),
-      fetchVerbConjugation(verb, "subjunctive"),
-    ]).then(([indicative, subjunctive]) => {
-      if (indicative) {
-        setIndicativeTable(indicative);
-        setSubjunctiveTable(subjunctive ?? null);
+      fetchVerbConjugation(verb, "indicative", "present"),
+      fetchVerbConjugation(verb, "subjunctive", "present"),
+      fetchVerbConjugation(verb, "indicative", "preterite"),
+    ]).then(([presentIndicative, presentSubjunctive, preterite]) => {
+      if (presentIndicative) {
+        setPresentIndicativeTable(presentIndicative);
+        setPresentSubjunctiveTable(presentSubjunctive ?? null);
+        setPreteriteTable(preterite ?? null);
       } else {
         setNotFound(true);
       }
@@ -60,8 +65,10 @@ const VerbDetailPage = () => {
   return (
     <>
       <PageHeader
-        title={indicativeTable?.infinitive_spanish ?? verb ?? ""}
-        subtitle={indicativeTable?.infinitive_english ?? "Present tense conjugations"}
+        title={presentIndicativeTable?.infinitive_spanish ?? verb ?? ""}
+        subtitle={
+          presentIndicativeTable?.infinitive_english ?? "Verb conjugations"
+        }
         backTo={{ to: "/verbs", label: "← Back to verbs" }}
       />
 
@@ -72,16 +79,28 @@ const VerbDetailPage = () => {
           <EmptyState>Couldn't find that verb.</EmptyState>
         ) : (
           <>
-            {indicativeTable && (
+            {presentIndicativeTable && (
               <div className="conjugation-section">
-                <h2 className="conjugation-section-heading">Indicative</h2>
-                <ConjugationTable table={indicativeTable} />
+                <h2 className="conjugation-section-heading">
+                  Present Indicative
+                </h2>
+                <ConjugationTable table={presentIndicativeTable} />
               </div>
             )}
-            {subjunctiveTable && (
+            {presentSubjunctiveTable && (
               <div className="conjugation-section">
-                <h2 className="conjugation-section-heading">Subjunctive</h2>
-                <ConjugationTable table={subjunctiveTable} />
+                <h2 className="conjugation-section-heading">
+                  Present Subjunctive
+                </h2>
+                <ConjugationTable table={presentSubjunctiveTable} />
+              </div>
+            )}
+            {preteriteTable && (
+              <div className="conjugation-section">
+                <h2 className="conjugation-section-heading">
+                  Preterite Indicative
+                </h2>
+                <ConjugationTable table={preteriteTable} />
               </div>
             )}
           </>

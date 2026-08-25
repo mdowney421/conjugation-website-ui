@@ -1,24 +1,27 @@
 import { useState } from "react";
 import PageHeader from "../components/PageHeader";
 import VerbTypeSelection from "../features/practice/VerbTypeSelection";
-import MoodSelection, {
-  type MoodChoice,
-} from "../features/practice/MoodSelection";
+import ChoiceSelection from "../features/practice/ChoiceSelection";
 import ConjugationInput from "../features/practice/ConjugationInput";
 import { fetchRandomVerbConjugation as fetchVerb } from "../languages/spanish/api";
-import type { Mood, VerbConjugation } from "../languages/spanish/types";
+import type { Mood, Tense, VerbConjugation } from "../languages/spanish/types";
+
+type MoodChoice = Mood | "both";
+type TenseChoice = Tense | "both";
 
 const PracticePage = () => {
   const [useIrregularVerbs, setUseIrregularVerbs] = useState<
     boolean | undefined
   >();
   const [useVosotros, setUseVosotros] = useState<boolean | undefined>();
+  const [tenseChoice, setTenseChoice] = useState<TenseChoice | undefined>();
   const [moodChoice, setMoodChoice] = useState<MoodChoice | undefined>();
   const [randomVerb, setRandomVerb] = useState<VerbConjugation | null>(null);
   const [questionNumber, setQuestionNumber] = useState<number>(1);
   const [isCorrectAnswer, setIsCorrectAnswer] = useState<string>("");
   const [userGuess, setUserGuess] = useState<string>("");
   const [showHint, setShowHint] = useState<boolean>(false);
+  const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [hasMissed, setHasMissed] = useState<boolean>(false);
 
   const handleIrregularityQuestion = (userResponse: boolean) => {
@@ -31,12 +34,39 @@ const PracticePage = () => {
     setQuestionNumber(3);
   };
 
+  const handleTenseSelection = (choice: TenseChoice) => {
+    setTenseChoice(choice);
+    if (choice === "preterite") {
+      // Preterite has no subjunctive form here, so the mood question
+      // would be moot -- skip straight to the quiz.
+      fetchRandomVerbConjugation(undefined, undefined, choice);
+      return;
+    }
+    setQuestionNumber(4);
+  };
+
   const handleMoodSelection = (choice: MoodChoice) => {
     setMoodChoice(choice);
     fetchRandomVerbConjugation(undefined, choice);
   };
 
-  const resolveMood = (choice?: MoodChoice): Mood => {
+  const resolveTense = (choice?: TenseChoice): Tense => {
+    const effective = choice ?? tenseChoice;
+    if (effective === "both") {
+      return Math.random() < 0.5 ? "present" : "preterite";
+    }
+    return effective === "preterite" ? "preterite" : "present";
+  };
+
+  const resolveMood = (
+    resolvedTense: Tense,
+    choice?: MoodChoice,
+  ): Mood => {
+    // Preterite has no subjunctive form in this app, so any round
+    // that lands on preterite always uses the indicative.
+    if (resolvedTense === "preterite") {
+      return "indicative";
+    }
     const effective = choice ?? moodChoice;
     if (effective === "both") {
       return Math.random() < 0.5 ? "indicative" : "subjunctive";
@@ -69,33 +99,37 @@ const PracticePage = () => {
   const fetchRandomVerbConjugation = async (
     vosotrosOverride?: boolean,
     moodOverride?: MoodChoice,
+    tenseOverride?: TenseChoice,
   ) => {
+    const tense = resolveTense(tenseOverride);
     const verb = await fetchVerb(
       useIrregularVerbs,
       vosotrosOverride ?? useVosotros,
-      resolveMood(moodOverride),
+      resolveMood(tense, moodOverride),
+      tense,
     );
     setRandomVerb(verb ?? null);
     setQuestionNumber(0);
     setIsCorrectAnswer("");
     setUserGuess("");
     setShowHint(false);
+    setShowAnswer(false);
     setHasMissed(false);
   };
 
-  const isSetupStep = questionNumber >= 1 && questionNumber <= 3;
+  const isSetupStep = questionNumber >= 1 && questionNumber <= 4;
 
   return (
     <>
       <PageHeader
         title="Practice"
-        subtitle="Answer a few quick questions, then start conjugating in the present tense."
+        subtitle="Answer a few quick questions, then start conjugating."
       />
 
       <div className="practice-card">
         {isSetupStep && (
           <div className="step-progress">
-            {[1, 2, 3].map((step) => (
+            {[1, 2, 3, 4].map((step) => (
               <span
                 key={step}
                 className={`step-dot${
@@ -127,7 +161,27 @@ const PracticePage = () => {
         )}
 
         {questionNumber === 3 && (
-          <MoodSelection onSelect={handleMoodSelection} />
+          <ChoiceSelection
+            title="Which tense do you want to practice?"
+            options={[
+              { value: "present", label: "Present" },
+              { value: "preterite", label: "Preterite" },
+              { value: "both", label: "Both" },
+            ]}
+            onSelect={handleTenseSelection}
+          />
+        )}
+
+        {questionNumber === 4 && (
+          <ChoiceSelection
+            title="Which mood do you want to practice?"
+            options={[
+              { value: "indicative", label: "Indicative" },
+              { value: "subjunctive", label: "Subjunctive" },
+              { value: "both", label: "Both" },
+            ]}
+            onSelect={handleMoodSelection}
+          />
         )}
 
         {questionNumber === 0 && (
@@ -140,6 +194,8 @@ const PracticePage = () => {
             userGuess={userGuess}
             showHint={showHint}
             onShowHint={() => setShowHint(true)}
+            showAnswer={showAnswer}
+            onShowAnswer={() => setShowAnswer(true)}
             hasMissed={hasMissed}
           />
         )}

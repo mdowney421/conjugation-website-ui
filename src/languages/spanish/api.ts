@@ -1,6 +1,7 @@
 import axios from "axios";
 import type {
   Mood,
+  Tense,
   VerbConjugation,
   VerbConjugationTable,
   VerbEntry,
@@ -22,6 +23,7 @@ export const fetchRandomVerbConjugation = async (
   useIrregularVerbs?: boolean,
   useVosotros?: boolean,
   mood: Mood = "indicative",
+  tense: Tense = "present",
 ): Promise<VerbConjugation | undefined> => {
   try {
     const response = await axios.get<VerbConjugation[]>(
@@ -29,6 +31,7 @@ export const fetchRandomVerbConjugation = async (
       {
         params: {
           mood,
+          tense,
           use_irregular: useIrregularVerbs,
           use_vosotros: useVosotros,
         },
@@ -44,11 +47,12 @@ export const fetchRandomVerbConjugation = async (
 export const fetchVerbConjugation = async (
   verb: string,
   mood: Mood = "indicative",
+  tense: Tense = "present",
 ): Promise<VerbConjugationTable | undefined> => {
   try {
     const response = await axios.get<VerbConjugationTable>(
       `${BASE_URL}/get-verb-conjugation`,
-      { params: { verb, mood } },
+      { params: { verb, mood, tense } },
     );
     return response.data;
   } catch (error) {
