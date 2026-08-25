@@ -7,7 +7,12 @@ import { fetchRandomVerbConjugation as fetchVerb } from "../languages/spanish/ap
 import type { Mood, Tense, VerbConjugation } from "../languages/spanish/types";
 
 type MoodChoice = Mood | "both";
-type TenseChoice = Tense | "both";
+type TenseChoice = Tense | "all";
+
+const TENSES: Tense[] = ["present", "preterite", "imperfect"];
+// Preterite has no subjunctive form in Spanish at all. Imperfect does
+// (and this app supports it), so it's excluded from this list.
+const INDICATIVE_ONLY_TENSES: Tense[] = ["preterite"];
 
 const PracticePage = () => {
   const [useIrregularVerbs, setUseIrregularVerbs] = useState<
@@ -36,7 +41,7 @@ const PracticePage = () => {
 
   const handleTenseSelection = (choice: TenseChoice) => {
     setTenseChoice(choice);
-    if (choice === "preterite") {
+    if ((INDICATIVE_ONLY_TENSES as TenseChoice[]).includes(choice)) {
       // Preterite has no subjunctive form here, so the mood question
       // would be moot -- skip straight to the quiz.
       fetchRandomVerbConjugation(undefined, undefined, choice);
@@ -52,10 +57,10 @@ const PracticePage = () => {
 
   const resolveTense = (choice?: TenseChoice): Tense => {
     const effective = choice ?? tenseChoice;
-    if (effective === "both") {
-      return Math.random() < 0.5 ? "present" : "preterite";
+    if (!effective || effective === "all") {
+      return TENSES[Math.floor(Math.random() * TENSES.length)];
     }
-    return effective === "preterite" ? "preterite" : "present";
+    return effective;
   };
 
   const resolveMood = (
@@ -63,8 +68,8 @@ const PracticePage = () => {
     choice?: MoodChoice,
   ): Mood => {
     // Preterite has no subjunctive form in this app, so any round
-    // that lands on preterite always uses the indicative.
-    if (resolvedTense === "preterite") {
+    // that lands on it always uses the indicative.
+    if ((INDICATIVE_ONLY_TENSES as Tense[]).includes(resolvedTense)) {
       return "indicative";
     }
     const effective = choice ?? moodChoice;
@@ -89,7 +94,9 @@ const PracticePage = () => {
       return;
     }
 
-    const correct = userGuess === randomVerb?.form_spanish;
+    const correct =
+      userGuess === randomVerb?.form_spanish ||
+      (!!randomVerb?.form_spanish_alt && userGuess === randomVerb.form_spanish_alt);
     setIsCorrectAnswer(correct ? "true" : "false");
     if (!correct) {
       setHasMissed(true);
@@ -166,7 +173,8 @@ const PracticePage = () => {
             options={[
               { value: "present", label: "Present" },
               { value: "preterite", label: "Preterite" },
-              { value: "both", label: "Both" },
+              { value: "imperfect", label: "Imperfect" },
+              { value: "all", label: "All" },
             ]}
             onSelect={handleTenseSelection}
           />

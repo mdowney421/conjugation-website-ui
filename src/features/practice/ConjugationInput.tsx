@@ -1,7 +1,13 @@
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
 import Button from "../../components/Button";
 import QuestionCard from "../../components/QuestionCard";
-import type { VerbConjugation } from "../../languages/spanish/types";
+import type { Tense, VerbConjugation } from "../../languages/spanish/types";
+
+const TENSE_LABELS: Record<Tense, string> = {
+  present: "Present",
+  preterite: "Preterite",
+  imperfect: "Imperfect",
+};
 
 type ConjugationInputProps = {
   randomVerb: VerbConjugation | null;
@@ -51,9 +57,7 @@ const ConjugationInput = ({
         <div className="quiz-badges">
           {randomVerb?.tense_english && (
             <div className={`quiz-mood ${randomVerb.tense_english}`}>
-              {randomVerb.tense_english === "preterite"
-                ? "Preterite"
-                : "Present"}
+              {TENSE_LABELS[randomVerb.tense_english]}
             </div>
           )}
           {randomVerb?.mood_english && (
@@ -122,6 +126,12 @@ const ConjugationInput = ({
       {showAnswer && randomVerb?.form_spanish && (
         <div className="hint-text">
           Answer: <strong>{randomVerb.form_spanish}</strong>
+          {randomVerb.form_spanish_alt && (
+            <>
+              {" "}
+              (or <strong>{randomVerb.form_spanish_alt}</strong>)
+            </>
+          )}
         </div>
       )}
     </QuestionCard>
