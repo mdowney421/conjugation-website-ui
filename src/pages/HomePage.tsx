@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const LandingPage = () => {
+const HomePage = () => {
   return (
     <>
       <div className="hero">
@@ -51,4 +51,4 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+export default HomePage;

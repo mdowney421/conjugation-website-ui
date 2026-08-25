@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import {
-  fetchVerbConjugation,
-  type VerbConjugationTable,
-} from "../api/api";
+import { fetchVerbConjugation } from "../languages/spanish/api";
+import type { VerbConjugationTable } from "../languages/spanish/types";
 
 const ConjugationTable = ({ table }: { table: VerbConjugationTable }) => (
   <table className="conjugation-table">

@@ -1,12 +1,5 @@
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
-
-type VerbConjugation = {
-  form_english?: string;
-  form_spanish?: string;
-  pronoun_english?: string;
-  infinitive_spanish?: string;
-  mood_english?: string;
-};
+import type { VerbConjugation } from "../../languages/spanish/types";
 
 type ConjugationInputProps = {
   randomVerb: VerbConjugation | null;

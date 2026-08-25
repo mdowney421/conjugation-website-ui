@@ -1,29 +1,18 @@
-import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-
-type VerbEntry = [string, string];
+import { fetchAllVerbs } from "../languages/spanish/api";
+import type { VerbEntry } from "../languages/spanish/types";
 
 const VerbsPage = () => {
   const [verbsList, setVerbsList] = useState<VerbEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState("");
 
-  const fetchVerbsList = async () => {
-    try {
-      const response = await axios.get<VerbEntry[]>(
-        "http://127.0.0.1:8000/get-all-verbs",
-      );
-      setVerbsList(response.data);
-    } catch (error) {
-      console.error("error fetching verbs list: ", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchVerbsList();
+    fetchAllVerbs().then((verbs) => {
+      setVerbsList(verbs);
+      setIsLoading(false);
+    });
   }, []);
 
   const filteredVerbs = useMemo(() => {

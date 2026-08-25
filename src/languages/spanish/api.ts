@@ -1,28 +1,21 @@
 import axios from "axios";
+import type {
+  Mood,
+  VerbConjugation,
+  VerbConjugationTable,
+  VerbEntry,
+} from "./types";
 
-export type Mood = "indicative" | "subjunctive";
+const BASE_URL = "http://127.0.0.1:8000";
 
-export type VerbConjugation = {
-  form_english?: string;
-  form_spanish?: string;
-  pronoun_english?: string;
-  infinitive_spanish?: string;
-  mood_english?: Mood;
-};
-
-export type PronounConjugation = {
-  pronoun_spanish: string;
-  pronoun_english: string;
-  form_spanish: string;
-  form_english: string;
-};
-
-export type VerbConjugationTable = {
-  infinitive_spanish: string;
-  infinitive_english: string;
-  mood_english: Mood;
-  tense_english: string;
-  conjugations: PronounConjugation[];
+export const fetchAllVerbs = async (): Promise<VerbEntry[]> => {
+  try {
+    const response = await axios.get<VerbEntry[]>(`${BASE_URL}/get-all-verbs`);
+    return response.data;
+  } catch (error) {
+    console.error("error fetching verbs list: ", error);
+    return [];
+  }
 };
 
 export const fetchRandomVerbConjugation = async (
@@ -32,7 +25,7 @@ export const fetchRandomVerbConjugation = async (
 ): Promise<VerbConjugation | undefined> => {
   try {
     const response = await axios.get<VerbConjugation[]>(
-      "http://127.0.0.1:8000/get-random-verb-conjugation",
+      `${BASE_URL}/get-random-verb-conjugation`,
       {
         params: {
           mood,
@@ -54,7 +47,7 @@ export const fetchVerbConjugation = async (
 ): Promise<VerbConjugationTable | undefined> => {
   try {
     const response = await axios.get<VerbConjugationTable>(
-      "http://127.0.0.1:8000/get-verb-conjugation",
+      `${BASE_URL}/get-verb-conjugation`,
       { params: { verb, mood } },
     );
     return response.data;

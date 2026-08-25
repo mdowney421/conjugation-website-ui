@@ -1,12 +1,11 @@
 import { useState } from "react";
-import VerbTypeSelection from "./verb-type-selection/verbTypeSelection";
-import MoodSelection, { type MoodChoice } from "./mood-selection/moodSelection";
-import ConjugationInput from "./conjugation-input/conjugationInput";
-import {
-  fetchRandomVerbConjugation as fetchVerb,
-  type Mood,
-  type VerbConjugation,
-} from "../../api/api";
+import VerbTypeSelection from "../features/practice/VerbTypeSelection";
+import MoodSelection, {
+  type MoodChoice,
+} from "../features/practice/MoodSelection";
+import ConjugationInput from "../features/practice/ConjugationInput";
+import { fetchRandomVerbConjugation as fetchVerb } from "../languages/spanish/api";
+import type { Mood, VerbConjugation } from "../languages/spanish/types";
 
 const PracticePage = () => {
   const [useIrregularVerbs, setUseIrregularVerbs] = useState<
