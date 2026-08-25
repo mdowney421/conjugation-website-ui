@@ -657,6 +657,11 @@
   box-shadow: 0 0 0 3px var(--color-danger-light);
 }
 
+.quiz-input:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
 .quiz-actions {
   display: flex;
   justify-content: center;
@@ -696,6 +701,17 @@
 .feedback-banner.incorrect {
   background: var(--color-danger-light);
   color: var(--color-danger);
+}
+
+.hint-text {
+  margin-top: 14px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  animation: feedback-in 0.2s ease both;
+}
+
+.hint-text strong {
+  color: var(--color-text);
 }
 
 /* ---------- About page ---------- */

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import VerbTypeSelection from "./verb-type-selection/verbTypeSelection";
-import TenseSelection from "./tense-selection/tenseSelection";
 import ConjugationInput from "./conjugation-input/conjugationInput";
 import {
   fetchRandomVerbConjugation as fetchVerb,
@@ -13,23 +12,11 @@ const PracticePage = () => {
   >();
   const [useVosotros, setUseVosotros] = useState<boolean | undefined>();
   const [randomVerb, setRandomVerb] = useState<VerbConjugation | null>(null);
-  const [tenseSelection, setTenseSelection] = useState<string[]>([]);
   const [questionNumber, setQuestionNumber] = useState<number>(1);
   const [isCorrectAnswer, setIsCorrectAnswer] = useState<string>("");
   const [userGuess, setUserGuess] = useState<string>("");
-
-  const tenseList = [
-    "present",
-    "preterite",
-    "future",
-    "imperfect",
-    "conditional",
-    "present perfect",
-    "future perfect",
-    "past perfect",
-    "preterite (archaic)",
-    "conditional perfect",
-  ];
+  const [showHint, setShowHint] = useState<boolean>(false);
+  const [hasMissed, setHasMissed] = useState<boolean>(false);
 
   const handleIrregularityQuestion = (userResponse: boolean) => {
     setUseIrregularVerbs(userResponse);
@@ -38,54 +25,60 @@ const PracticePage = () => {
 
   const handleVosotrosQuestion = (userResponse: boolean) => {
     setUseVosotros(userResponse);
-    setQuestionNumber(3);
+    fetchRandomVerbConjugation(userResponse);
   };
 
-  const handleTenseQuestion = (userResponse: string) => {
-    if (tenseSelection.includes(userResponse)) {
-      setTenseSelection(
-        tenseSelection.filter((tense) => tense !== userResponse),
-      );
-    } else {
-      setTenseSelection([...tenseSelection, userResponse]);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUserGuess(event.target.value);
+    if (isCorrectAnswer === "false") {
+      setIsCorrectAnswer("");
     }
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) =>
-    setUserGuess(event.target.value);
-
   const handleSubmitGuess = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsCorrectAnswer(
-      userGuess === randomVerb?.form_spanish ? "true" : "false",
-    );
+
+    if (isCorrectAnswer === "true") {
+      fetchRandomVerbConjugation();
+      return;
+    }
+
+    const correct = userGuess === randomVerb?.form_spanish;
+    setIsCorrectAnswer(correct ? "true" : "false");
+    if (!correct) {
+      setHasMissed(true);
+    }
   };
 
-  const fetchRandomVerbConjugation = async () => {
+  const fetchRandomVerbConjugation = async (vosotrosOverride?: boolean) => {
     const verb = await fetchVerb(
       useIrregularVerbs,
-      useVosotros,
-      tenseSelection,
+      vosotrosOverride ?? useVosotros,
     );
     setRandomVerb(verb ?? null);
     setQuestionNumber(0);
     setIsCorrectAnswer("");
     setUserGuess("");
+    setShowHint(false);
+    setHasMissed(false);
   };
 
-  const isSetupStep = questionNumber >= 1 && questionNumber <= 3;
+  const isSetupStep = questionNumber === 1 || questionNumber === 2;
 
   return (
     <>
       <div className="page-header">
         <h1>Practice</h1>
-        <p>Answer a few quick questions, then start conjugating.</p>
+        <p>
+          Answer a couple quick questions, then start conjugating in the
+          present tense.
+        </p>
       </div>
 
       <div className="practice-card">
         {isSetupStep && (
           <div className="step-progress">
-            {[1, 2, 3].map((step) => (
+            {[1, 2].map((step) => (
               <span
                 key={step}
                 className={`step-dot${
@@ -116,15 +109,6 @@ const PracticePage = () => {
           />
         )}
 
-        {questionNumber === 3 && (
-          <TenseSelection
-            tenseList={tenseList}
-            tenseSelection={tenseSelection}
-            handleThirdQuestion={handleTenseQuestion}
-            fetchRandomVerbConjugation={fetchRandomVerbConjugation}
-          />
-        )}
-
         {questionNumber === 0 && (
           <ConjugationInput
             randomVerb={randomVerb}
@@ -133,6 +117,9 @@ const PracticePage = () => {
             isCorrectAnswer={isCorrectAnswer}
             fetchRandomVerbConjugation={fetchRandomVerbConjugation}
             userGuess={userGuess}
+            showHint={showHint}
+            onShowHint={() => setShowHint(true)}
+            hasMissed={hasMissed}
           />
         )}
       </div>

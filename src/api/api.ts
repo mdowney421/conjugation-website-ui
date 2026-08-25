@@ -4,6 +4,7 @@ export type VerbConjugation = {
   form_english?: string;
   form_spanish?: string;
   pronoun_english?: string;
+  infinitive_spanish?: string;
 };
 
 export type PronounConjugation = {
@@ -24,10 +25,8 @@ export type VerbConjugationTable = {
 export const fetchRandomVerbConjugation = async (
   useIrregularVerbs?: boolean,
   useVosotros?: boolean,
-  tenseSelection: string[] = []
 ): Promise<VerbConjugation | undefined> => {
   try {
-    const tensesParam = tenseSelection.join(",");
     const response = await axios.get<VerbConjugation[]>(
       "http://127.0.0.1:8000/get-random-verb-conjugation",
       {
@@ -35,7 +34,6 @@ export const fetchRandomVerbConjugation = async (
           mood: "indicative",
           use_irregular: useIrregularVerbs,
           use_vosotros: useVosotros,
-          tenses: tensesParam,
         },
       }
     );
