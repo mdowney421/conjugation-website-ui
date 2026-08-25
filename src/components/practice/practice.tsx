@@ -1,8 +1,10 @@
 import { useState } from "react";
 import VerbTypeSelection from "./verb-type-selection/verbTypeSelection";
+import MoodSelection, { type MoodChoice } from "./mood-selection/moodSelection";
 import ConjugationInput from "./conjugation-input/conjugationInput";
 import {
   fetchRandomVerbConjugation as fetchVerb,
+  type Mood,
   type VerbConjugation,
 } from "../../api/api";
 
@@ -11,6 +13,7 @@ const PracticePage = () => {
     boolean | undefined
   >();
   const [useVosotros, setUseVosotros] = useState<boolean | undefined>();
+  const [moodChoice, setMoodChoice] = useState<MoodChoice | undefined>();
   const [randomVerb, setRandomVerb] = useState<VerbConjugation | null>(null);
   const [questionNumber, setQuestionNumber] = useState<number>(1);
   const [isCorrectAnswer, setIsCorrectAnswer] = useState<string>("");
@@ -25,7 +28,20 @@ const PracticePage = () => {
 
   const handleVosotrosQuestion = (userResponse: boolean) => {
     setUseVosotros(userResponse);
-    fetchRandomVerbConjugation(userResponse);
+    setQuestionNumber(3);
+  };
+
+  const handleMoodSelection = (choice: MoodChoice) => {
+    setMoodChoice(choice);
+    fetchRandomVerbConjugation(undefined, choice);
+  };
+
+  const resolveMood = (choice?: MoodChoice): Mood => {
+    const effective = choice ?? moodChoice;
+    if (effective === "both") {
+      return Math.random() < 0.5 ? "indicative" : "subjunctive";
+    }
+    return effective === "subjunctive" ? "subjunctive" : "indicative";
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,10 +66,14 @@ const PracticePage = () => {
     }
   };
 
-  const fetchRandomVerbConjugation = async (vosotrosOverride?: boolean) => {
+  const fetchRandomVerbConjugation = async (
+    vosotrosOverride?: boolean,
+    moodOverride?: MoodChoice,
+  ) => {
     const verb = await fetchVerb(
       useIrregularVerbs,
       vosotrosOverride ?? useVosotros,
+      resolveMood(moodOverride),
     );
     setRandomVerb(verb ?? null);
     setQuestionNumber(0);
@@ -63,14 +83,14 @@ const PracticePage = () => {
     setHasMissed(false);
   };
 
-  const isSetupStep = questionNumber === 1 || questionNumber === 2;
+  const isSetupStep = questionNumber >= 1 && questionNumber <= 3;
 
   return (
     <>
       <div className="page-header">
         <h1>Practice</h1>
         <p>
-          Answer a couple quick questions, then start conjugating in the
+          Answer a few quick questions, then start conjugating in the
           present tense.
         </p>
       </div>
@@ -78,7 +98,7 @@ const PracticePage = () => {
       <div className="practice-card">
         {isSetupStep && (
           <div className="step-progress">
-            {[1, 2].map((step) => (
+            {[1, 2, 3].map((step) => (
               <span
                 key={step}
                 className={`step-dot${
@@ -107,6 +127,10 @@ const PracticePage = () => {
             onYes={() => handleVosotrosQuestion(true)}
             onNo={() => handleVosotrosQuestion(false)}
           />
+        )}
+
+        {questionNumber === 3 && (
+          <MoodSelection onSelect={handleMoodSelection} />
         )}
 
         {questionNumber === 0 && (

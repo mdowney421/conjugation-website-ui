@@ -5,9 +5,33 @@ import {
   type VerbConjugationTable,
 } from "../api/api";
 
+const ConjugationTable = ({ table }: { table: VerbConjugationTable }) => (
+  <table className="conjugation-table">
+    <thead>
+      <tr>
+        <th>Pronoun</th>
+        <th>Spanish</th>
+        <th>English</th>
+      </tr>
+    </thead>
+    <tbody>
+      {table.conjugations.map((row) => (
+        <tr key={row.pronoun_spanish}>
+          <td className="pronoun-cell">{row.pronoun_spanish}</td>
+          <td className="spanish-cell">{row.form_spanish}</td>
+          <td className="english-cell">{row.form_english}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
 const VerbDetailPage = () => {
   const { verb } = useParams<{ verb: string }>();
-  const [table, setTable] = useState<VerbConjugationTable | null>(null);
+  const [indicativeTable, setIndicativeTable] =
+    useState<VerbConjugationTable | null>(null);
+  const [subjunctiveTable, setSubjunctiveTable] =
+    useState<VerbConjugationTable | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -16,11 +40,16 @@ const VerbDetailPage = () => {
 
     setIsLoading(true);
     setNotFound(false);
-    setTable(null);
+    setIndicativeTable(null);
+    setSubjunctiveTable(null);
 
-    fetchVerbConjugation(verb).then((result) => {
-      if (result) {
-        setTable(result);
+    Promise.all([
+      fetchVerbConjugation(verb, "indicative"),
+      fetchVerbConjugation(verb, "subjunctive"),
+    ]).then(([indicative, subjunctive]) => {
+      if (indicative) {
+        setIndicativeTable(indicative);
+        setSubjunctiveTable(subjunctive ?? null);
       } else {
         setNotFound(true);
       }
@@ -34,8 +63,8 @@ const VerbDetailPage = () => {
         <Link to="/verbs" className="back-link">
           ← Back to verbs
         </Link>
-        <h1>{table?.infinitive_spanish ?? verb}</h1>
-        <p>{table?.infinitive_english ?? "Present tense conjugations"}</p>
+        <h1>{indicativeTable?.infinitive_spanish ?? verb}</h1>
+        <p>{indicativeTable?.infinitive_english ?? "Present tense conjugations"}</p>
       </div>
 
       <div className="verb-detail">
@@ -44,24 +73,20 @@ const VerbDetailPage = () => {
         ) : notFound ? (
           <div className="empty-state">Couldn't find that verb.</div>
         ) : (
-          <table className="conjugation-table">
-            <thead>
-              <tr>
-                <th>Pronoun</th>
-                <th>Spanish</th>
-                <th>English</th>
-              </tr>
-            </thead>
-            <tbody>
-              {table?.conjugations.map((row) => (
-                <tr key={row.pronoun_spanish}>
-                  <td className="pronoun-cell">{row.pronoun_spanish}</td>
-                  <td className="spanish-cell">{row.form_spanish}</td>
-                  <td className="english-cell">{row.form_english}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <>
+            {indicativeTable && (
+              <div className="conjugation-section">
+                <h2 className="conjugation-section-heading">Indicative</h2>
+                <ConjugationTable table={indicativeTable} />
+              </div>
+            )}
+            {subjunctiveTable && (
+              <div className="conjugation-section">
+                <h2 className="conjugation-section-heading">Subjunctive</h2>
+                <ConjugationTable table={subjunctiveTable} />
+              </div>
+            )}
+          </>
         )}
       </div>
     </>

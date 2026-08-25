@@ -5,6 +5,7 @@ type VerbConjugation = {
   form_spanish?: string;
   pronoun_english?: string;
   infinitive_spanish?: string;
+  mood_english?: string;
 };
 
 type ConjugationInputProps = {
@@ -47,6 +48,13 @@ const ConjugationInput = ({
   return (
     <div className="question-card">
       <div className="quiz-prompt">Conjugate</div>
+      {randomVerb?.mood_english && (
+        <div className={`quiz-mood ${randomVerb.mood_english}`}>
+          {randomVerb.mood_english === "subjunctive"
+            ? "Subjunctive"
+            : "Indicative"}
+        </div>
+      )}
       {randomVerb?.pronoun_english && (
         <div className="quiz-pronoun">{randomVerb.pronoun_english}</div>
       )}

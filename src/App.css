@@ -459,6 +459,18 @@
   padding: 0 24px;
 }
 
+.conjugation-section + .conjugation-section {
+  margin-top: 40px;
+}
+
+.conjugation-section-heading {
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+}
+
 .conjugation-table {
   width: 100%;
   border-collapse: collapse;
@@ -609,6 +621,30 @@
   letter-spacing: 0.06em;
   color: var(--color-text-muted);
   margin-bottom: 8px;
+}
+
+.quiz-mood {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 14px;
+  margin-bottom: 10px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.quiz-mood.subjunctive {
+  background: var(--color-accent);
+  color: #2a1d02;
+}
+
+.quiz-mood.indicative {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
 }
 
 .quiz-pronoun {
