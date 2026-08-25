@@ -73,6 +73,8 @@ const SECTIONS: SectionConfig[] = [
   { tense: "preterite", mood: "indicative", label: "Preterite Indicative" },
   { tense: "imperfect", mood: "indicative", label: "Imperfect Indicative" },
   { tense: "imperfect", mood: "subjunctive", label: "Imperfect Subjunctive" },
+  { tense: "future", mood: "indicative", label: "Future Indicative" },
+  { tense: "future_perfect", mood: "indicative", label: "Future Perfect Indicative" },
   { tense: "conditional", mood: "indicative", label: "Conditional Indicative" },
   { tense: "conditional_perfect", mood: "indicative", label: "Conditional Perfect Indicative" },
   { tense: "perfect", mood: "indicative", label: "Perfect Indicative" },

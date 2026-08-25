@@ -5,6 +5,8 @@ export type Tense =
   | "preterite"
   | "imperfect"
   | "perfect"
+  | "future"
+  | "future_perfect"
   | "conditional"
   | "conditional_perfect"
   | "imperative";

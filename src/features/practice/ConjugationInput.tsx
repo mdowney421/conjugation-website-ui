@@ -8,6 +8,8 @@ const TENSE_LABELS: Record<Tense, string> = {
   preterite: "Preterite",
   imperfect: "Imperfect",
   perfect: "Perfect",
+  future: "Future",
+  future_perfect: "Future Perfect",
   conditional: "Conditional",
   conditional_perfect: "Conditional Perfect",
   imperative: "Imperative",

@@ -15,16 +15,24 @@ const TENSES: Tense[] = [
   "preterite",
   "imperfect",
   "perfect",
+  "future",
+  "future_perfect",
   "conditional",
   "conditional_perfect",
   "imperative",
 ];
-// Preterite and conditional (simple and perfect) have no subjunctive
-// form in Spanish at all. Imperfect and perfect do (and this app
-// supports them), so they're excluded from this list. The imperative
-// isn't in this list either -- it doesn't have a mood axis at all, so
-// it's handled separately (see IMPERATIVE_TENSE below).
-const INDICATIVE_ONLY_TENSES: Tense[] = ["preterite", "conditional", "conditional_perfect"];
+// Preterite, future, and conditional (simple and perfect) have no
+// subjunctive form in Spanish at all. Imperfect and perfect do (and
+// this app supports them), so they're excluded from this list. The
+// imperative isn't in this list either -- it doesn't have a mood axis
+// at all, so it's handled separately (see IMPERATIVE_TENSE below).
+const INDICATIVE_ONLY_TENSES: Tense[] = [
+  "preterite",
+  "future",
+  "future_perfect",
+  "conditional",
+  "conditional_perfect",
+];
 // The imperative doesn't have indicative/subjunctive forms -- it has
 // affirmative/negative ones instead, so when this specific tense is
 // chosen, step 4 asks about polarity instead of mood.
@@ -217,6 +225,8 @@ const PracticePage = () => {
               { value: "preterite", label: "Preterite" },
               { value: "imperfect", label: "Imperfect" },
               { value: "perfect", label: "Perfect" },
+              { value: "future", label: "Future" },
+              { value: "future_perfect", label: "Future Perfect" },
               { value: "conditional", label: "Conditional" },
               { value: "conditional_perfect", label: "Conditional Perfect" },
               { value: "imperative", label: "Imperative" },
