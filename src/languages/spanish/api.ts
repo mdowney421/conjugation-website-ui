@@ -1,6 +1,8 @@
 import axios from "axios";
 import type {
+  ImperativeConjugationTable,
   Mood,
+  Polarity,
   Tense,
   VerbConjugation,
   VerbConjugationTable,
@@ -24,6 +26,7 @@ export const fetchRandomVerbConjugation = async (
   useVosotros?: boolean,
   mood: Mood = "indicative",
   tense: Tense = "present",
+  polarity: Polarity = "affirmative",
 ): Promise<VerbConjugation | undefined> => {
   try {
     const response = await axios.get<VerbConjugation[]>(
@@ -32,6 +35,7 @@ export const fetchRandomVerbConjugation = async (
         params: {
           mood,
           tense,
+          polarity,
           use_irregular: useIrregularVerbs,
           use_vosotros: useVosotros,
         },
@@ -57,6 +61,21 @@ export const fetchVerbConjugation = async (
     return response.data;
   } catch (error) {
     console.error("error fetching verb conjugation: ", error);
+    return undefined;
+  }
+};
+
+export const fetchImperativeConjugation = async (
+  verb: string,
+): Promise<ImperativeConjugationTable | undefined> => {
+  try {
+    const response = await axios.get<ImperativeConjugationTable>(
+      `${BASE_URL}/get-verb-conjugation`,
+      { params: { verb, tense: "imperative" } },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("error fetching imperative conjugation: ", error);
     return undefined;
   }
 };

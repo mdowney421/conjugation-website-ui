@@ -6,7 +6,10 @@ export type Tense =
   | "imperfect"
   | "perfect"
   | "conditional"
-  | "conditional_perfect";
+  | "conditional_perfect"
+  | "imperative";
+
+export type Polarity = "affirmative" | "negative";
 
 export type VerbEntry = [string, string];
 
@@ -18,6 +21,7 @@ export type VerbConjugation = {
   infinitive_spanish?: string;
   mood_english?: Mood;
   tense_english?: Tense;
+  polarity_english?: Polarity;
 };
 
 export type PronounConjugation = {
@@ -34,4 +38,23 @@ export type VerbConjugationTable = {
   mood_english: Mood;
   tense_english: Tense;
   conjugations: PronounConjugation[];
+};
+
+// The imperative has no single "mood"-like axis to pick a form with --
+// affirmative and negative are both worth seeing side by side, so this
+// shape carries both instead of the usual single form_spanish/form_english.
+export type ImperativeConjugation = {
+  pronoun_spanish: string;
+  pronoun_english: string;
+  form_spanish_affirmative: string;
+  form_spanish_negative: string;
+  form_english_affirmative: string;
+  form_english_negative: string;
+};
+
+export type ImperativeConjugationTable = {
+  infinitive_spanish: string;
+  infinitive_english: string;
+  tense_english: "imperative";
+  conjugations: ImperativeConjugation[];
 };

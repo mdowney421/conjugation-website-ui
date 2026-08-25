@@ -643,7 +643,8 @@
   letter-spacing: 0.04em;
 }
 
-.quiz-mood.subjunctive {
+.quiz-mood.subjunctive,
+.quiz-mood.negative {
   background: var(--color-accent);
   color: #2a1d02;
 }
@@ -654,7 +655,9 @@
 .quiz-mood.imperfect,
 .quiz-mood.perfect,
 .quiz-mood.conditional,
-.quiz-mood.conditional_perfect {
+.quiz-mood.conditional_perfect,
+.quiz-mood.imperative,
+.quiz-mood.affirmative {
   background: var(--color-surface-alt);
   color: var(--color-text-muted);
   border: 1px solid var(--color-border);

@@ -10,6 +10,7 @@ const TENSE_LABELS: Record<Tense, string> = {
   perfect: "Perfect",
   conditional: "Conditional",
   conditional_perfect: "Conditional Perfect",
+  imperative: "Imperative",
 };
 
 type ConjugationInputProps = {
@@ -63,12 +64,20 @@ const ConjugationInput = ({
               {TENSE_LABELS[randomVerb.tense_english]}
             </div>
           )}
-          {randomVerb?.mood_english && (
-            <div className={`quiz-mood ${randomVerb.mood_english}`}>
-              {randomVerb.mood_english === "subjunctive"
-                ? "Subjunctive"
-                : "Indicative"}
+          {randomVerb?.tense_english === "imperative" && randomVerb?.polarity_english ? (
+            <div className={`quiz-mood ${randomVerb.polarity_english}`}>
+              {randomVerb.polarity_english === "negative"
+                ? "Negative"
+                : "Affirmative"}
             </div>
+          ) : (
+            randomVerb?.mood_english && (
+              <div className={`quiz-mood ${randomVerb.mood_english}`}>
+                {randomVerb.mood_english === "subjunctive"
+                  ? "Subjunctive"
+                  : "Indicative"}
+              </div>
+            )
           )}
         </div>
       )}

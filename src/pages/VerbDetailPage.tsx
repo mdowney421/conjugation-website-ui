@@ -2,8 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import EmptyState from "../components/EmptyState";
-import { fetchVerbConjugation } from "../languages/spanish/api";
-import type { Mood, Tense, VerbConjugationTable } from "../languages/spanish/types";
+import { fetchImperativeConjugation, fetchVerbConjugation } from "../languages/spanish/api";
+import type {
+  ImperativeConjugationTable,
+  Mood,
+  Tense,
+  VerbConjugationTable,
+} from "../languages/spanish/types";
 
 const ConjugationTable = ({ table }: { table: VerbConjugationTable }) => (
   <table className="conjugation-table">
@@ -29,6 +34,35 @@ const ConjugationTable = ({ table }: { table: VerbConjugationTable }) => (
   </table>
 );
 
+// The imperative has no "yo" form and no single indicative/subjunctive
+// axis -- affirmative and negative are different enough (and taught
+// together often enough) that they get their own columns side by side
+// instead of the mood-picker treatment every other tense gets.
+const ImperativeTable = ({ table }: { table: ImperativeConjugationTable }) => (
+  <table className="conjugation-table">
+    <thead>
+      <tr>
+        <th>Pronoun</th>
+        <th>Affirmative</th>
+        <th>Negative</th>
+        <th>English</th>
+      </tr>
+    </thead>
+    <tbody>
+      {table.conjugations.map((row) => (
+        <tr key={row.pronoun_spanish}>
+          <td className="pronoun-cell">{row.pronoun_spanish}</td>
+          <td className="spanish-cell">{row.form_spanish_affirmative}</td>
+          <td className="spanish-cell">{row.form_spanish_negative}</td>
+          <td className="english-cell">
+            {row.form_english_affirmative} / {row.form_english_negative}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
 type SectionConfig = { mood: Mood; tense: Tense; label: string };
 
 // Every mood/tense combination this app supports, in display order.
@@ -45,9 +79,15 @@ const SECTIONS: SectionConfig[] = [
   { tense: "perfect", mood: "subjunctive", label: "Perfect Subjunctive" },
 ];
 
+// Where the imperative section sits among the mood/tense SECTIONS
+// above -- right after the present tenses, since it's built out of
+// present-indicative and present-subjunctive forms.
+const IMPERATIVE_SECTION_INDEX = 2;
+
 const VerbDetailPage = () => {
   const { verb } = useParams<{ verb: string }>();
   const [tables, setTables] = useState<(VerbConjugationTable | null)[]>([]);
+  const [imperativeTable, setImperativeTable] = useState<ImperativeConjugationTable | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -57,14 +97,19 @@ const VerbDetailPage = () => {
     setIsLoading(true);
     setNotFound(false);
     setTables([]);
+    setImperativeTable(null);
 
-    Promise.all(
-      SECTIONS.map((section) =>
+    Promise.all([
+      ...SECTIONS.map((section) =>
         fetchVerbConjugation(verb, section.mood, section.tense),
       ),
-    ).then((results) => {
-      if (results[0]) {
-        setTables(results.map((result) => result ?? null));
+      fetchImperativeConjugation(verb),
+    ]).then((results) => {
+      const sectionResults = results.slice(0, SECTIONS.length) as (VerbConjugationTable | undefined)[];
+      const imperativeResult = results[SECTIONS.length] as ImperativeConjugationTable | undefined;
+      if (sectionResults[0]) {
+        setTables(sectionResults.map((result) => result ?? null));
+        setImperativeTable(imperativeResult ?? null);
       } else {
         setNotFound(true);
       }
@@ -73,6 +118,17 @@ const VerbDetailPage = () => {
   }, [verb]);
 
   const infinitiveTable = tables[0];
+
+  const renderSection = (section: SectionConfig, index: number) => {
+    const table = tables[index];
+    if (!table) return null;
+    return (
+      <div className="conjugation-section" key={section.label}>
+        <h2 className="conjugation-section-heading">{section.label}</h2>
+        <ConjugationTable table={table} />
+      </div>
+    );
+  };
 
   return (
     <>
@@ -88,18 +144,20 @@ const VerbDetailPage = () => {
         ) : notFound ? (
           <EmptyState>Couldn't find that verb.</EmptyState>
         ) : (
-          SECTIONS.map((section, index) => {
-            const table = tables[index];
-            if (!table) return null;
-            return (
-              <div className="conjugation-section" key={section.label}>
-                <h2 className="conjugation-section-heading">
-                  {section.label}
-                </h2>
-                <ConjugationTable table={table} />
+          <>
+            {SECTIONS.slice(0, IMPERATIVE_SECTION_INDEX).map((section, index) =>
+              renderSection(section, index),
+            )}
+            {imperativeTable && (
+              <div className="conjugation-section">
+                <h2 className="conjugation-section-heading">Imperative</h2>
+                <ImperativeTable table={imperativeTable} />
               </div>
-            );
-          })
+            )}
+            {SECTIONS.slice(IMPERATIVE_SECTION_INDEX).map((section, index) =>
+              renderSection(section, index + IMPERATIVE_SECTION_INDEX),
+            )}
+          </>
         )}
       </div>
     </>
