@@ -9,7 +9,7 @@ import type { Mood, Tense, VerbConjugation } from "../languages/spanish/types";
 type MoodChoice = Mood | "both";
 type TenseChoice = Tense | "all";
 
-const TENSES: Tense[] = ["present", "preterite", "imperfect"];
+const TENSES: Tense[] = ["present", "preterite", "imperfect", "perfect"];
 // Preterite has no subjunctive form in Spanish at all. Imperfect does
 // (and this app supports it), so it's excluded from this list.
 const INDICATIVE_ONLY_TENSES: Tense[] = ["preterite"];
@@ -174,6 +174,7 @@ const PracticePage = () => {
               { value: "present", label: "Present" },
               { value: "preterite", label: "Preterite" },
               { value: "imperfect", label: "Imperfect" },
+              { value: "perfect", label: "Perfect" },
               { value: "all", label: "All" },
             ]}
             onSelect={handleTenseSelection}
