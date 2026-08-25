@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 type VerbEntry = [string, string];
 
@@ -58,10 +59,14 @@ const VerbsPage = () => {
           <div className="empty-state">No verbs found.</div>
         ) : (
           filteredVerbs.map(([spanish, english], index) => (
-            <div className="verb-row" key={`${spanish}-${english}-${index}`}>
+            <Link
+              to={`/verbs/${encodeURIComponent(spanish)}`}
+              className="verb-row"
+              key={`${spanish}-${english}-${index}`}
+            >
               <span className="verb-spanish">{spanish}</span>
               <span className="verb-english">{english}</span>
-            </div>
+            </Link>
           ))
         )}
       </div>

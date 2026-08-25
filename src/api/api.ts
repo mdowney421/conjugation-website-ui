@@ -6,6 +6,21 @@ export type VerbConjugation = {
   pronoun_english?: string;
 };
 
+export type PronounConjugation = {
+  pronoun_spanish: string;
+  pronoun_english: string;
+  form_spanish: string;
+  form_english: string;
+};
+
+export type VerbConjugationTable = {
+  infinitive_spanish: string;
+  infinitive_english: string;
+  mood_english: string;
+  tense_english: string;
+  conjugations: PronounConjugation[];
+};
+
 export const fetchRandomVerbConjugation = async (
   useIrregularVerbs?: boolean,
   useVosotros?: boolean,
@@ -27,6 +42,21 @@ export const fetchRandomVerbConjugation = async (
     return response.data[0];
   } catch (error) {
     console.error("error fetching random verb conjugation: ", error);
+    return undefined;
+  }
+};
+
+export const fetchVerbConjugation = async (
+  verb: string,
+): Promise<VerbConjugationTable | undefined> => {
+  try {
+    const response = await axios.get<VerbConjugationTable>(
+      "http://127.0.0.1:8000/get-verb-conjugation",
+      { params: { verb } },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("error fetching verb conjugation: ", error);
     return undefined;
   }
 };
