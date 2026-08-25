@@ -3,6 +3,7 @@ import type { ChangeEvent, FormEvent } from "react";
 type VerbConjugation = {
   form_english?: string;
   form_spanish?: string;
+  pronoun_english?: string;
 };
 
 type ConjugationInputProps = {
@@ -32,6 +33,9 @@ const ConjugationInput = ({
   return (
     <div className="question-card">
       <div className="quiz-prompt">Conjugate</div>
+      {randomVerb?.pronoun_english && (
+        <div className="quiz-pronoun">{randomVerb.pronoun_english}</div>
+      )}
       <div className="quiz-word">{randomVerb?.form_english ?? "..."}</div>
 
       <form onSubmit={handleSubmitGuess}>

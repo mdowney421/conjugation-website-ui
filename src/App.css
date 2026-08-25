@@ -542,6 +542,19 @@
   margin-bottom: 8px;
 }
 
+.quiz-pronoun {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 16px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
 .quiz-word {
   font-size: 1.75rem;
   color: var(--color-text);

@@ -3,6 +3,7 @@ import axios from "axios";
 export type VerbConjugation = {
   form_english?: string;
   form_spanish?: string;
+  pronoun_english?: string;
 };
 
 export const fetchRandomVerbConjugation = async (
