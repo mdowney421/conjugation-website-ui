@@ -658,6 +658,8 @@
 .quiz-mood.future_perfect,
 .quiz-mood.conditional,
 .quiz-mood.conditional_perfect,
+.quiz-mood.preterite_perfect,
+.quiz-mood.pluperfect,
 .quiz-mood.imperative,
 .quiz-mood.affirmative {
   background: var(--color-surface-alt);

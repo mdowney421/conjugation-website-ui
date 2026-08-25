@@ -9,6 +9,8 @@ export type Tense =
   | "future_perfect"
   | "conditional"
   | "conditional_perfect"
+  | "preterite_perfect"
+  | "pluperfect"
   | "imperative";
 
 export type Polarity = "affirmative" | "negative";

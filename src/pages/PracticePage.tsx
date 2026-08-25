@@ -19,19 +19,23 @@ const TENSES: Tense[] = [
   "future_perfect",
   "conditional",
   "conditional_perfect",
+  "preterite_perfect",
+  "pluperfect",
   "imperative",
 ];
-// Preterite, future, and conditional (simple and perfect) have no
-// subjunctive form in Spanish at all. Imperfect and perfect do (and
-// this app supports them), so they're excluded from this list. The
-// imperative isn't in this list either -- it doesn't have a mood axis
-// at all, so it's handled separately (see IMPERATIVE_TENSE below).
+// Preterite, future, conditional (simple and perfect), and preterite
+// perfect have no subjunctive form in Spanish at all. Imperfect,
+// perfect, and pluperfect do (and this app supports them), so they're
+// excluded from this list. The imperative isn't in this list either --
+// it doesn't have a mood axis at all, so it's handled separately (see
+// IMPERATIVE_TENSE below).
 const INDICATIVE_ONLY_TENSES: Tense[] = [
   "preterite",
   "future",
   "future_perfect",
   "conditional",
   "conditional_perfect",
+  "preterite_perfect",
 ];
 // The imperative doesn't have indicative/subjunctive forms -- it has
 // affirmative/negative ones instead, so when this specific tense is
@@ -229,6 +233,8 @@ const PracticePage = () => {
               { value: "future_perfect", label: "Future Perfect" },
               { value: "conditional", label: "Conditional" },
               { value: "conditional_perfect", label: "Conditional Perfect" },
+              { value: "preterite_perfect", label: "Preterite Perfect" },
+              { value: "pluperfect", label: "Pluperfect" },
               { value: "imperative", label: "Imperative" },
               { value: "all", label: "All" },
             ]}

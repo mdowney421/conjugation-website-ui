@@ -12,6 +12,8 @@ const TENSE_LABELS: Record<Tense, string> = {
   future_perfect: "Future Perfect",
   conditional: "Conditional",
   conditional_perfect: "Conditional Perfect",
+  preterite_perfect: "Preterite Perfect",
+  pluperfect: "Pluperfect",
   imperative: "Imperative",
 };
 
