@@ -4,6 +4,7 @@ import type { LanguageDefinition } from "../registry";
 export const es: LanguageDefinition = {
   code: "es",
   displayName: "Spanish",
+  flagEmoji: "🇪🇸",
   enabled: true,
   verbCount: 100,
   tenseLabels: {

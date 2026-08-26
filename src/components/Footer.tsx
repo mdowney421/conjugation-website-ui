@@ -9,7 +9,7 @@ const Footer = () => {
           <span className="brand-dot" />
         </span>
       </span>{" "}
-      — practice your conjugations
+      — learn a language, your way
     </footer>
   );
 };

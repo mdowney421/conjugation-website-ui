@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import FeatureItem from "../components/FeatureItem";
-import HeroIllustration from "../components/HeroIllustration";
 import { LANGUAGES } from "../languages/registry";
 
 export const metadata: Metadata = {
@@ -14,16 +14,24 @@ const LanguagePickerPage = () => {
   return (
     <div className="page">
       <div className="hero">
+        <div className="hero-media">
+          <Image
+            src="/TrekuentHeroImage.png"
+            alt="A traveler pauses on a mountain trail marked with icons for reading, conversation, and practice, following it toward a flag at the summit"
+            fill
+            priority
+            sizes="100vw"
+            className="hero-bg-image"
+          />
+          <div className="hero-scrim" />
+        </div>
         <div className="hero-inner">
           <div className="hero-text">
             <h1>Trekuent</h1>
             <p>
-              Welcome to your conjugation destination — a one-stop shop for
-              looking up verbs and practicing conjugations.
+              Language learning is a journey — we're just here to point out the
+              shortcuts.
             </p>
-          </div>
-          <div className="hero-illustration">
-            <HeroIllustration />
           </div>
         </div>
       </div>

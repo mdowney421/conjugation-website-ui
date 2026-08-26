@@ -4,6 +4,7 @@ import { es } from "./es/config";
 export type LanguageDefinition = {
   code: string;
   displayName: string;
+  flagEmoji: string;
   enabled: boolean;
   verbCount: number;
   tenseLabels: Record<Tense, string>;

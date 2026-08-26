@@ -39,6 +39,25 @@
 
   --container-width: 1080px;
   --navbar-height: 65px;
+
+  --flag-gradient-es: linear-gradient(
+    90deg,
+    #aa151b 0%,
+    #aa151b 25%,
+    #f1bf00 25%,
+    #f1bf00 75%,
+    #aa151b 75%,
+    #aa151b 100%
+  );
+  --flag-gradient-fr: linear-gradient(
+    90deg,
+    #0055a4 0%,
+    #0055a4 33.3%,
+    #ffffff 33.3%,
+    #ffffff 66.6%,
+    #ef4135 66.6%,
+    #ef4135 100%
+  );
 }
 
 :root[data-theme="dark"] {
