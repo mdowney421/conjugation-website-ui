@@ -5,6 +5,7 @@ import PageHeader from "../../components/PageHeader";
 import QuestionCard from "../../components/QuestionCard";
 import Button from "../../components/Button";
 import VerbTypeSelection from "./VerbTypeSelection";
+import MoodSelection, { type MoodChoice } from "./MoodSelection";
 import TenseSelection from "./TenseSelection";
 import DurationSelection from "./DurationSelection";
 import ConjugationInput from "./ConjugationInput";
@@ -54,7 +55,7 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
     boolean | undefined
   >();
   const [toggleAnswers, setToggleAnswers] = useState<Record<string, boolean>>({});
-  const [useSubjunctive, setUseSubjunctive] = useState<boolean | undefined>();
+  const [moodSelection, setMoodSelection] = useState<MoodChoice | undefined>();
   const [tenseSelection, setTenseSelection] = useState<Tense[]>([]);
   const [randomVerb, setRandomVerb] = useState<VerbConjugation | null>(null);
   const [stepIndex, setStepIndex] = useState<number>(0);
@@ -123,8 +124,8 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
     setStepIndex((i) => i + 1);
   };
 
-  const handleSubjunctiveQuestion = (userResponse: boolean) => {
-    setUseSubjunctive(userResponse);
+  const handleMoodSelection = (choice: MoodChoice) => {
+    setMoodSelection(choice);
     setStepIndex((i) => i + 1);
   };
 
@@ -134,6 +135,10 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
         ? prev.filter((selected) => selected !== tense)
         : [...prev, tense],
     );
+  };
+
+  const handleToggleAllTenses = () => {
+    setTenseSelection((prev) => (prev.length === tenseList.length ? [] : tenseList));
   };
 
   const handleTenseConfirm = () => {
@@ -158,18 +163,17 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
   const resolveMood = (resolvedTense: Tense): Mood => {
     // Tenses with no subjunctive form in this language always use the
     // indicative, and so does the imperative, which doesn't have a mood
-    // axis at all. Every other tense is randomized so a multi-tense
-    // practice session sees both moods -- unless the user opted out of
-    // the subjunctive during setup (or this language has none), in
-    // which case every round stays indicative.
+    // axis at all -- regardless of what the user picked during setup.
     if (
       definition.indicativeOnlyTenses.includes(resolvedTense) ||
-      resolvedTense === IMPERATIVE_TENSE ||
-      !useSubjunctive
+      resolvedTense === IMPERATIVE_TENSE
     ) {
       return "indicative";
     }
-    return Math.random() < 0.5 ? "indicative" : "subjunctive";
+    if (moodSelection === "both") {
+      return Math.random() < 0.5 ? "indicative" : "subjunctive";
+    }
+    return moodSelection === "subjunctive" ? "subjunctive" : "indicative";
   };
 
   const resolvePolarity = (resolvedTense: Tense): Polarity => {
@@ -317,11 +321,7 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
         )}
 
         {currentStep?.kind === "subjunctive" && (
-          <VerbTypeSelection
-            prompt="Do you want to practice the subjunctive mood?"
-            onYes={() => handleSubjunctiveQuestion(true)}
-            onNo={() => handleSubjunctiveQuestion(false)}
-          />
+          <MoodSelection onSelect={handleMoodSelection} />
         )}
 
         {currentStep?.kind === "tenses" && (
@@ -330,6 +330,7 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
             tenseLabels={definition.tenseLabels}
             tenseSelection={tenseSelection}
             onToggleTense={handleToggleTense}
+            onToggleAllTenses={handleToggleAllTenses}
             onConfirm={handleTenseConfirm}
           />
         )}

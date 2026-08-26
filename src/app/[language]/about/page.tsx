@@ -9,7 +9,7 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
   const definition = LANGUAGES[language];
   if (!definition) return {};
   return {
-    title: "About Trekuent",
+    title: "About Trekluent",
     description: `A tool for learning ${definition.displayName}.`,
   };
 };
@@ -22,14 +22,14 @@ const AboutPage = async ({ params }: PageProps) => {
   return (
     <div className="page">
       <PageHeader
-        title="About Trekuent"
+        title="About Trekluent"
         subtitle="A tool for learning a new language."
       />
 
       <div className="about-content">
         <h2>Everything you need, in one place</h2>
         <p>
-          Trekuent brings together what you need to learn — starting with
+          Trekluent brings together what you need to learn — starting with
           verb conjugation, with grammar and vocabulary on the way — and a
           quiz mode, so you're never bouncing between a dozen tabs just to
           look something up or find something to practice.
@@ -45,7 +45,7 @@ const AboutPage = async ({ params }: PageProps) => {
 
         <h2>Built for efficiency</h2>
         <p>
-          Trekuent quizzes you one question at a time and tells you right
+          Trekluent quizzes you one question at a time and tells you right
           away whether you got it right, so there's no wasted motion.
           Whether you're brushing up before a trip or working through a
           course, it's meant to be a quick, no-friction tool you can come

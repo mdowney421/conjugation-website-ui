@@ -29,7 +29,7 @@ const Navbar = () => {
           className="navbar-brand"
           onClick={() => setIsOpen(false)}
         >
-          Trekuent
+          Trekluent
           <span className="brand-dots" aria-hidden="true">
             <span className="brand-dot" />
             <span className="brand-dot" />

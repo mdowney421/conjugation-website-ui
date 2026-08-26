@@ -5,7 +5,9 @@ import { LANGUAGES } from "../../languages/registry";
 
 type PageProps = { params: Promise<{ language: string }> };
 
-export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
+export const generateMetadata = async ({
+  params,
+}: PageProps): Promise<Metadata> => {
   const { language } = await params;
   const definition = LANGUAGES[language];
   if (!definition) return {};
@@ -25,7 +27,7 @@ const HomePage = async ({ params }: PageProps) => {
       <div className="hero">
         <div className="hero-media">
           <Image
-            src="/TrekuentHeroImage.png"
+            src="/TrekluentHeroImage.png"
             alt="A traveler pauses on a mountain trail marked with icons for reading, conversation, and practice, following it toward a flag at the summit"
             fill
             priority
@@ -39,7 +41,9 @@ const HomePage = async ({ params }: PageProps) => {
             <span className="hero-flag-emoji">{definition.flagEmoji}</span>
             <h1>{definition.displayName}</h1>
             <p>Look things up fast, then practice until it sticks.</p>
-            <span className={`hero-flag-stripe hero-flag-stripe--${definition.code}`} />
+            <span
+              className={`hero-flag-stripe hero-flag-stripe--${definition.code}`}
+            />
           </div>
         </div>
       </div>

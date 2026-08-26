@@ -1139,6 +1139,12 @@ a.language-card:hover {
   flex-wrap: wrap;
 }
 
+.select-all-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
 .chip-grid {
   display: flex;
   flex-wrap: wrap;

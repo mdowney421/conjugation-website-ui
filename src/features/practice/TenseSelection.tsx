@@ -9,6 +9,7 @@ type TenseSelectionProps = {
   tenseSelection: Tense[];
   tenseLabels: Record<Tense, string>;
   onToggleTense: (tense: Tense) => void;
+  onToggleAllTenses: () => void;
   onConfirm: () => void;
 };
 
@@ -17,10 +18,18 @@ const TenseSelection = ({
   tenseSelection,
   tenseLabels,
   onToggleTense,
+  onToggleAllTenses,
   onConfirm,
 }: TenseSelectionProps) => {
+  const allSelected = tenseSelection.length === tenseList.length;
+
   return (
     <QuestionCard title="Which tenses would you like to practice?">
+      <div className="select-all-row">
+        <Button variant="ghost" className="btn-sm" onClick={onToggleAllTenses}>
+          {allSelected ? "Deselect all" : "Select all"}
+        </Button>
+      </div>
       <div className="chip-grid">
         {tenseList.map((tense) => (
           <button
