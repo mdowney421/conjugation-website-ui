@@ -4,6 +4,8 @@ import QuestionCard from "../../components/QuestionCard";
 import { TENSE_LABELS } from "../../languages/spanish/types";
 import type { VerbConjugation } from "../../languages/spanish/types";
 
+const ACCENT_CHARS = ["á", "é", "í", "ó", "ú", "ñ"];
+
 type ConjugationInputProps = {
   randomVerb: VerbConjugation | null;
   handleInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -32,6 +34,7 @@ const ConjugationInput = ({
   hasMissed,
 }: ConjugationInputProps) => {
   const isCorrect = isCorrectAnswer === "true";
+  const isLocked = isCorrect || showAnswer;
   const inputStateClass =
     isCorrectAnswer === "true"
       ? " correct"
@@ -45,9 +48,24 @@ const ConjugationInput = ({
     inputRef.current?.focus();
   }, [randomVerb, isCorrect]);
 
+  const insertChar = (char: string) => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    const start = input.selectionStart ?? userGuess.length;
+    const end = input.selectionEnd ?? userGuess.length;
+    input.value = userGuess.slice(0, start) + char + userGuess.slice(end);
+    handleInputChange({ target: input } as ChangeEvent<HTMLInputElement>);
+
+    const cursor = start + char.length;
+    requestAnimationFrame(() => {
+      input.focus();
+      input.setSelectionRange(cursor, cursor);
+    });
+  };
+
   return (
     <QuestionCard>
-      <div className="quiz-prompt">Conjugate</div>
       {(randomVerb?.tense_english || randomVerb?.mood_english) && (
         <div className="quiz-badges">
           {randomVerb?.tense_english && (
@@ -85,15 +103,31 @@ const ConjugationInput = ({
           type="text"
           className={`quiz-input${inputStateClass}`}
           id="conjugationGuess"
-          placeholder="Enter your conjugation"
+          placeholder="Enter your translation"
           onChange={handleInputChange}
           value={userGuess}
           autoComplete="off"
-          readOnly={isCorrect}
+          readOnly={isLocked}
         />
 
+        {!isLocked && (
+          <div className="accent-toolbar">
+            {ACCENT_CHARS.map((char) => (
+              <button
+                key={char}
+                type="button"
+                className="accent-btn"
+                tabIndex={-1}
+                onClick={() => insertChar(char)}
+              >
+                {char}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="quiz-actions">
-          {!isCorrect && <Button type="submit">Check Answer</Button>}
+          {!isLocked && <Button type="submit">Check Answer</Button>}
 
           {hasMissed && !showAnswer && !isCorrect && (
             <Button

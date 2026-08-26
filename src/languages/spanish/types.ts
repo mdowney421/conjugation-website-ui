@@ -19,7 +19,7 @@ export const TENSE_LABELS: Record<Tense, string> = {
   present: "Present",
   preterite: "Preterite",
   imperfect: "Imperfect",
-  perfect: "Perfect",
+  perfect: "Present Perfect",
   future: "Future",
   future_perfect: "Future Perfect",
   conditional: "Conditional",

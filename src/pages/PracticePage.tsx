@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageHeader from "../components/PageHeader";
 import VerbTypeSelection from "../features/practice/VerbTypeSelection";
 import TenseSelection from "../features/practice/TenseSelection";
@@ -42,6 +42,7 @@ const PracticePage = () => {
     boolean | undefined
   >();
   const [useVosotros, setUseVosotros] = useState<boolean | undefined>();
+  const [useSubjunctive, setUseSubjunctive] = useState<boolean | undefined>();
   const [tenseSelection, setTenseSelection] = useState<Tense[]>([]);
   const [randomVerb, setRandomVerb] = useState<VerbConjugation | null>(null);
   const [questionNumber, setQuestionNumber] = useState<number>(1);
@@ -50,6 +51,18 @@ const PracticePage = () => {
   const [showHint, setShowHint] = useState<boolean>(false);
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [hasMissed, setHasMissed] = useState<boolean>(false);
+  const [correctCount, setCorrectCount] = useState<number>(0);
+  const [questionsSeen, setQuestionsSeen] = useState<number>(0);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+
+  useEffect(() => {
+    if (startTime === null) return;
+    const interval = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [startTime]);
 
   const handleIrregularityQuestion = (userResponse: boolean) => {
     setUseIrregularVerbs(userResponse);
@@ -59,6 +72,11 @@ const PracticePage = () => {
   const handleVosotrosQuestion = (userResponse: boolean) => {
     setUseVosotros(userResponse);
     setQuestionNumber(3);
+  };
+
+  const handleSubjunctiveQuestion = (userResponse: boolean) => {
+    setUseSubjunctive(userResponse);
+    setQuestionNumber(4);
   };
 
   const handleToggleTense = (tense: Tense) => {
@@ -77,10 +95,13 @@ const PracticePage = () => {
     // subjunctive form in this app, so any round that lands on one of
     // them always uses the indicative. Same story for the imperative,
     // which doesn't have a mood axis at all. Every other tense is
-    // randomized so a multi-tense practice session sees both moods.
+    // randomized so a multi-tense practice session sees both moods --
+    // unless the user opted out of the subjunctive during setup, in
+    // which case every round stays indicative.
     if (
       (INDICATIVE_ONLY_TENSES as Tense[]).includes(resolvedTense) ||
-      resolvedTense === IMPERATIVE_TENSE
+      resolvedTense === IMPERATIVE_TENSE ||
+      !useSubjunctive
     ) {
       return "indicative";
     }
@@ -112,11 +133,17 @@ const PracticePage = () => {
       return;
     }
 
+    if (showAnswer) {
+      return;
+    }
+
     const correct =
       userGuess === randomVerb?.form_spanish ||
       (!!randomVerb?.form_spanish_alt && userGuess === randomVerb.form_spanish_alt);
     setIsCorrectAnswer(correct ? "true" : "false");
-    if (!correct) {
+    if (correct) {
+      setCorrectCount((prev) => prev + 1);
+    } else {
       setHasMissed(true);
     }
   };
@@ -137,9 +164,17 @@ const PracticePage = () => {
     setShowHint(false);
     setShowAnswer(false);
     setHasMissed(false);
+    setQuestionsSeen((prev) => prev + 1);
+    setStartTime((prev) => prev ?? Date.now());
   };
 
-  const isSetupStep = questionNumber >= 1 && questionNumber <= 3;
+  const isSetupStep = questionNumber >= 1 && questionNumber <= 4;
+
+  const formatElapsedTime = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
 
   return (
     <>
@@ -149,9 +184,18 @@ const PracticePage = () => {
       />
 
       <div className="practice-card">
+        {startTime !== null && (
+          <div className="practice-stats">
+            <span className="stat-item">⏱ {formatElapsedTime(elapsedSeconds)}</span>
+            <span className="stat-item">
+              ✓ {correctCount}/{questionsSeen} correct
+            </span>
+          </div>
+        )}
+
         {isSetupStep && (
           <div className="step-progress">
-            {[1, 2, 3].map((step) => (
+            {[1, 2, 3, 4].map((step) => (
               <span
                 key={step}
                 className={`step-dot${
@@ -183,6 +227,14 @@ const PracticePage = () => {
         )}
 
         {questionNumber === 3 && (
+          <VerbTypeSelection
+            prompt="Do you want to practice the subjunctive mood?"
+            onYes={() => handleSubjunctiveQuestion(true)}
+            onNo={() => handleSubjunctiveQuestion(false)}
+          />
+        )}
+
+        {questionNumber === 4 && (
           <TenseSelection
             tenseList={TENSES}
             tenseSelection={tenseSelection}
