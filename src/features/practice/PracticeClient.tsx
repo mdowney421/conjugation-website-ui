@@ -1,55 +1,63 @@
-import { useEffect, useState } from "react";
-import PageHeader from "../components/PageHeader";
-import QuestionCard from "../components/QuestionCard";
-import Button from "../components/Button";
-import VerbTypeSelection from "../features/practice/VerbTypeSelection";
-import TenseSelection from "../features/practice/TenseSelection";
-import DurationSelection from "../features/practice/DurationSelection";
-import ConjugationInput from "../features/practice/ConjugationInput";
-import Confetti from "../features/practice/Confetti";
-import { fetchRandomVerbConjugation as fetchVerb } from "../languages/spanish/api";
-import type { Mood, Polarity, Tense, VerbConjugation } from "../languages/spanish/types";
+"use client";
 
-const TENSES: Tense[] = [
-  "present",
-  "preterite",
-  "imperfect",
-  "perfect",
-  "future",
-  "future_perfect",
-  "conditional",
-  "conditional_perfect",
-  "preterite_perfect",
-  "pluperfect",
-  "imperative",
-];
-// Preterite, future, conditional (simple and perfect), and preterite
-// perfect have no subjunctive form in Spanish at all. Imperfect,
-// perfect, and pluperfect do (and this app supports them), so they're
-// excluded from this list. The imperative isn't in this list either --
-// it doesn't have a mood axis at all, so it's handled separately (see
-// IMPERATIVE_TENSE below).
-const INDICATIVE_ONLY_TENSES: Tense[] = [
-  "preterite",
-  "future",
-  "future_perfect",
-  "conditional",
-  "conditional_perfect",
-  "preterite_perfect",
-];
+import { useEffect, useMemo, useState } from "react";
+import PageHeader from "../../components/PageHeader";
+import QuestionCard from "../../components/QuestionCard";
+import Button from "../../components/Button";
+import VerbTypeSelection from "./VerbTypeSelection";
+import TenseSelection from "./TenseSelection";
+import DurationSelection from "./DurationSelection";
+import ConjugationInput from "./ConjugationInput";
+import Confetti from "./Confetti";
+import { fetchRandomVerbConjugation as fetchVerb } from "../../languages/api";
+import type { LanguageDefinition } from "../../languages/registry";
+import type { Mood, Polarity, Tense, VerbConjugation } from "../../languages/types";
+
 // The imperative doesn't have indicative/subjunctive forms -- it has
 // affirmative/negative ones instead, resolved by resolvePolarity below.
+// Universal across languages, so it isn't part of per-language config.
 const IMPERATIVE_TENSE: Tense = "imperative";
 
-const PracticePage = () => {
+type SetupStep =
+  | { kind: "irregular" }
+  | { kind: "toggle"; key: string; prompt: string }
+  | { kind: "subjunctive" }
+  | { kind: "tenses" }
+  | { kind: "duration" };
+
+type PracticeClientProps = {
+  code: string;
+  definition: LanguageDefinition;
+};
+
+const PracticeClient = ({ code, definition }: PracticeClientProps) => {
+  const tenseList = useMemo(
+    () => Object.keys(definition.tenseLabels) as Tense[],
+    [definition],
+  );
+  const steps = useMemo<SetupStep[]>(
+    () => [
+      { kind: "irregular" },
+      ...definition.extraToggles.map((toggle) => ({
+        kind: "toggle" as const,
+        key: toggle.key,
+        prompt: toggle.prompt,
+      })),
+      ...(definition.hasSubjunctive ? [{ kind: "subjunctive" as const }] : []),
+      { kind: "tenses" },
+      { kind: "duration" },
+    ],
+    [definition],
+  );
+
   const [useIrregularVerbs, setUseIrregularVerbs] = useState<
     boolean | undefined
   >();
-  const [useVosotros, setUseVosotros] = useState<boolean | undefined>();
+  const [toggleAnswers, setToggleAnswers] = useState<Record<string, boolean>>({});
   const [useSubjunctive, setUseSubjunctive] = useState<boolean | undefined>();
   const [tenseSelection, setTenseSelection] = useState<Tense[]>([]);
   const [randomVerb, setRandomVerb] = useState<VerbConjugation | null>(null);
-  const [questionNumber, setQuestionNumber] = useState<number>(1);
+  const [stepIndex, setStepIndex] = useState<number>(0);
   const [isCorrectAnswer, setIsCorrectAnswer] = useState<string>("");
   const [userGuess, setUserGuess] = useState<string>("");
   const [showHint, setShowHint] = useState<boolean>(false);
@@ -107,17 +115,17 @@ const PracticePage = () => {
 
   const handleIrregularityQuestion = (userResponse: boolean) => {
     setUseIrregularVerbs(userResponse);
-    setQuestionNumber(2);
+    setStepIndex((i) => i + 1);
   };
 
-  const handleVosotrosQuestion = (userResponse: boolean) => {
-    setUseVosotros(userResponse);
-    setQuestionNumber(3);
+  const handleToggleAnswer = (key: string, userResponse: boolean) => {
+    setToggleAnswers((prev) => ({ ...prev, [key]: userResponse }));
+    setStepIndex((i) => i + 1);
   };
 
   const handleSubjunctiveQuestion = (userResponse: boolean) => {
     setUseSubjunctive(userResponse);
-    setQuestionNumber(4);
+    setStepIndex((i) => i + 1);
   };
 
   const handleToggleTense = (tense: Tense) => {
@@ -129,7 +137,7 @@ const PracticePage = () => {
   };
 
   const handleTenseConfirm = () => {
-    setQuestionNumber(5);
+    setStepIndex((i) => i + 1);
   };
 
   const handlePracticeAgain = () => {
@@ -141,22 +149,21 @@ const PracticePage = () => {
     setShowConfetti(false);
     setShowSummary(false);
     setTimeLimitSeconds(undefined);
-    setQuestionNumber(5);
+    setStepIndex(steps.length - 1);
   };
 
   const resolveTense = (): Tense =>
     tenseSelection[Math.floor(Math.random() * tenseSelection.length)];
 
   const resolveMood = (resolvedTense: Tense): Mood => {
-    // Preterite (and its INDICATIVE_ONLY_TENSES siblings) have no
-    // subjunctive form in this app, so any round that lands on one of
-    // them always uses the indicative. Same story for the imperative,
-    // which doesn't have a mood axis at all. Every other tense is
-    // randomized so a multi-tense practice session sees both moods --
-    // unless the user opted out of the subjunctive during setup, in
+    // Tenses with no subjunctive form in this language always use the
+    // indicative, and so does the imperative, which doesn't have a mood
+    // axis at all. Every other tense is randomized so a multi-tense
+    // practice session sees both moods -- unless the user opted out of
+    // the subjunctive during setup (or this language has none), in
     // which case every round stays indicative.
     if (
-      (INDICATIVE_ONLY_TENSES as Tense[]).includes(resolvedTense) ||
+      definition.indicativeOnlyTenses.includes(resolvedTense) ||
       resolvedTense === IMPERATIVE_TENSE ||
       !useSubjunctive
     ) {
@@ -195,8 +202,8 @@ const PracticePage = () => {
     }
 
     const correct =
-      userGuess === randomVerb?.form_spanish ||
-      (!!randomVerb?.form_spanish_alt && userGuess === randomVerb.form_spanish_alt);
+      userGuess === randomVerb?.form_target ||
+      (!!randomVerb?.form_target_alt && userGuess === randomVerb.form_target_alt);
     setIsCorrectAnswer(correct ? "true" : "false");
     if (correct) {
       setCorrectCount((prev) => prev + 1);
@@ -208,14 +215,15 @@ const PracticePage = () => {
   const fetchRandomVerbConjugation = async () => {
     const tense = resolveTense();
     const verb = await fetchVerb(
+      code,
       useIrregularVerbs,
-      useVosotros,
+      toggleAnswers["useRegionalVariant"],
       resolveMood(tense),
       tense,
       resolvePolarity(tense),
     );
     setRandomVerb(verb ?? null);
-    setQuestionNumber(0);
+    setStepIndex(steps.length);
     setIsCorrectAnswer("");
     setUserGuess("");
     setShowHint(false);
@@ -225,7 +233,9 @@ const PracticePage = () => {
     setStartTime((prev) => prev ?? Date.now());
   };
 
-  const isSetupStep = questionNumber >= 1 && questionNumber <= 5;
+  const isSetupStep = stepIndex < steps.length;
+  const isActivePractice = stepIndex === steps.length;
+  const currentStep = isSetupStep ? steps[stepIndex] : null;
 
   const formatElapsedTime = (totalSeconds: number) => {
     const minutes = Math.floor(totalSeconds / 60);
@@ -234,7 +244,7 @@ const PracticePage = () => {
   };
 
   return (
-    <>
+    <div className="page">
       <PageHeader
         title="Practice"
         subtitle="Answer a few quick questions, then start conjugating."
@@ -275,13 +285,13 @@ const PracticePage = () => {
 
         {isSetupStep && (
           <div className="step-progress">
-            {[1, 2, 3, 4, 5].map((step) => (
+            {steps.map((_, index) => (
               <span
-                key={step}
+                key={index}
                 className={`step-dot${
-                  step === questionNumber
+                  index === stepIndex
                     ? " active"
-                    : step < questionNumber
+                    : index < stepIndex
                       ? " done"
                       : ""
                 }`}
@@ -290,7 +300,7 @@ const PracticePage = () => {
           </div>
         )}
 
-        {questionNumber === 1 && (
+        {currentStep?.kind === "irregular" && (
           <VerbTypeSelection
             prompt="Do you want irregular verbs?"
             onYes={() => handleIrregularityQuestion(true)}
@@ -298,15 +308,15 @@ const PracticePage = () => {
           />
         )}
 
-        {questionNumber === 2 && (
+        {currentStep?.kind === "toggle" && (
           <VerbTypeSelection
-            prompt='Do you want to include "vosotros"?'
-            onYes={() => handleVosotrosQuestion(true)}
-            onNo={() => handleVosotrosQuestion(false)}
+            prompt={currentStep.prompt}
+            onYes={() => handleToggleAnswer(currentStep.key, true)}
+            onNo={() => handleToggleAnswer(currentStep.key, false)}
           />
         )}
 
-        {questionNumber === 3 && (
+        {currentStep?.kind === "subjunctive" && (
           <VerbTypeSelection
             prompt="Do you want to practice the subjunctive mood?"
             onYes={() => handleSubjunctiveQuestion(true)}
@@ -314,16 +324,17 @@ const PracticePage = () => {
           />
         )}
 
-        {questionNumber === 4 && (
+        {currentStep?.kind === "tenses" && (
           <TenseSelection
-            tenseList={TENSES}
+            tenseList={tenseList}
+            tenseLabels={definition.tenseLabels}
             tenseSelection={tenseSelection}
             onToggleTense={handleToggleTense}
             onConfirm={handleTenseConfirm}
           />
         )}
 
-        {questionNumber === 5 && (
+        {currentStep?.kind === "duration" && (
           <DurationSelection
             selectedSeconds={timeLimitSeconds}
             onSelect={setTimeLimitSeconds}
@@ -331,9 +342,11 @@ const PracticePage = () => {
           />
         )}
 
-        {questionNumber === 0 && !isTimeUp && (
+        {isActivePractice && !isTimeUp && (
           <ConjugationInput
             randomVerb={randomVerb}
+            tenseLabels={definition.tenseLabels}
+            accentChars={definition.accentChars}
             handleInputChange={handleInputChange}
             handleSubmitGuess={handleSubmitGuess}
             isCorrectAnswer={isCorrectAnswer}
@@ -344,6 +357,7 @@ const PracticePage = () => {
             showAnswer={showAnswer}
             onShowAnswer={() => setShowAnswer(true)}
             hasMissed={hasMissed}
+            questionKey={questionsSeen}
           />
         )}
 
@@ -364,8 +378,8 @@ const PracticePage = () => {
           </QuestionCard>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
-export default PracticePage;
+export default PracticeClient;

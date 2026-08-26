@@ -1,3 +1,5 @@
+"use client";
+
 import Button from "../../components/Button";
 import QuestionCard from "../../components/QuestionCard";
 

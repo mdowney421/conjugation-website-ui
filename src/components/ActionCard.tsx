@@ -1,15 +1,13 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 type ActionCardProps = {
   to: string;
-  icon: string;
   title: string;
   description: string;
 };
 
-const ActionCard = ({ to, icon, title, description }: ActionCardProps) => (
-  <Link to={to} className="action-card">
-    <span className="action-card-icon">{icon}</span>
+const ActionCard = ({ to, title, description }: ActionCardProps) => (
+  <Link href={to} className="action-card">
     <h3>{title}</h3>
     <p>{description}</p>
   </Link>

@@ -1,13 +1,14 @@
+"use client";
+
 import { useEffect, useRef, type ChangeEvent, type FormEvent } from "react";
 import Button from "../../components/Button";
 import QuestionCard from "../../components/QuestionCard";
-import { TENSE_LABELS } from "../../languages/spanish/types";
-import type { VerbConjugation } from "../../languages/spanish/types";
-
-const ACCENT_CHARS = ["á", "é", "í", "ó", "ú", "ñ"];
+import type { Tense, VerbConjugation } from "../../languages/types";
 
 type ConjugationInputProps = {
   randomVerb: VerbConjugation | null;
+  tenseLabels: Record<Tense, string>;
+  accentChars: string[];
   handleInputChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleSubmitGuess: (event: FormEvent<HTMLFormElement>) => void;
   isCorrectAnswer: string;
@@ -18,10 +19,13 @@ type ConjugationInputProps = {
   showAnswer: boolean;
   onShowAnswer: () => void;
   hasMissed: boolean;
+  questionKey: number;
 };
 
 const ConjugationInput = ({
   randomVerb,
+  tenseLabels,
+  accentChars,
   handleInputChange,
   handleSubmitGuess,
   isCorrectAnswer,
@@ -32,6 +36,7 @@ const ConjugationInput = ({
   showAnswer,
   onShowAnswer,
   hasMissed,
+  questionKey,
 }: ConjugationInputProps) => {
   const isCorrect = isCorrectAnswer === "true";
   const isLocked = isCorrect || showAnswer;
@@ -65,24 +70,24 @@ const ConjugationInput = ({
   };
 
   return (
-    <QuestionCard>
-      {(randomVerb?.tense_english || randomVerb?.mood_english) && (
+    <QuestionCard animationKey={questionKey}>
+      {(randomVerb?.tense || randomVerb?.mood) && (
         <div className="quiz-badges">
-          {randomVerb?.tense_english && (
-            <div className={`quiz-mood ${randomVerb.tense_english}`}>
-              {TENSE_LABELS[randomVerb.tense_english]}
+          {randomVerb?.tense && (
+            <div className={`quiz-mood ${randomVerb.tense}`}>
+              {tenseLabels[randomVerb.tense]}
             </div>
           )}
-          {randomVerb?.tense_english === "imperative" && randomVerb?.polarity_english ? (
-            <div className={`quiz-mood ${randomVerb.polarity_english}`}>
-              {randomVerb.polarity_english === "negative"
+          {randomVerb?.tense === "imperative" && randomVerb?.polarity ? (
+            <div className={`quiz-mood ${randomVerb.polarity}`}>
+              {randomVerb.polarity === "negative"
                 ? "Negative"
                 : "Affirmative"}
             </div>
           ) : (
-            randomVerb?.mood_english && (
-              <div className={`quiz-mood ${randomVerb.mood_english}`}>
-                {randomVerb.mood_english === "subjunctive"
+            randomVerb?.mood && (
+              <div className={`quiz-mood ${randomVerb.mood}`}>
+                {randomVerb.mood === "subjunctive"
                   ? "Subjunctive"
                   : "Indicative"}
               </div>
@@ -91,8 +96,8 @@ const ConjugationInput = ({
         </div>
       )}
       <div className="quiz-sentence">
-        {randomVerb?.mood_english === "subjunctive" &&
-          randomVerb?.tense_english !== "imperative" && (
+        {randomVerb?.mood === "subjunctive" &&
+          randomVerb?.tense !== "imperative" && (
             <span className="quiz-subjunctive-marker">(that)</span>
           )}
         {randomVerb?.pronoun_english && (
@@ -116,7 +121,7 @@ const ConjugationInput = ({
 
         {!isLocked && (
           <div className="accent-toolbar">
-            {ACCENT_CHARS.map((char) => (
+            {accentChars.map((char) => (
               <button
                 key={char}
                 type="button"
@@ -159,18 +164,18 @@ const ConjugationInput = ({
       {isCorrectAnswer === "false" && (
         <div className="feedback-banner incorrect">✗ Incorrect</div>
       )}
-      {showHint && randomVerb?.infinitive_spanish && (
+      {showHint && randomVerb?.infinitive_target && (
         <div className="hint-text">
-          Hint: the infinitive is <strong>{randomVerb.infinitive_spanish}</strong>
+          Hint: the infinitive is <strong>{randomVerb.infinitive_target}</strong>
         </div>
       )}
-      {showAnswer && randomVerb?.form_spanish && (
+      {showAnswer && randomVerb?.form_target && (
         <div className="hint-text">
-          Answer: <strong>{randomVerb.form_spanish}</strong>
-          {randomVerb.form_spanish_alt && (
+          Answer: <strong>{randomVerb.form_target}</strong>
+          {randomVerb.form_target_alt && (
             <>
               {" "}
-              (or <strong>{randomVerb.form_spanish_alt}</strong>)
+              (or <strong>{randomVerb.form_target_alt}</strong>)
             </>
           )}
         </div>

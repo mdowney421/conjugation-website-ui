@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 
 const COLORS = ["#0e7c5a", "#f4a93b", "#d64545", "#1e9e63", "#24a679", "#ffc164"];

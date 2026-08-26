@@ -16,6 +16,13 @@
   --color-success: #1e9e63;
   --color-success-light: #e7f7ef;
 
+  --color-accent-2: #d9704a;
+  --color-accent-2-light: #fbe9e1;
+  --color-accent-3: #2f7dc0;
+  --color-accent-3-light: #e4f0fa;
+  --color-accent-4: #9455b0;
+  --color-accent-4-light: #f3e8f7;
+
   --color-navbar-bg: rgba(255, 255, 255, 0.9);
 
   --shadow-sm: 0 1px 2px rgba(16, 36, 26, 0.06);
@@ -51,6 +58,13 @@
   --color-danger-light: #3a2223;
   --color-success: #3fcf8e;
   --color-success-light: #1d3329;
+
+  --color-accent-2: #ff9268;
+  --color-accent-2-light: #3a241d;
+  --color-accent-3: #5aa9e6;
+  --color-accent-3-light: #1c2f3d;
+  --color-accent-4: #c98ee0;
+  --color-accent-4-light: #34213d;
 
   --color-navbar-bg: rgba(18, 24, 26, 0.85);
 

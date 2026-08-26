@@ -9,11 +9,30 @@ import type {
   VerbEntry,
 } from "./types";
 
-const BASE_URL = "http://127.0.0.1:8000";
+// Set NEXT_PUBLIC_API_BASE_URL in production once the FastAPI backend is
+// deployed somewhere publicly reachable -- this fallback only works for
+// local development, and server-rendered pages (generateStaticParams,
+// generateMetadata, the verb/verbs list pages) need a real URL to fetch
+// from at build/request time.
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
-export const fetchAllVerbs = async (): Promise<VerbEntry[]> => {
+// During static generation, Next.js's dynamic route params for the verb
+// detail page sometimes reach the page body already percent-encoded (e.g.
+// "o%C3%ADr" instead of "oír") even though generateStaticParams was given
+// the plain, decoded verb -- axios then encodes that string a second time
+// and the request 404s. Decoding here is a no-op for an already-plain verb
+// (nothing to unescape) and corrects the rare pre-encoded case.
+const normalizeVerbParam = (verb: string): string => {
   try {
-    const response = await axios.get<VerbEntry[]>(`${BASE_URL}/get-all-verbs`);
+    return decodeURIComponent(verb);
+  } catch {
+    return verb;
+  }
+};
+
+export const fetchAllVerbs = async (language: string): Promise<VerbEntry[]> => {
+  try {
+    const response = await axios.get<VerbEntry[]>(`${BASE_URL}/${language}/get-all-verbs`);
     return response.data;
   } catch (error) {
     console.error("error fetching verbs list: ", error);
@@ -22,22 +41,23 @@ export const fetchAllVerbs = async (): Promise<VerbEntry[]> => {
 };
 
 export const fetchRandomVerbConjugation = async (
+  language: string,
   useIrregularVerbs?: boolean,
-  useVosotros?: boolean,
+  useRegionalVariant?: boolean,
   mood: Mood = "indicative",
   tense: Tense = "present",
   polarity: Polarity = "affirmative",
 ): Promise<VerbConjugation | undefined> => {
   try {
     const response = await axios.get<VerbConjugation[]>(
-      `${BASE_URL}/get-random-verb-conjugation`,
+      `${BASE_URL}/${language}/get-random-verb-conjugation`,
       {
         params: {
           mood,
           tense,
           polarity,
           use_irregular: useIrregularVerbs,
-          use_vosotros: useVosotros,
+          use_regional_variant: useRegionalVariant,
         },
       }
     );
@@ -49,14 +69,15 @@ export const fetchRandomVerbConjugation = async (
 };
 
 export const fetchVerbConjugation = async (
+  language: string,
   verb: string,
   mood: Mood = "indicative",
   tense: Tense = "present",
 ): Promise<VerbConjugationTable | undefined> => {
   try {
     const response = await axios.get<VerbConjugationTable>(
-      `${BASE_URL}/get-verb-conjugation`,
-      { params: { verb, mood, tense } },
+      `${BASE_URL}/${language}/get-verb-conjugation`,
+      { params: { verb: normalizeVerbParam(verb), mood, tense } },
     );
     return response.data;
   } catch (error) {
@@ -66,12 +87,13 @@ export const fetchVerbConjugation = async (
 };
 
 export const fetchImperativeConjugation = async (
+  language: string,
   verb: string,
 ): Promise<ImperativeConjugationTable | undefined> => {
   try {
     const response = await axios.get<ImperativeConjugationTable>(
-      `${BASE_URL}/get-verb-conjugation`,
-      { params: { verb, tense: "imperative" } },
+      `${BASE_URL}/${language}/get-verb-conjugation`,
+      { params: { verb: normalizeVerbParam(verb), tense: "imperative" } },
     );
     return response.data;
   } catch (error) {

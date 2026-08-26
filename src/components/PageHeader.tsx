@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 type PageHeaderProps = {
   title: string;
@@ -9,7 +9,7 @@ type PageHeaderProps = {
 const PageHeader = ({ title, subtitle, backTo }: PageHeaderProps) => (
   <div className="page-header">
     {backTo && (
-      <Link to={backTo.to} className="back-link">
+      <Link href={backTo.to} className="back-link">
         {backTo.label}
       </Link>
     )}

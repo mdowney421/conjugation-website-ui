@@ -1,7 +1,9 @@
+"use client";
+
 import {
   createContext,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -18,7 +20,15 @@ const STORAGE_KEY = "theme";
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
+// An inline script in the root layout (see app/layout.tsx) sets
+// data-theme on <html> from localStorage before the browser paints, so
+// there's no flash of the wrong theme on a hard load. This initializer
+// reads the same source the script does: on the server it always returns
+// "light" (deterministic, no window), and on the client -- including the
+// hydration render, which runs in the browser -- it reads localStorage
+// directly, landing on the same value the script already applied.
 const getInitialTheme = (): Theme => {
+  if (typeof window === "undefined") return "light";
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") {
     return stored;
@@ -31,7 +41,10 @@ const getInitialTheme = (): Theme => {
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
-  useEffect(() => {
+  // useLayoutEffect (not useEffect) so this also re-applies the attribute
+  // after React Strict Mode's dev-only remount, which otherwise resets
+  // <html> to only the attributes React itself rendered.
+  useLayoutEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
