@@ -49,7 +49,9 @@ const MergedConjugationTable = ({
                     {row.form_spanish}
                     {row.form_spanish_alt && ` / ${row.form_spanish_alt}`}
                   </span>
-                  <span className="conjugation-gloss">{row.form_english}</span>
+                  <span className="conjugation-gloss">
+                    {row.pronoun_english} {row.form_english}
+                  </span>
                 </div>
               </td>
               {!hasSubjunctive ? (
@@ -66,7 +68,9 @@ const MergedConjugationTable = ({
                         {subjunctiveRow.form_spanish}
                         {subjunctiveRow.form_spanish_alt && ` / ${subjunctiveRow.form_spanish_alt}`}
                       </span>
-                      <span className="conjugation-gloss">{subjunctiveRow.form_english}</span>
+                      <span className="conjugation-gloss">
+                        (that) {subjunctiveRow.pronoun_english} {subjunctiveRow.form_english}
+                      </span>
                     </div>
                   )}
                 </td>

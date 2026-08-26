@@ -91,6 +91,10 @@ const ConjugationInput = ({
         </div>
       )}
       <div className="quiz-sentence">
+        {randomVerb?.mood_english === "subjunctive" &&
+          randomVerb?.tense_english !== "imperative" && (
+            <span className="quiz-subjunctive-marker">(that)</span>
+          )}
         {randomVerb?.pronoun_english && (
           <span className="quiz-pronoun">{randomVerb.pronoun_english}</span>
         )}

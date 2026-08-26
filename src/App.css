@@ -871,6 +871,12 @@
   margin-bottom: 28px;
 }
 
+.quiz-subjunctive-marker {
+  font-size: 1.75rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
 .quiz-pronoun {
   font-size: 1.75rem;
   font-weight: 700;
