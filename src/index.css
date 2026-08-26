@@ -31,6 +31,7 @@
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   --container-width: 1080px;
+  --navbar-height: 65px;
 }
 
 :root[data-theme="dark"] {

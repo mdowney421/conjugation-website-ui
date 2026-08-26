@@ -1,38 +1,83 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import EmptyState from "../components/EmptyState";
 import { fetchImperativeConjugation, fetchVerbConjugation } from "../languages/spanish/api";
 import type {
   ImperativeConjugationTable,
-  Mood,
   Tense,
   VerbConjugationTable,
 } from "../languages/spanish/types";
 
-const ConjugationTable = ({ table }: { table: VerbConjugationTable }) => (
-  <table className="conjugation-table">
-    <thead>
-      <tr>
-        <th>Pronoun</th>
-        <th>Spanish</th>
-        <th>English</th>
-      </tr>
-    </thead>
-    <tbody>
-      {table.conjugations.map((row) => (
-        <tr key={row.pronoun_spanish}>
-          <td className="pronoun-cell">{row.pronoun_spanish}</td>
-          <td className="spanish-cell">
-            {row.form_spanish}
-            {row.form_spanish_alt && ` / ${row.form_spanish_alt}`}
-          </td>
-          <td className="english-cell">{row.form_english}</td>
+// Indicative and subjunctive forms for a tense share one table, laid out
+// as parallel columns per pronoun -- a mood badge in the header marks
+// which column is which, and the subjunctive column drops in a note
+// (via rowSpan) for tenses Spanish has no subjunctive form for at all.
+const MergedConjugationTable = ({
+  indicative,
+  subjunctive,
+  hasSubjunctive,
+}: {
+  indicative: VerbConjugationTable;
+  subjunctive: VerbConjugationTable | null;
+  hasSubjunctive: boolean;
+}) => {
+  const rows = indicative.conjugations;
+
+  return (
+    <table className="conjugation-table conjugation-table-merged">
+      <thead>
+        <tr>
+          <th>Pronoun</th>
+          <th>
+            <span className="mood-badge mood-badge-indicative">Indicative</span>
+          </th>
+          <th>
+            <span className="mood-badge mood-badge-subjunctive">Subjunctive</span>
+          </th>
         </tr>
-      ))}
-    </tbody>
-  </table>
-);
+      </thead>
+      <tbody>
+        {rows.map((row, index) => {
+          const subjunctiveRow = subjunctive?.conjugations[index];
+          return (
+            <tr key={row.pronoun_spanish}>
+              <td className="pronoun-cell">{row.pronoun_spanish}</td>
+              <td className="spanish-cell">
+                <div className="conjugation-form-group">
+                  <span className="conjugation-form">
+                    {row.form_spanish}
+                    {row.form_spanish_alt && ` / ${row.form_spanish_alt}`}
+                  </span>
+                  <span className="conjugation-gloss">{row.form_english}</span>
+                </div>
+              </td>
+              {!hasSubjunctive ? (
+                index === 0 && (
+                  <td className="no-subjunctive-cell" rowSpan={rows.length}>
+                    Spanish has no subjunctive form for this tense.
+                  </td>
+                )
+              ) : (
+                <td className="spanish-cell">
+                  {subjunctiveRow && (
+                    <div className="conjugation-form-group">
+                      <span className="conjugation-form">
+                        {subjunctiveRow.form_spanish}
+                        {subjunctiveRow.form_spanish_alt && ` / ${subjunctiveRow.form_spanish_alt}`}
+                      </span>
+                      <span className="conjugation-gloss">{subjunctiveRow.form_english}</span>
+                    </div>
+                  )}
+                </td>
+              )}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+};
 
 // The imperative has no "yo" form and no single indicative/subjunctive
 // axis -- affirmative and negative are different enough (and taught
@@ -45,17 +90,23 @@ const ImperativeTable = ({ table }: { table: ImperativeConjugationTable }) => (
         <th>Pronoun</th>
         <th>Affirmative</th>
         <th>Negative</th>
-        <th>English</th>
       </tr>
     </thead>
     <tbody>
       {table.conjugations.map((row) => (
         <tr key={row.pronoun_spanish}>
           <td className="pronoun-cell">{row.pronoun_spanish}</td>
-          <td className="spanish-cell">{row.form_spanish_affirmative}</td>
-          <td className="spanish-cell">{row.form_spanish_negative}</td>
-          <td className="english-cell">
-            {row.form_english_affirmative} / {row.form_english_negative}
+          <td className="spanish-cell">
+            <div className="conjugation-form-group">
+              <span className="conjugation-form">{row.form_spanish_affirmative}</span>
+              <span className="conjugation-gloss">{row.form_english_affirmative}</span>
+            </div>
+          </td>
+          <td className="spanish-cell">
+            <div className="conjugation-form-group">
+              <span className="conjugation-form">{row.form_spanish_negative}</span>
+              <span className="conjugation-gloss">{row.form_english_negative}</span>
+            </div>
           </td>
         </tr>
       ))}
@@ -63,57 +114,106 @@ const ImperativeTable = ({ table }: { table: ImperativeConjugationTable }) => (
   </table>
 );
 
-type SectionConfig = { mood: Mood; tense: Tense; label: string };
+// A Past -> Present -> Future line pinned to the viewport (not the page),
+// so it's always visible while the tables it runs alongside scroll past.
+// The dot marks how far through that past-to-future span the reader
+// currently is, tracking the vertical center of the viewport against the
+// bounds of the tense list.
+const TenseSpine = ({ progress }: { progress: number }) => (
+  <div className="tense-spine" aria-hidden="true">
+    <div className="tense-spine-line" />
+    <div
+      className="tense-spine-indicator"
+      style={{ top: `${progress * 100}%` }}
+    />
+    <span className="tense-spine-label tense-spine-label-past">Past</span>
+    <span className="tense-spine-label tense-spine-label-present">Present</span>
+    <span className="tense-spine-label tense-spine-label-future">Future</span>
+  </div>
+);
 
-// Every mood/tense combination this app supports, in display order.
-// Adding a new tense or mood to the app just means adding a row here.
-const SECTIONS: SectionConfig[] = [
-  { tense: "present", mood: "indicative", label: "Present Indicative" },
-  { tense: "present", mood: "subjunctive", label: "Present Subjunctive" },
-  { tense: "preterite", mood: "indicative", label: "Preterite Indicative" },
-  { tense: "preterite_perfect", mood: "indicative", label: "Preterite Perfect Indicative" },
-  { tense: "imperfect", mood: "indicative", label: "Imperfect Indicative" },
-  { tense: "imperfect", mood: "subjunctive", label: "Imperfect Subjunctive" },
-  { tense: "pluperfect", mood: "indicative", label: "Pluperfect Indicative" },
-  { tense: "pluperfect", mood: "subjunctive", label: "Pluperfect Subjunctive" },
-  { tense: "future", mood: "indicative", label: "Future Indicative" },
-  { tense: "future_perfect", mood: "indicative", label: "Future Perfect Indicative" },
-  { tense: "conditional", mood: "indicative", label: "Conditional Indicative" },
-  { tense: "conditional_perfect", mood: "indicative", label: "Conditional Perfect Indicative" },
-  { tense: "perfect", mood: "indicative", label: "Perfect Indicative" },
-  { tense: "perfect", mood: "subjunctive", label: "Perfect Subjunctive" },
+type TenseGroupConfig = { tense: Tense; label: string; hasSubjunctive: boolean };
+
+// Every tense this app supports, ordered furthest-in-the-past to
+// furthest-in-the-future. Tenses with a subjunctive counterpart show
+// indicative and subjunctive side by side; the rest are indicative-only
+// (Spanish has no subjunctive preterite, future, or conditional).
+const TENSE_GROUPS: TenseGroupConfig[] = [
+  { tense: "pluperfect", label: "Pluperfect", hasSubjunctive: true },
+  { tense: "preterite_perfect", label: "Preterite Perfect", hasSubjunctive: false },
+  { tense: "imperfect", label: "Imperfect", hasSubjunctive: true },
+  { tense: "preterite", label: "Preterite", hasSubjunctive: false },
+  { tense: "perfect", label: "Present Perfect", hasSubjunctive: true },
+  { tense: "present", label: "Present", hasSubjunctive: true },
+  { tense: "conditional", label: "Conditional", hasSubjunctive: false },
+  { tense: "conditional_perfect", label: "Conditional Perfect", hasSubjunctive: false },
+  { tense: "future", label: "Future", hasSubjunctive: false },
+  { tense: "future_perfect", label: "Future Perfect", hasSubjunctive: false },
 ];
 
-// Where the imperative section sits among the mood/tense SECTIONS
-// above -- right after the present tenses, since it's built out of
-// present-indicative and present-subjunctive forms.
-const IMPERATIVE_SECTION_INDEX = 2;
+// The imperative is built out of present-indicative and present-subjunctive
+// forms, so it's shown right after the present-tense group.
+const IMPERATIVE_AFTER_INDEX = TENSE_GROUPS.findIndex((group) => group.tense === "present");
+
+type GroupData = {
+  indicative: VerbConjugationTable | null;
+  subjunctive: VerbConjugationTable | null;
+};
+
+const TenseGroupSection = ({
+  group,
+  data,
+}: {
+  group: TenseGroupConfig;
+  data: GroupData;
+}) => {
+  if (!data.indicative) return null;
+
+  return (
+    <div className="conjugation-section">
+      <h2 className="conjugation-section-heading">{group.label}</h2>
+      <MergedConjugationTable
+        indicative={data.indicative}
+        subjunctive={data.subjunctive}
+        hasSubjunctive={group.hasSubjunctive}
+      />
+    </div>
+  );
+};
 
 const VerbDetailPage = () => {
   const { verb } = useParams<{ verb: string }>();
-  const [tables, setTables] = useState<(VerbConjugationTable | null)[]>([]);
+  const [groups, setGroups] = useState<GroupData[]>([]);
   const [imperativeTable, setImperativeTable] = useState<ImperativeConjugationTable | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [spineProgress, setSpineProgress] = useState(0);
+  const sectionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!verb) return;
 
     setIsLoading(true);
     setNotFound(false);
-    setTables([]);
+    setGroups([]);
     setImperativeTable(null);
 
     Promise.all([
-      ...SECTIONS.map((section) =>
-        fetchVerbConjugation(verb, section.mood, section.tense),
+      Promise.all(
+        TENSE_GROUPS.map(async (group): Promise<GroupData> => {
+          const [indicative, subjunctive] = await Promise.all([
+            fetchVerbConjugation(verb, "indicative", group.tense),
+            group.hasSubjunctive
+              ? fetchVerbConjugation(verb, "subjunctive", group.tense)
+              : Promise.resolve(undefined),
+          ]);
+          return { indicative: indicative ?? null, subjunctive: subjunctive ?? null };
+        }),
       ),
       fetchImperativeConjugation(verb),
-    ]).then((results) => {
-      const sectionResults = results.slice(0, SECTIONS.length) as (VerbConjugationTable | undefined)[];
-      const imperativeResult = results[SECTIONS.length] as ImperativeConjugationTable | undefined;
-      if (sectionResults[0]) {
-        setTables(sectionResults.map((result) => result ?? null));
+    ]).then(([groupResults, imperativeResult]) => {
+      if (groupResults[IMPERATIVE_AFTER_INDEX]?.indicative) {
+        setGroups(groupResults);
         setImperativeTable(imperativeResult ?? null);
       } else {
         setNotFound(true);
@@ -122,18 +222,37 @@ const VerbDetailPage = () => {
     });
   }, [verb]);
 
-  const infinitiveTable = tables[0];
+  useEffect(() => {
+    if (isLoading) return;
 
-  const renderSection = (section: SectionConfig, index: number) => {
-    const table = tables[index];
-    if (!table) return null;
-    return (
-      <div className="conjugation-section" key={section.label}>
-        <h2 className="conjugation-section-heading">{section.label}</h2>
-        <ConjugationTable table={table} />
-      </div>
-    );
-  };
+    let ticking = false;
+    const measure = () => {
+      ticking = false;
+      const el = sectionsRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const viewportCenter = window.innerHeight / 2;
+      const raw = (viewportCenter - rect.top) / rect.height;
+      setSpineProgress(Math.min(1, Math.max(0, raw)));
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", measure);
+    };
+  }, [isLoading]);
+
+  const infinitiveTable =
+    groups[IMPERATIVE_AFTER_INDEX]?.indicative ??
+    groups.flatMap((group) => [group.indicative, group.subjunctive]).find(Boolean);
 
   return (
     <>
@@ -149,20 +268,22 @@ const VerbDetailPage = () => {
         ) : notFound ? (
           <EmptyState>Couldn't find that verb.</EmptyState>
         ) : (
-          <>
-            {SECTIONS.slice(0, IMPERATIVE_SECTION_INDEX).map((section, index) =>
-              renderSection(section, index),
-            )}
-            {imperativeTable && (
-              <div className="conjugation-section">
-                <h2 className="conjugation-section-heading">Imperative</h2>
-                <ImperativeTable table={imperativeTable} />
-              </div>
-            )}
-            {SECTIONS.slice(IMPERATIVE_SECTION_INDEX).map((section, index) =>
-              renderSection(section, index + IMPERATIVE_SECTION_INDEX),
-            )}
-          </>
+          <div className="verb-detail-layout">
+            <TenseSpine progress={spineProgress} />
+            <div className="verb-detail-sections" ref={sectionsRef}>
+              {TENSE_GROUPS.map((group, index) => (
+                <Fragment key={group.tense}>
+                  <TenseGroupSection group={group} data={groups[index]} />
+                  {index === IMPERATIVE_AFTER_INDEX && imperativeTable && (
+                    <div className="conjugation-section">
+                      <h2 className="conjugation-section-heading">Imperative</h2>
+                      <ImperativeTable table={imperativeTable} />
+                    </div>
+                  )}
+                </Fragment>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </>
