@@ -27,7 +27,7 @@ const HomePage = async ({ params }: PageProps) => {
       <div className="hero">
         <div className="hero-media">
           <Image
-            src="/TrekluentHeroImage.png"
+            src="/DialecTrekHeroImage.png"
             alt="A traveler pauses on a mountain trail marked with icons for reading, conversation, and practice, following it toward a flag at the summit"
             fill
             priority

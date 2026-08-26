@@ -5,9 +5,9 @@ import FeatureItem from "../components/FeatureItem";
 import { LANGUAGES } from "../languages/registry";
 
 export const metadata: Metadata = {
-  title: { absolute: "Trekluent — Learn Verb Conjugations" },
+  title: { absolute: "DialecTrek — Learn Verb Conjugations" },
   description:
-    "Trekluent — look up Spanish verbs and practice conjugating them across every tense.",
+    "DialecTrek — look up Spanish verbs and practice conjugating them across every tense.",
 };
 
 const LanguagePickerPage = () => {
@@ -16,7 +16,7 @@ const LanguagePickerPage = () => {
       <div className="hero">
         <div className="hero-media">
           <Image
-            src="/TrekluentHeroImage.png"
+            src="/DialecTrekHeroImage.png"
             alt="A traveler pauses on a mountain trail marked with icons for reading, conversation, and practice, following it toward a flag at the summit"
             fill
             priority
@@ -27,7 +27,7 @@ const LanguagePickerPage = () => {
         </div>
         <div className="hero-inner">
           <div className="hero-text">
-            <h1>Trekluent</h1>
+            <h1>DialecTrek</h1>
             <p>
               Language learning is a journey — we're just here to point out the
               shortcuts.

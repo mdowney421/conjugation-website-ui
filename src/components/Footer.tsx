@@ -2,7 +2,7 @@ const Footer = () => {
   return (
     <footer className="footer">
       <span className="footer-brand">
-        Trekluent
+        DialecTrek
         <span className="brand-dots" aria-hidden="true">
           <span className="brand-dot" />
           <span className="brand-dot" />

@@ -1,4 +1,4 @@
-# Trekluent
+# DialecTrek
 
 Built with [Next.js](https://nextjs.org) (App Router). Pages are server-rendered/statically
 generated so verb conjugations, metadata, and the sitemap are crawlable without JavaScript.

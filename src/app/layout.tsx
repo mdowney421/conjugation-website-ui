@@ -11,11 +11,11 @@ export const metadata: Metadata = {
     ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
     : undefined,
   title: {
-    default: "Trekluent",
-    template: "%s | Trekluent",
+    default: "DialecTrek",
+    template: "%s | DialecTrek",
   },
   description:
-    "Trekluent — look up Spanish verbs and practice conjugating them across every tense.",
+    "DialecTrek — look up Spanish verbs and practice conjugating them across every tense.",
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",

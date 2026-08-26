@@ -55,10 +55,10 @@ export async function POST(request: Request) {
 
   const resend = new Resend(apiKey);
   const { error } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL ?? "Trekluent <onboarding@resend.dev>",
+    from: process.env.RESEND_FROM_EMAIL ?? "DialecTrek <onboarding@resend.dev>",
     to,
     replyTo: email || undefined,
-    subject: `Trekluent feedback: ${TYPE_LABELS[type]}`,
+    subject: `DialecTrek feedback: ${TYPE_LABELS[type]}`,
     text: `Type: ${TYPE_LABELS[type]}\n${email ? `From: ${email}\n` : ""}\n${message}`,
   });
 
