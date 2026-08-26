@@ -24,22 +24,22 @@ const Navbar = () => {
           🐊 The ConjuGator
         </NavLink>
 
-        <div className="navbar-end">
-          <div className={`navbar-links${isOpen ? " open" : ""}`}>
-            {links.map(({ to, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) =>
-                  `navbar-link${isActive ? " active" : ""}`
-                }
-                onClick={() => setIsOpen(false)}
-              >
-                {label}
-              </NavLink>
-            ))}
-          </div>
+        <div className={`navbar-links${isOpen ? " open" : ""}`}>
+          {links.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `navbar-link${isActive ? " active" : ""}`
+              }
+              onClick={() => setIsOpen(false)}
+            >
+              {label}
+            </NavLink>
+          ))}
+        </div>
 
+        <div className="navbar-actions">
           <button
             className="theme-toggle"
             type="button"
