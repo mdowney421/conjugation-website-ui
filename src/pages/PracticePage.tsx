@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import PageHeader from "../components/PageHeader";
+import QuestionCard from "../components/QuestionCard";
+import Button from "../components/Button";
 import VerbTypeSelection from "../features/practice/VerbTypeSelection";
 import TenseSelection from "../features/practice/TenseSelection";
+import DurationSelection from "../features/practice/DurationSelection";
 import ConjugationInput from "../features/practice/ConjugationInput";
+import Confetti from "../features/practice/Confetti";
 import { fetchRandomVerbConjugation as fetchVerb } from "../languages/spanish/api";
 import type { Mood, Polarity, Tense, VerbConjugation } from "../languages/spanish/types";
 
@@ -55,14 +59,51 @@ const PracticePage = () => {
   const [questionsSeen, setQuestionsSeen] = useState<number>(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [scoreBump, setScoreBump] = useState<boolean>(false);
+  const [timeLimitSeconds, setTimeLimitSeconds] = useState<
+    number | null | undefined
+  >();
+  const [isTimeUp, setIsTimeUp] = useState<boolean>(false);
+  const [showConfetti, setShowConfetti] = useState<boolean>(false);
+  const [showSummary, setShowSummary] = useState<boolean>(false);
+
+  const remainingSeconds =
+    timeLimitSeconds != null
+      ? Math.max(timeLimitSeconds - elapsedSeconds, 0)
+      : null;
 
   useEffect(() => {
-    if (startTime === null) return;
+    if (startTime === null || isTimeUp) return;
     const interval = setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
     return () => clearInterval(interval);
-  }, [startTime]);
+  }, [startTime, isTimeUp]);
+
+  useEffect(() => {
+    if (timeLimitSeconds == null || isTimeUp) return;
+    if (elapsedSeconds >= timeLimitSeconds) {
+      setIsTimeUp(true);
+    }
+  }, [elapsedSeconds, timeLimitSeconds, isTimeUp]);
+
+  useEffect(() => {
+    if (!isTimeUp) return;
+    setShowConfetti(true);
+    const summaryTimeout = setTimeout(() => setShowSummary(true), 500);
+    const confettiTimeout = setTimeout(() => setShowConfetti(false), 2800);
+    return () => {
+      clearTimeout(summaryTimeout);
+      clearTimeout(confettiTimeout);
+    };
+  }, [isTimeUp]);
+
+  useEffect(() => {
+    if (correctCount === 0) return;
+    setScoreBump(true);
+    const timeout = setTimeout(() => setScoreBump(false), 500);
+    return () => clearTimeout(timeout);
+  }, [correctCount]);
 
   const handleIrregularityQuestion = (userResponse: boolean) => {
     setUseIrregularVerbs(userResponse);
@@ -85,6 +126,22 @@ const PracticePage = () => {
         ? prev.filter((selected) => selected !== tense)
         : [...prev, tense],
     );
+  };
+
+  const handleTenseConfirm = () => {
+    setQuestionNumber(5);
+  };
+
+  const handlePracticeAgain = () => {
+    setCorrectCount(0);
+    setQuestionsSeen(0);
+    setStartTime(null);
+    setElapsedSeconds(0);
+    setIsTimeUp(false);
+    setShowConfetti(false);
+    setShowSummary(false);
+    setTimeLimitSeconds(undefined);
+    setQuestionNumber(5);
   };
 
   const resolveTense = (): Tense =>
@@ -168,7 +225,7 @@ const PracticePage = () => {
     setStartTime((prev) => prev ?? Date.now());
   };
 
-  const isSetupStep = questionNumber >= 1 && questionNumber <= 4;
+  const isSetupStep = questionNumber >= 1 && questionNumber <= 5;
 
   const formatElapsedTime = (totalSeconds: number) => {
     const minutes = Math.floor(totalSeconds / 60);
@@ -186,16 +243,39 @@ const PracticePage = () => {
       <div className="practice-card">
         {startTime !== null && (
           <div className="practice-stats">
-            <span className="stat-item">⏱ {formatElapsedTime(elapsedSeconds)}</span>
-            <span className="stat-item">
-              ✓ {correctCount}/{questionsSeen} correct
-            </span>
+            <div
+              className={`stat-card stat-card--timer${
+                remainingSeconds !== null && remainingSeconds <= 10 && !isTimeUp
+                  ? " low-time"
+                  : ""
+              }`}
+            >
+              <span className="stat-icon" aria-hidden="true">
+                ⏱️
+              </span>
+              <span className="stat-value">
+                {formatElapsedTime(remainingSeconds ?? elapsedSeconds)}
+              </span>
+              <span className="stat-label">
+                {remainingSeconds !== null ? "left" : "time"}
+              </span>
+            </div>
+            <div className={`stat-card stat-card--score${scoreBump ? " bump" : ""}`}>
+              <span className="stat-icon" aria-hidden="true">
+                🎯
+              </span>
+              <span className="stat-value">
+                {correctCount}
+                <span className="stat-value-of">/{questionsSeen}</span>
+              </span>
+              <span className="stat-label">correct</span>
+            </div>
           </div>
         )}
 
         {isSetupStep && (
           <div className="step-progress">
-            {[1, 2, 3, 4].map((step) => (
+            {[1, 2, 3, 4, 5].map((step) => (
               <span
                 key={step}
                 className={`step-dot${
@@ -239,11 +319,19 @@ const PracticePage = () => {
             tenseList={TENSES}
             tenseSelection={tenseSelection}
             onToggleTense={handleToggleTense}
+            onConfirm={handleTenseConfirm}
+          />
+        )}
+
+        {questionNumber === 5 && (
+          <DurationSelection
+            selectedSeconds={timeLimitSeconds}
+            onSelect={setTimeLimitSeconds}
             onConfirm={fetchRandomVerbConjugation}
           />
         )}
 
-        {questionNumber === 0 && (
+        {questionNumber === 0 && !isTimeUp && (
           <ConjugationInput
             randomVerb={randomVerb}
             handleInputChange={handleInputChange}
@@ -257,6 +345,23 @@ const PracticePage = () => {
             onShowAnswer={() => setShowAnswer(true)}
             hasMissed={hasMissed}
           />
+        )}
+
+        {showConfetti && <Confetti />}
+
+        {isTimeUp && (
+          <QuestionCard title="Time's up! 🎉">
+            <div className={`time-up-content${showSummary ? " visible" : ""}`}>
+              <div className="time-up-score">
+                {correctCount}
+                <span className="time-up-score-of">/{questionsSeen}</span>
+              </div>
+              <p className="time-up-summary">
+                {Math.round((correctCount / questionsSeen) * 100)}% correct
+              </p>
+              <Button onClick={handlePracticeAgain}>Practice Again</Button>
+            </div>
+          </QuestionCard>
         )}
       </div>
     </>
