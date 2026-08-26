@@ -34,3 +34,8 @@ Serves the production build locally, for a final check before deploying.
   production so builds/metadata/sitemap generation can actually reach it.
 - `NEXT_PUBLIC_SITE_URL` — the site's public URL, used for `metadataBase` and the sitemap. Defaults
   to `http://localhost:3000`.
+- `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `CONTACT_EMAIL` — used by the "Comments, questions, or
+  concerns" feedback widget (`src/components/FeedbackWidget.tsx`) to email submissions via
+  [Resend](https://resend.com). See `.env.local.example` for details; until these are set the
+  widget's API route (`src/app/api/feedback/route.ts`) responds with a friendly "not set up yet"
+  error instead of sending.

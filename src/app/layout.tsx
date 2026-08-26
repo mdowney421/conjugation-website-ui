@@ -3,6 +3,7 @@ import "../index.css";
 import "../App.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import FeedbackWidget from "../components/FeedbackWidget";
 import { ThemeProvider } from "../context/ThemeContext";
 
 export const metadata: Metadata = {
@@ -52,6 +53,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
           <Navbar />
           {children}
           <Footer />
+          <FeedbackWidget />
         </div>
       </ThemeProvider>
     </body>
