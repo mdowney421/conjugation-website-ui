@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "../context/ThemeContext";
@@ -8,6 +8,7 @@ import { LANGUAGES } from "../languages/registry";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
   const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
   const language = pathname.split("/").filter(Boolean)[0];
@@ -21,8 +22,19 @@ const Navbar = () => {
       ]
     : [];
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
   return (
-    <nav className="navbar">
+    <nav className="navbar" ref={navRef}>
       <div className="navbar-inner">
         <Link
           href="/"
