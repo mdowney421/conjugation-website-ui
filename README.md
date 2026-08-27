@@ -12,7 +12,7 @@ In the project directory, you can run:
 Runs the app in development mode with hot module reloading.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-Requires the FastAPI backend (`conjugation-website-api`) running on `http://127.0.0.1:8000`.
+Requires the FastAPI backend (`dialectrek-api`) running on `http://127.0.0.1:8000`.
 
 ### `npm test`
 
