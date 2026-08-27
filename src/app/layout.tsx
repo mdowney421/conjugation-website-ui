@@ -1,4 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "../index.css";
 import "../App.css";
 import Navbar from "../components/Navbar";
@@ -46,6 +49,16 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
         rel="stylesheet"
       />
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-YJ9ZN40RNK"
+        strategy="afterInteractive"
+      />
+      <Script id="gtag-init" strategy="afterInteractive">
+        {`window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-YJ9ZN40RNK');`}
+      </Script>
     </head>
     <body>
       <ThemeProvider>
@@ -56,6 +69,8 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
           <FeedbackWidget />
         </div>
       </ThemeProvider>
+      <Analytics />
+      <SpeedInsights />
     </body>
   </html>
 );
