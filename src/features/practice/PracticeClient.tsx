@@ -205,9 +205,11 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
       return;
     }
 
+    const normalizedGuess = userGuess.trim().toLowerCase();
     const correct =
-      userGuess === randomVerb?.form_target ||
-      (!!randomVerb?.form_target_alt && userGuess === randomVerb.form_target_alt);
+      normalizedGuess === randomVerb?.form_target?.trim().toLowerCase() ||
+      (!!randomVerb?.form_target_alt &&
+        normalizedGuess === randomVerb.form_target_alt.trim().toLowerCase());
     setIsCorrectAnswer(correct ? "true" : "false");
     if (correct) {
       setCorrectCount((prev) => prev + 1);
