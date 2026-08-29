@@ -5,7 +5,10 @@ import { fetchAllVerbs } from "../languages/api";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
-  const entries: MetadataRoute.Sitemap = [{ url: SITE_URL, priority: 1 }];
+  const entries: MetadataRoute.Sitemap = [
+    { url: SITE_URL, priority: 1 },
+    { url: `${SITE_URL}/privacy`, priority: 0.3 },
+  ];
 
   for (const definition of Object.values(LANGUAGES)) {
     if (!definition.enabled) continue;
