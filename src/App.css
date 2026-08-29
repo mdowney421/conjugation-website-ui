@@ -1261,6 +1261,141 @@ a.language-card:hover {
   color: #fff;
 }
 
+.timer-editable {
+  cursor: pointer;
+  font: inherit;
+}
+
+.timer-editable:hover,
+.timer-editable:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-value--cta {
+  font-size: 1.3rem;
+  color: var(--color-primary);
+}
+
+.timer-stat-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.timer-dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+}
+
+.timer-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 12px;
+  min-width: max-content;
+}
+
+.timer-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 220px;
+}
+
+.timer-wheel-picker {
+  width: 140px;
+}
+
+.timer-wheel-viewport {
+  position: relative;
+}
+
+.timer-wheel {
+  height: 180px;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 20%,
+    black 80%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 20%,
+    black 80%,
+    transparent
+  );
+}
+
+.timer-wheel::-webkit-scrollbar {
+  display: none;
+}
+
+.timer-wheel-spacer {
+  height: 72px;
+  scroll-snap-align: none;
+}
+
+.timer-wheel-item {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  transition: color 0.15s ease, font-size 0.15s ease;
+}
+
+.timer-wheel-item.active {
+  color: var(--color-text);
+  font-size: 1.4rem;
+}
+
+.timer-wheel-highlight {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 36px;
+  transform: translateY(-50%);
+  border-top: 1.5px solid var(--color-border);
+  border-bottom: 1.5px solid var(--color-border);
+  background: var(--color-primary-light);
+  opacity: 0.5;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.timer-wheel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.timer-wheel-unit {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
 .quiz-badges {
   display: flex;
   align-items: center;
