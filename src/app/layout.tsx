@@ -7,6 +7,7 @@ import "../App.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import FeedbackWidget from "../components/FeedbackWidget";
+import CookieConsentBanner from "../components/CookieConsentBanner";
 import { ThemeProvider } from "../context/ThemeContext";
 
 export const metadata: Metadata = {
@@ -50,14 +51,22 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
         rel="stylesheet"
       />
+      <Script id="gtag-consent-default" strategy="beforeInteractive">
+        {`window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          var storedConsent;
+          try { storedConsent = localStorage.getItem("dialectrek-cookie-consent"); } catch (e) {}
+          gtag('consent', 'default', {
+            analytics_storage: storedConsent === 'granted' ? 'granted' : 'denied'
+          });`}
+      </Script>
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-YJ9ZN40RNK"
         strategy="afterInteractive"
       />
       <Script id="gtag-init" strategy="afterInteractive">
-        {`window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+        {`gtag('js', new Date());
           gtag('config', 'G-YJ9ZN40RNK');`}
       </Script>
     </head>
@@ -69,6 +78,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
           <Footer />
           <FeedbackWidget />
         </div>
+        <CookieConsentBanner />
       </ThemeProvider>
       <Analytics />
       <SpeedInsights />
