@@ -8,7 +8,8 @@ import EmptyState from "../../components/EmptyState";
 import TimerStat from "../../components/TimerStat";
 import CounterStat from "../../components/CounterStat";
 import Confetti from "../../components/Confetti";
-import { fetchRandomWord } from "../../languages/api";
+import CategorySelection, { formatCategory } from "./CategorySelection";
+import { fetchRandomWord, fetchWordCategories } from "../../languages/api";
 import type { LanguageDefinition } from "../../languages/registry";
 import type { RandomWord } from "../../languages/types";
 
@@ -20,6 +21,8 @@ type FlashcardsClientProps = {
 type Direction = "target-to-english" | "english-to-target";
 
 const FlashcardsClient = ({ code, definition }: FlashcardsClientProps) => {
+  const [categories, setCategories] = useState<string[]>([]);
+  const [category, setCategory] = useState<string | null | undefined>(undefined);
   const [word, setWord] = useState<RandomWord | null>(null);
   const [direction, setDirection] = useState<Direction>("target-to-english");
   const [isFlipped, setIsFlipped] = useState(false);
@@ -50,7 +53,7 @@ const FlashcardsClient = ({ code, definition }: FlashcardsClientProps) => {
   const loadNextWord = async () => {
     setIsLoading(true);
     setIsFlipped(false);
-    const nextWord = await fetchRandomWord(code);
+    const nextWord = await fetchRandomWord(code, category ?? undefined);
     setWord(nextWord ?? null);
     setIsLoading(false);
     setStartTime((prev) => prev ?? Date.now());
@@ -101,11 +104,27 @@ const FlashcardsClient = ({ code, definition }: FlashcardsClientProps) => {
 
   useEffect(() => {
     let cancelled = false;
+    setCategories([]);
+    setCategory(undefined);
+
+    (async () => {
+      const list = await fetchWordCategories(code);
+      if (!cancelled) setCategories(list);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [code]);
+
+  useEffect(() => {
+    if (category === undefined) return;
+    let cancelled = false;
 
     (async () => {
       setIsLoading(true);
       setIsFlipped(false);
-      const nextWord = await fetchRandomWord(code);
+      const nextWord = await fetchRandomWord(code, category ?? undefined);
       if (cancelled) return;
       setWord(nextWord ?? null);
       setIsLoading(false);
@@ -115,7 +134,7 @@ const FlashcardsClient = ({ code, definition }: FlashcardsClientProps) => {
     return () => {
       cancelled = true;
     };
-  }, [code]);
+  }, [code, category]);
 
   useEffect(() => {
     if (startTime === null || isTimeUp) return;
@@ -150,149 +169,182 @@ const FlashcardsClient = ({ code, definition }: FlashcardsClientProps) => {
     return () => clearTimeout(timeout);
   }, [knownCount]);
 
+  const isSetupStep = category === undefined;
+
   return (
     <div className="page">
       <PageHeader
         title="Flashcards"
-        subtitle={`Flip through the ${definition.wordCount} most common ${definition.displayName} words.`}
+        subtitle={
+          category
+            ? `Flip through ${definition.displayName} words in the "${formatCategory(category)}" category.`
+            : `Flip through the ${definition.wordCount} most common ${definition.displayName} words.`
+        }
       />
 
       <div className="flashcards-card">
-        {!isTimeUp && (
-          <div className="chip-grid direction-toggle">
-            <button
-              type="button"
-              className="chip"
-              onClick={() =>
-                handleSetDirection(
-                  direction === "target-to-english"
-                    ? "english-to-target"
-                    : "target-to-english",
-                )
-              }
-            >
-              Switch to{" "}
-              {direction === "target-to-english"
-                ? `English → ${definition.displayName}`
-                : `${definition.displayName} → English`}
-            </button>
-          </div>
-        )}
-
-        {startTime !== null && (
-          <div className="practice-stats">
-            <TimerStat
-              seconds={remainingSeconds ?? displayedElapsedSeconds}
-              label={remainingSeconds !== null ? "left" : "time"}
-              lowTime={remainingSeconds !== null && remainingSeconds <= 10 && !isTimeUp}
-              currentLimitMinutes={
-                timeLimitSeconds === undefined
-                  ? undefined
-                  : timeLimitSeconds === null
-                    ? null
-                    : Math.round((timeLimitSeconds - elapsedSeconds) / 60)
-              }
-              onSetLimitMinutes={isTimeUp ? undefined : handleChooseTimeLimit}
-            />
-            <CounterStat count={knownCount} total={seenCount} label="known" bump={scoreBump} />
-          </div>
-        )}
-
-        {word && !isTimeUp && (
-          <div className="flashcard-wrap">
-            {showFlipHint && (
-              <div className="flip-hint" aria-hidden="true">
-                <span className="flip-hint-bubble">Click to flip!</span>
-                <svg
-                  className="flip-hint-arrow"
-                  width="40"
-                  height="40"
-                  viewBox="0 0 40 40"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
+        {isSetupStep ? (
+          categories.length > 0 && (
+            <CategorySelection categories={categories} onSelect={setCategory} />
+          )
+        ) : (
+          <>
+            {!isTimeUp && (
+              <div className="direction-toggle">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={direction === "english-to-target"}
+                  aria-label="Flashcard practice direction"
+                  className="lang-toggle"
+                  onClick={() =>
+                    handleSetDirection(
+                      direction === "target-to-english"
+                        ? "english-to-target"
+                        : "target-to-english",
+                    )
+                  }
                 >
-                  <path
-                    d="M20 4V28"
-                    stroke="var(--color-primary)"
-                    strokeWidth="4"
-                    strokeLinecap="round"
+                  <span
+                    className={`lang-toggle-thumb${
+                      direction === "english-to-target" ? " right" : ""
+                    }`}
+                    aria-hidden="true"
                   />
-                  <path
-                    d="M8 20L20 32L32 20"
-                    stroke="var(--color-primary)"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                  <span
+                    className={`lang-toggle-label${
+                      direction === "target-to-english" ? " active" : ""
+                    }`}
+                  >
+                    {definition.displayName}
+                  </span>
+                  <span
+                    className={`lang-toggle-label${
+                      direction === "english-to-target" ? " active" : ""
+                    }`}
+                  >
+                    English
+                  </span>
+                </button>
               </div>
             )}
-            <div
-              className={`flashcard${isFlipped ? " flipped" : ""}`}
-              role="button"
-              tabIndex={0}
-              onClick={toggleFlipped}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  toggleFlipped();
-                }
-              }}
-              aria-label="Flip flashcard"
-              key={word.rank}
-            >
-              <div className="flashcard-inner">
-                <div className="flashcard-face flashcard-face--front">
-                  <span className="flashcard-word">
-                    {direction === "target-to-english"
-                      ? word.word_target
-                      : word.word_english}
-                  </span>
-                </div>
-                <div className="flashcard-face flashcard-face--back">
-                  <span className="flashcard-word">
-                    {direction === "target-to-english"
-                      ? word.word_english
-                      : word.word_target}
-                  </span>
+
+            {startTime !== null && (
+              <div className="practice-stats">
+                <TimerStat
+                  seconds={remainingSeconds ?? displayedElapsedSeconds}
+                  label={remainingSeconds !== null ? "left" : "time"}
+                  lowTime={remainingSeconds !== null && remainingSeconds <= 10 && !isTimeUp}
+                  currentLimitMinutes={
+                    timeLimitSeconds === undefined
+                      ? undefined
+                      : timeLimitSeconds === null
+                        ? null
+                        : Math.round((timeLimitSeconds - elapsedSeconds) / 60)
+                  }
+                  onSetLimitMinutes={isTimeUp ? undefined : handleChooseTimeLimit}
+                />
+                <CounterStat count={knownCount} total={seenCount} label="known" bump={scoreBump} />
+              </div>
+            )}
+
+            {word && !isTimeUp && (
+              <div className="flashcard-wrap">
+                {showFlipHint && (
+                  <div className="flip-hint" aria-hidden="true">
+                    <span className="flip-hint-bubble">Click to flip!</span>
+                    <svg
+                      className="flip-hint-arrow"
+                      width="40"
+                      height="40"
+                      viewBox="0 0 40 40"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M20 4V28"
+                        stroke="var(--color-primary)"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                      />
+                      <path
+                        d="M8 20L20 32L32 20"
+                        stroke="var(--color-primary)"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                )}
+                <div
+                  className={`flashcard${isFlipped ? " flipped" : ""}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={toggleFlipped}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      toggleFlipped();
+                    }
+                  }}
+                  aria-label="Flip flashcard"
+                  key={word.rank}
+                >
+                  <div className="flashcard-inner">
+                    <div className="flashcard-face flashcard-face--front">
+                      <span className="flashcard-word">
+                        {direction === "target-to-english"
+                          ? word.word_target
+                          : word.word_english}
+                      </span>
+                    </div>
+                    <div className="flashcard-face flashcard-face--back">
+                      <span className="flashcard-word">
+                        {direction === "target-to-english"
+                          ? word.word_english
+                          : word.word_target}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
+            )}
 
-        {!word && !isLoading && !isTimeUp && (
-          <EmptyState>Couldn&apos;t load a word right now. Try again in a moment.</EmptyState>
-        )}
+            {!word && !isLoading && !isTimeUp && (
+              <EmptyState>Couldn&apos;t load a word right now. Try again in a moment.</EmptyState>
+            )}
 
-        {isFlipped && !isTimeUp && (
-          <div className="flashcards-controls">
-            <Button variant="outline" onClick={handleDidntKnowIt} disabled={isLoading}>
-              I didn&apos;t know it
-            </Button>
-            <Button onClick={handleKnewIt} disabled={isLoading}>
-              I knew it
-            </Button>
-          </div>
-        )}
-
-        {showConfetti && <Confetti />}
-
-        {isTimeUp && (
-          <QuestionCard title="Time's up! 🎉">
-            <div className={`time-up-content${showSummary ? " visible" : ""}`}>
-              <div className="time-up-score">
-                {knownCount}
-                <span className="time-up-score-of">/{seenCount}</span>
+            {isFlipped && !isTimeUp && (
+              <div className="flashcards-controls">
+                <Button variant="outline" onClick={handleDidntKnowIt} disabled={isLoading}>
+                  I didn&apos;t know it
+                </Button>
+                <Button onClick={handleKnewIt} disabled={isLoading}>
+                  I knew it
+                </Button>
               </div>
-              <p className="time-up-summary">
-                {seenCount > 0
-                  ? `${Math.round((knownCount / seenCount) * 100)}% known`
-                  : "No words answered yet"}
-              </p>
-              <Button onClick={handleStudyAgain}>Study Again</Button>
-            </div>
-          </QuestionCard>
+            )}
+
+            {showConfetti && <Confetti />}
+
+            {isTimeUp && (
+              <QuestionCard title="Time's up! 🎉">
+                <div className={`time-up-content${showSummary ? " visible" : ""}`}>
+                  <div className="time-up-score">
+                    {knownCount}
+                    <span className="time-up-score-of">/{seenCount}</span>
+                  </div>
+                  <p className="time-up-summary">
+                    {seenCount > 0
+                      ? `${Math.round((knownCount / seenCount) * 100)}% known`
+                      : "No words answered yet"}
+                  </p>
+                  <Button onClick={handleStudyAgain}>Study Again</Button>
+                </div>
+              </QuestionCard>
+            )}
+          </>
         )}
       </div>
     </div>
