@@ -17,8 +17,11 @@ type FlashcardsClientProps = {
   definition: LanguageDefinition;
 };
 
+type Direction = "target-to-english" | "english-to-target";
+
 const FlashcardsClient = ({ code, definition }: FlashcardsClientProps) => {
   const [word, setWord] = useState<RandomWord | null>(null);
+  const [direction, setDirection] = useState<Direction>("target-to-english");
   const [isFlipped, setIsFlipped] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [seenCount, setSeenCount] = useState(0);
@@ -56,6 +59,11 @@ const FlashcardsClient = ({ code, definition }: FlashcardsClientProps) => {
   const toggleFlipped = () => {
     setShowFlipHint(false);
     setIsFlipped((flipped) => !flipped);
+  };
+
+  const handleSetDirection = (next: Direction) => {
+    setDirection(next);
+    setIsFlipped(false);
   };
 
   const handleKnewIt = () => {
@@ -150,6 +158,27 @@ const FlashcardsClient = ({ code, definition }: FlashcardsClientProps) => {
       />
 
       <div className="flashcards-card">
+        {!isTimeUp && (
+          <div className="chip-grid direction-toggle">
+            <button
+              type="button"
+              className="chip"
+              onClick={() =>
+                handleSetDirection(
+                  direction === "target-to-english"
+                    ? "english-to-target"
+                    : "target-to-english",
+                )
+              }
+            >
+              Switch to{" "}
+              {direction === "target-to-english"
+                ? `English → ${definition.displayName}`
+                : `${definition.displayName} → English`}
+            </button>
+          </div>
+        )}
+
         {startTime !== null && (
           <div className="practice-stats">
             <TimerStat
@@ -214,10 +243,18 @@ const FlashcardsClient = ({ code, definition }: FlashcardsClientProps) => {
             >
               <div className="flashcard-inner">
                 <div className="flashcard-face flashcard-face--front">
-                  <span className="flashcard-word">{word.word_target}</span>
+                  <span className="flashcard-word">
+                    {direction === "target-to-english"
+                      ? word.word_target
+                      : word.word_english}
+                  </span>
                 </div>
                 <div className="flashcard-face flashcard-face--back">
-                  <span className="flashcard-word">{word.word_english}</span>
+                  <span className="flashcard-word">
+                    {direction === "target-to-english"
+                      ? word.word_english
+                      : word.word_target}
+                  </span>
                 </div>
               </div>
             </div>
