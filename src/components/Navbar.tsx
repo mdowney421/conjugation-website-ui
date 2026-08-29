@@ -17,7 +17,7 @@ const Navbar = () => {
   const links = activeLanguage
     ? [
         { to: `/${activeLanguage}/verbs`, label: "Verbs" },
-        { to: `/${activeLanguage}/practice`, label: "Practice" },
+        { to: `/${activeLanguage}/conjugate`, label: "Conjugate" },
         { to: `/${activeLanguage}/flashcards`, label: "Flashcards" },
         { to: `/${activeLanguage}/about`, label: "About" },
       ]

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PracticeClient from "../../../features/practice/PracticeClient";
+import ConjugateClient from "../../../features/conjugate/ConjugateClient";
 import { LANGUAGES } from "../../../languages/registry";
 
 type PageProps = { params: Promise<{ language: string }> };
@@ -9,17 +9,17 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
   const definition = LANGUAGES[language];
   if (!definition) return {};
   return {
-    title: `Practice ${definition.displayName} Conjugation`,
+    title: `Conjugate ${definition.displayName} Verbs`,
     description: `Quiz yourself on ${definition.displayName} verb conjugations across the tenses and verb types you choose.`,
   };
 };
 
-const PracticePage = async ({ params }: PageProps) => {
+const ConjugatePage = async ({ params }: PageProps) => {
   const { language } = await params;
   const definition = LANGUAGES[language];
   if (!definition) return null;
 
-  return <PracticeClient code={definition.code} definition={definition} />;
+  return <ConjugateClient code={definition.code} definition={definition} />;
 };
 
-export default PracticePage;
+export default ConjugatePage;

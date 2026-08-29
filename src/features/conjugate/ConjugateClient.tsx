@@ -28,12 +28,12 @@ type SetupStep =
   | { kind: "tenses" }
   | { kind: "duration" };
 
-type PracticeClientProps = {
+type ConjugateClientProps = {
   code: string;
   definition: LanguageDefinition;
 };
 
-const PracticeClient = ({ code, definition }: PracticeClientProps) => {
+const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
   const tenseList = useMemo(
     () => Object.keys(definition.tenseLabels) as Tense[],
     [definition],
@@ -147,7 +147,7 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
     setStepIndex((i) => i + 1);
   };
 
-  const handlePracticeAgain = () => {
+  const handleConjugateAgain = () => {
     setCorrectCount(0);
     setQuestionsSeen(0);
     setStartTime(null);
@@ -242,13 +242,13 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
   };
 
   const isSetupStep = stepIndex < steps.length;
-  const isActivePractice = stepIndex === steps.length;
+  const isActiveConjugation = stepIndex === steps.length;
   const currentStep = isSetupStep ? steps[stepIndex] : null;
 
   return (
     <div className="page">
       <PageHeader
-        title="Practice"
+        title="Conjugate"
         subtitle="Answer a few quick questions, then start conjugating."
       />
 
@@ -325,7 +325,7 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
           />
         )}
 
-        {isActivePractice && !isTimeUp && (
+        {isActiveConjugation && !isTimeUp && (
           <ConjugationInput
             randomVerb={randomVerb}
             tenseLabels={definition.tenseLabels}
@@ -356,7 +356,7 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
               <p className="time-up-summary">
                 {Math.round((correctCount / questionsSeen) * 100)}% correct
               </p>
-              <Button onClick={handlePracticeAgain}>Practice Again</Button>
+              <Button onClick={handleConjugateAgain}>Conjugate Again</Button>
             </div>
           </QuestionCard>
         )}
@@ -365,4 +365,4 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
   );
 };
 
-export default PracticeClient;
+export default ConjugateClient;
