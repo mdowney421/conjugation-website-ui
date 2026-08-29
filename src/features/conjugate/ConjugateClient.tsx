@@ -9,9 +9,8 @@ import CounterStat from "../../components/CounterStat";
 import VerbTypeSelection from "./VerbTypeSelection";
 import MoodSelection, { type MoodChoice } from "./MoodSelection";
 import TenseSelection from "./TenseSelection";
-import DurationSelection from "./DurationSelection";
 import ConjugationInput from "./ConjugationInput";
-import Confetti from "./Confetti";
+import Confetti from "../../components/Confetti";
 import { fetchRandomVerbConjugation as fetchVerb } from "../../languages/api";
 import type { LanguageDefinition } from "../../languages/registry";
 import type { Mood, Polarity, Tense, VerbConjugation } from "../../languages/types";
@@ -25,8 +24,7 @@ type SetupStep =
   | { kind: "irregular" }
   | { kind: "toggle"; key: string; prompt: string }
   | { kind: "subjunctive" }
-  | { kind: "tenses" }
-  | { kind: "duration" };
+  | { kind: "tenses" };
 
 type ConjugateClientProps = {
   code: string;
@@ -48,7 +46,6 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
       })),
       ...(definition.hasSubjunctive ? [{ kind: "subjunctive" as const }] : []),
       { kind: "tenses" },
-      { kind: "duration" },
     ],
     [definition],
   );
@@ -70,10 +67,11 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
   const [questionsSeen, setQuestionsSeen] = useState<number>(0);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [elapsedOffsetSeconds, setElapsedOffsetSeconds] = useState<number>(0);
   const [scoreBump, setScoreBump] = useState<boolean>(false);
   const [timeLimitSeconds, setTimeLimitSeconds] = useState<
     number | null | undefined
-  >();
+  >(undefined);
   const [isTimeUp, setIsTimeUp] = useState<boolean>(false);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const [showSummary, setShowSummary] = useState<boolean>(false);
@@ -82,6 +80,10 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
     timeLimitSeconds != null
       ? Math.max(timeLimitSeconds - elapsedSeconds, 0)
       : null;
+  // "No limit" counts up from the moment it was chosen, not from whenever
+  // the session actually started (which may have been earlier, while the
+  // timer still read "Set timer").
+  const displayedElapsedSeconds = elapsedSeconds - elapsedOffsetSeconds;
 
   useEffect(() => {
     if (startTime === null || isTimeUp) return;
@@ -144,7 +146,7 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
   };
 
   const handleTenseConfirm = () => {
-    setStepIndex((i) => i + 1);
+    fetchRandomVerbConjugation();
   };
 
   const handleConjugateAgain = () => {
@@ -152,11 +154,21 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
     setQuestionsSeen(0);
     setStartTime(null);
     setElapsedSeconds(0);
+    setElapsedOffsetSeconds(0);
     setIsTimeUp(false);
     setShowConfetti(false);
     setShowSummary(false);
     setTimeLimitSeconds(undefined);
-    setStepIndex(steps.length - 1);
+    fetchRandomVerbConjugation();
+  };
+
+  const handleChooseTimeLimit = (minutes: number | null) => {
+    if (minutes === null) {
+      setElapsedOffsetSeconds(elapsedSeconds);
+      setTimeLimitSeconds(null);
+    } else {
+      setTimeLimitSeconds(elapsedSeconds + minutes * 60);
+    }
   };
 
   const resolveTense = (): Tense =>
@@ -221,6 +233,10 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
   };
 
   const fetchRandomVerbConjugation = async () => {
+    // Only counts as a "seen" question once the previous one has been
+    // answered (correctly or given up on) -- not for the very first
+    // question of the session, matching Flashcards starting at 0/0.
+    const isAdvancingPastQuestion = isCorrectAnswer === "true" || hasMissed;
     const tense = resolveTense();
     const verb = await fetchVerb(
       code,
@@ -237,7 +253,9 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
     setShowHint(false);
     setShowAnswer(false);
     setHasMissed(false);
-    setQuestionsSeen((prev) => prev + 1);
+    if (isAdvancingPastQuestion) {
+      setQuestionsSeen((prev) => prev + 1);
+    }
     setStartTime((prev) => prev ?? Date.now());
   };
 
@@ -256,9 +274,17 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
         {startTime !== null && (
           <div className="practice-stats">
             <TimerStat
-              seconds={remainingSeconds ?? elapsedSeconds}
+              seconds={remainingSeconds ?? displayedElapsedSeconds}
               label={remainingSeconds !== null ? "left" : "time"}
               lowTime={remainingSeconds !== null && remainingSeconds <= 10 && !isTimeUp}
+              currentLimitMinutes={
+                timeLimitSeconds === undefined
+                  ? undefined
+                  : timeLimitSeconds === null
+                    ? null
+                    : Math.round((timeLimitSeconds - elapsedSeconds) / 60)
+              }
+              onSetLimitMinutes={isTimeUp ? undefined : handleChooseTimeLimit}
             />
             <CounterStat
               count={correctCount}
@@ -317,14 +343,6 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
           />
         )}
 
-        {currentStep?.kind === "duration" && (
-          <DurationSelection
-            selectedSeconds={timeLimitSeconds}
-            onSelect={setTimeLimitSeconds}
-            onConfirm={fetchRandomVerbConjugation}
-          />
-        )}
-
         {isActiveConjugation && !isTimeUp && (
           <ConjugationInput
             randomVerb={randomVerb}
@@ -354,7 +372,9 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
                 <span className="time-up-score-of">/{questionsSeen}</span>
               </div>
               <p className="time-up-summary">
-                {Math.round((correctCount / questionsSeen) * 100)}% correct
+                {questionsSeen > 0
+                  ? `${Math.round((correctCount / questionsSeen) * 100)}% correct`
+                  : "No questions answered yet"}
               </p>
               <Button onClick={handleConjugateAgain}>Conjugate Again</Button>
             </div>
