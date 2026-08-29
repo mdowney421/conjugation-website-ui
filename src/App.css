@@ -1473,6 +1473,11 @@ a.language-card:hover {
   gap: 28px;
 }
 
+.flashcard-wrap {
+  position: relative;
+  width: 100%;
+}
+
 .flashcard {
   width: 100%;
   aspect-ratio: 3 / 2;
@@ -1480,6 +1485,80 @@ a.language-card:hover {
   perspective: 1200px;
   cursor: pointer;
   animation: flashcard-fade-in 0.25s ease both;
+}
+
+.flip-hint {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 2;
+  animation: flip-hint-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.flip-hint-bubble {
+  padding: 12px 26px;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast, #fff);
+  font-size: 1.15rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md, var(--shadow-sm));
+  animation: flip-hint-pulse 1.6s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+
+.flip-hint-arrow {
+  animation: flip-hint-bounce 1.2s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+
+@keyframes flip-hint-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes flip-hint-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes flip-hint-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-hint {
+    animation: flip-hint-in 0.01s linear both;
+  }
+
+  .flip-hint-bubble,
+  .flip-hint-arrow {
+    animation: none;
+  }
 }
 
 .flashcard-inner {
@@ -1548,11 +1627,6 @@ a.language-card:hover {
   display: flex;
   align-items: center;
   gap: 16px;
-}
-
-.flashcards-count {
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
 }
 
 /* ---------- About page ---------- */
