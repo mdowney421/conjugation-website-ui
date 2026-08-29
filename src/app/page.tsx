@@ -5,9 +5,9 @@ import FeatureItem from "../components/FeatureItem";
 import { LANGUAGES } from "../languages/registry";
 
 export const metadata: Metadata = {
-  title: { absolute: "DialecTrek — Learn Verb Conjugations" },
+  title: { absolute: "DialecTrek — Learn a Language" },
   description:
-    "DialecTrek — look up Spanish verbs and practice conjugating them across every tense.",
+    "DialecTrek — look up verb conjugations and practice with flashcards to build your vocabulary.",
 };
 
 const LanguagePickerPage = () => {
@@ -66,8 +66,12 @@ const LanguagePickerPage = () => {
             description="Choose exactly which tenses and verb types to master."
           />
           <FeatureItem
-            title="Built around common verbs"
-            description="Focused on the common verbs you'll actually use, not an overwhelming list."
+            title="Vocabulary flashcards"
+            description="Build your vocabulary by drilling the most common words with flashcards."
+          />
+          <FeatureItem
+            title="Built around common words"
+            description="Focused on the common words you'll actually use, not an overwhelming list."
           />
         </div>
       </div>

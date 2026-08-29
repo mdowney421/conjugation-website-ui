@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s | DialecTrek",
   },
   description:
-    "DialecTrek — look up Spanish verbs and practice conjugating them across every tense.",
+    "DialecTrek — look up verb conjugations and practice with flashcards to build your vocabulary.",
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",

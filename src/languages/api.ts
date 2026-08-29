@@ -152,15 +152,32 @@ export const fetchVerbConjugation = async (
   }
 };
 
-export const fetchRandomWord = async (language: string): Promise<RandomWord | undefined> => {
+export const fetchRandomWord = async (
+  language: string,
+  category?: string,
+): Promise<RandomWord | undefined> => {
   try {
     const response = await withRetry(() =>
-      axios.get<RandomWord>(`${BASE_URL}/${language}/get-random-word`),
+      axios.get<RandomWord>(`${BASE_URL}/${language}/get-random-word`, {
+        params: { category },
+      }),
     );
     return response.data;
   } catch (error) {
     console.error(`error fetching random word: ${describeError(error)}`);
     return undefined;
+  }
+};
+
+export const fetchWordCategories = async (language: string): Promise<string[]> => {
+  try {
+    const response = await withRetry(() =>
+      axios.get<string[]>(`${BASE_URL}/${language}/get-word-categories`),
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`error fetching word categories: ${describeError(error)}`);
+    return [];
   }
 };
 
