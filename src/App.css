@@ -131,6 +131,28 @@
   transform: scale(0.92);
 }
 
+.theme-toggle-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--color-text);
+}
+
+.theme-toggle-icon-sun {
+  display: none;
+}
+
+.theme-toggle-icon-moon {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-toggle-icon-sun {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-toggle-icon-moon {
+  display: none;
+}
+
 .navbar-toggle {
   display: none;
   background: none;
