@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import PageHeader from "../../components/PageHeader";
 import QuestionCard from "../../components/QuestionCard";
 import Button from "../../components/Button";
+import TimerStat from "../../components/TimerStat";
+import CounterStat from "../../components/CounterStat";
 import VerbTypeSelection from "./VerbTypeSelection";
 import MoodSelection, { type MoodChoice } from "./MoodSelection";
 import TenseSelection from "./TenseSelection";
@@ -243,12 +245,6 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
   const isActivePractice = stepIndex === steps.length;
   const currentStep = isSetupStep ? steps[stepIndex] : null;
 
-  const formatElapsedTime = (totalSeconds: number) => {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  };
-
   return (
     <div className="page">
       <PageHeader
@@ -259,33 +255,17 @@ const PracticeClient = ({ code, definition }: PracticeClientProps) => {
       <div className="practice-card">
         {startTime !== null && (
           <div className="practice-stats">
-            <div
-              className={`stat-card stat-card--timer${
-                remainingSeconds !== null && remainingSeconds <= 10 && !isTimeUp
-                  ? " low-time"
-                  : ""
-              }`}
-            >
-              <span className="stat-icon" aria-hidden="true">
-                ⏱️
-              </span>
-              <span className="stat-value">
-                {formatElapsedTime(remainingSeconds ?? elapsedSeconds)}
-              </span>
-              <span className="stat-label">
-                {remainingSeconds !== null ? "left" : "time"}
-              </span>
-            </div>
-            <div className={`stat-card stat-card--score${scoreBump ? " bump" : ""}`}>
-              <span className="stat-icon" aria-hidden="true">
-                🎯
-              </span>
-              <span className="stat-value">
-                {correctCount}
-                <span className="stat-value-of">/{questionsSeen}</span>
-              </span>
-              <span className="stat-label">correct</span>
-            </div>
+            <TimerStat
+              seconds={remainingSeconds ?? elapsedSeconds}
+              label={remainingSeconds !== null ? "left" : "time"}
+              lowTime={remainingSeconds !== null && remainingSeconds <= 10 && !isTimeUp}
+            />
+            <CounterStat
+              count={correctCount}
+              total={questionsSeen}
+              label="correct"
+              bump={scoreBump}
+            />
           </div>
         )}
 
