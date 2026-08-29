@@ -7,6 +7,7 @@ export type LanguageDefinition = {
   flagEmoji: string;
   enabled: boolean;
   verbCount: number;
+  wordCount: number;
   tenseLabels: Record<Tense, string>;
   indicativeOnlyTenses: Tense[];
   hasSubjunctive: boolean;

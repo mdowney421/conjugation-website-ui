@@ -3,6 +3,7 @@ import type {
   ImperativeConjugationTable,
   Mood,
   Polarity,
+  RandomWord,
   Tense,
   VerbConjugation,
   VerbConjugationTable,
@@ -147,6 +148,18 @@ export const fetchVerbConjugation = async (
     return response.data;
   } catch (error) {
     console.error(`error fetching verb conjugation: ${describeError(error)}`);
+    return undefined;
+  }
+};
+
+export const fetchRandomWord = async (language: string): Promise<RandomWord | undefined> => {
+  try {
+    const response = await withRetry(() =>
+      axios.get<RandomWord>(`${BASE_URL}/${language}/get-random-word`),
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`error fetching random word: ${describeError(error)}`);
     return undefined;
   }
 };

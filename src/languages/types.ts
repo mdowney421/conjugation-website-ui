@@ -62,3 +62,10 @@ export type ImperativeConjugationTable = {
   tense: "imperative";
   conjugations: ImperativeConjugation[];
 };
+
+export type RandomWord = {
+  rank: number;
+  word_target: string;
+  word_english: string;
+  category: string;
+};

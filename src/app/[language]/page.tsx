@@ -61,6 +61,11 @@ const HomePage = async ({ params }: PageProps) => {
             title="Practice conjugating"
             description="Quiz yourself on the tenses and verb types you choose."
           />
+          <ActionCard
+            to={`/${language}/flashcards`}
+            title="Study flashcards"
+            description="Flip through the most common words until they stick."
+          />
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ export const es: LanguageDefinition = {
   flagEmoji: "🇪🇸",
   enabled: true,
   verbCount: 100,
+  wordCount: 2000,
   tenseLabels: {
     present: "Present",
     preterite: "Preterite",
