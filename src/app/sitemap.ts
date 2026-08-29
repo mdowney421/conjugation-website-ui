@@ -14,7 +14,7 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     entries.push(
       { url: base, priority: 0.9 },
       { url: `${base}/verbs`, priority: 0.8 },
-      { url: `${base}/practice`, priority: 0.6 },
+      { url: `${base}/conjugate`, priority: 0.6 },
       { url: `${base}/about`, priority: 0.5 },
     );
 

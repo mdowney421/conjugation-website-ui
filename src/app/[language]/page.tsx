@@ -57,8 +57,8 @@ const HomePage = async ({ params }: PageProps) => {
             description="Browse the verb list and find a conjugation fast."
           />
           <ActionCard
-            to={`/${language}/practice`}
-            title="Practice conjugating"
+            to={`/${language}/conjugate`}
+            title="Conjugate verbs"
             description="Quiz yourself on the tenses and verb types you choose."
           />
           <ActionCard
