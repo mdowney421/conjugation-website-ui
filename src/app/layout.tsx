@@ -35,12 +35,13 @@ export const viewport: Viewport = {
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang="en" data-theme="light" suppressHydrationWarning>
     <head>
-      {/* Runs before first paint so a saved dark-mode preference applies
-          immediately instead of flashing the light theme -- see
-          ThemeContext.tsx, which reads the same localStorage key. */}
+      {/* Runs before first paint so the resolved theme (saved preference,
+          falling back to the OS setting) applies immediately instead of
+          flashing the light theme -- see ThemeContext.tsx, which resolves
+          the initial theme the same way. */}
       <script
         dangerouslySetInnerHTML={{
-          __html: `(function(){try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`,
+          __html: `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`,
         }}
       />
       <link rel="preconnect" href="https://fonts.googleapis.com" />

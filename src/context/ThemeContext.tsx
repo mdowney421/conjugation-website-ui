@@ -20,13 +20,14 @@ const STORAGE_KEY = "theme";
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-// An inline script in the root layout (see app/layout.tsx) sets
-// data-theme on <html> from localStorage before the browser paints, so
-// there's no flash of the wrong theme on a hard load. This initializer
-// reads the same source the script does: on the server it always returns
-// "light" (deterministic, no window), and on the client -- including the
-// hydration render, which runs in the browser -- it reads localStorage
-// directly, landing on the same value the script already applied.
+// An inline script in the root layout (see app/layout.tsx) resolves
+// data-theme on <html> -- from localStorage, falling back to the OS
+// preference -- before the browser paints, so there's no flash of the
+// wrong theme on a hard load. This initializer resolves the theme the
+// same way the script does: on the server it always returns "light"
+// (deterministic, no window), and on the client -- including the
+// hydration render, which runs in the browser -- it lands on the same
+// value the script already applied.
 const getInitialTheme = (): Theme => {
   if (typeof window === "undefined") return "light";
   const stored = localStorage.getItem(STORAGE_KEY);
