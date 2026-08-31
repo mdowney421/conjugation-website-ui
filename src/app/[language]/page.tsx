@@ -76,6 +76,15 @@ const HomePage = async ({ params }: PageProps) => {
             title="Study flashcards"
             description="Flip through the most common words until they stick."
           />
+          <ActionCard
+            to={`/${language}/grammar`}
+            title="Learn grammar"
+            description={
+              definition.grammarTopics.length
+                ? "Understand the concepts behind the conjugations."
+                : "Coming soon."
+            }
+          />
         </div>
       </div>
     </div>

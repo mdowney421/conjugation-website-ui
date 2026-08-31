@@ -18,6 +18,7 @@ const Navbar = () => {
     ? [
         { to: `/${activeLanguage}/verbs`, label: "Verbs" },
         { to: `/${activeLanguage}/conjugate`, label: "Conjugate" },
+        { to: `/${activeLanguage}/grammar`, label: "Grammar" },
         { to: `/${activeLanguage}/flashcards`, label: "Flashcards" },
         { to: `/${activeLanguage}/about`, label: "About" },
       ]
