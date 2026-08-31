@@ -16,22 +16,25 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
     const base = `${SITE_URL}/${definition.code}`;
     entries.push(
       { url: base, priority: 0.9 },
-      { url: `${base}/verbs`, priority: 0.8 },
-      { url: `${base}/conjugate`, priority: 0.6 },
+      { url: `${base}/verbs`, priority: definition.hasVerbs ? 0.8 : 0.4 },
+      { url: `${base}/conjugate`, priority: definition.hasVerbs ? 0.6 : 0.4 },
+      { url: `${base}/flashcards`, priority: 0.8 },
       { url: `${base}/about`, priority: 0.5 },
     );
 
-    try {
-      const verbs = await fetchAllVerbs(definition.code);
-      for (const [target] of verbs) {
-        entries.push({
-          url: `${base}/verbs/${encodeURIComponent(target)}`,
-          priority: 0.7,
-        });
+    if (definition.hasVerbs) {
+      try {
+        const verbs = await fetchAllVerbs(definition.code);
+        for (const [target] of verbs) {
+          entries.push({
+            url: `${base}/verbs/${encodeURIComponent(target)}`,
+            priority: 0.7,
+          });
+        }
+      } catch {
+        // Backend unreachable at build time -- verb pages are omitted from
+        // the sitemap rather than failing the build.
       }
-    } catch {
-      // Backend unreachable at build time -- verb pages are omitted from
-      // the sitemap rather than failing the build.
     }
   }
 

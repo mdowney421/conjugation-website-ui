@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ComingSoon from "../../../components/ComingSoon";
 import ConjugateClient from "../../../features/conjugate/ConjugateClient";
 import { LANGUAGES } from "../../../languages/registry";
 
@@ -10,7 +11,9 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
   if (!definition) return {};
   return {
     title: `Conjugate ${definition.displayName} Verbs`,
-    description: `Quiz yourself on ${definition.displayName} verb conjugations across the tenses and verb types you choose.`,
+    description: definition.hasVerbs
+      ? `Quiz yourself on ${definition.displayName} verb conjugations across the tenses and verb types you choose.`
+      : `${definition.displayName} verb conjugation practice is coming soon.`,
   };
 };
 
@@ -18,6 +21,15 @@ const ConjugatePage = async ({ params }: PageProps) => {
   const { language } = await params;
   const definition = LANGUAGES[language];
   if (!definition) return null;
+  if (!definition.hasVerbs) {
+    return (
+      <ComingSoon
+        title="Conjugate"
+        displayName={definition.displayName}
+        flashcardsHref={`/${language}/flashcards`}
+      />
+    );
+  }
 
   return <ConjugateClient code={definition.code} definition={definition} />;
 };

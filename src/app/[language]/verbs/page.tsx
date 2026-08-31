@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ComingSoon from "../../../components/ComingSoon";
 import PageHeader from "../../../components/PageHeader";
 import VerbsList from "../../../features/verbs/VerbsList";
 import { LANGUAGES } from "../../../languages/registry";
@@ -12,7 +13,9 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
   if (!definition) return {};
   return {
     title: `${definition.displayName} Verbs List`,
-    description: `Browse the ${definition.verbCount} most common ${definition.displayName} verbs and find the one you need.`,
+    description: definition.hasVerbs
+      ? `Browse the ${definition.verbCount} most common ${definition.displayName} verbs and find the one you need.`
+      : `${definition.displayName} verbs are coming soon.`,
   };
 };
 
@@ -20,6 +23,15 @@ const VerbsPage = async ({ params }: PageProps) => {
   const { language } = await params;
   const definition = LANGUAGES[language];
   if (!definition) return null;
+  if (!definition.hasVerbs) {
+    return (
+      <ComingSoon
+        title="Verbs"
+        displayName={definition.displayName}
+        flashcardsHref={`/${language}/flashcards`}
+      />
+    );
+  }
 
   const verbs = await fetchAllVerbs(definition.code);
 

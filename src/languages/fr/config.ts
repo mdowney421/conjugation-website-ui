@@ -1,13 +1,14 @@
 import type { Tense } from "../types";
 import type { LanguageDefinition } from "../registry";
 
-export const es: LanguageDefinition = {
-  code: "es",
-  displayName: "Spanish",
-  flagEmoji: "🇪🇸",
+export const fr: LanguageDefinition = {
+  code: "fr",
+  displayName: "French",
+  flagEmoji: "🇫🇷",
   enabled: true,
-  hasVerbs: true,
-  verbCount: 100,
+  // No conjugation engine for French yet -- flashcards only for now.
+  hasVerbs: false,
+  verbCount: 0,
   wordCount: 2000,
   tenseLabels: {
     present: "Present",
@@ -22,10 +23,6 @@ export const es: LanguageDefinition = {
     pluperfect: "Pluperfect",
     imperative: "Imperative",
   } satisfies Record<Tense, string>,
-  // Preterite, future, conditional (simple and perfect), and preterite
-  // perfect have no subjunctive form in Spanish at all. Imperfect,
-  // perfect, and pluperfect do (and this app supports them), so they're
-  // excluded from this list.
   indicativeOnlyTenses: [
     "preterite",
     "future",
@@ -35,8 +32,6 @@ export const es: LanguageDefinition = {
     "preterite_perfect",
   ],
   hasSubjunctive: true,
-  accentChars: ["á", "é", "í", "ó", "ú", "ñ"],
-  extraToggles: [
-    { key: "useRegionalVariant", prompt: 'Do you want to include "vosotros"?' },
-  ],
+  accentChars: ["à", "â", "ç", "é", "è", "ê", "î", "ï", "ô", "û", "ù", "œ"],
+  extraToggles: [],
 };
