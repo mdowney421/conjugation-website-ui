@@ -32,22 +32,19 @@ const LanguagePickerPage = () => {
               Language learning is a journey — we're just here to point out the
               shortcuts.
             </p>
+            <div className="hero-lang-label">Choose a language to get started</div>
+            <div className="hero-lang-picker">
+              {Object.values(LANGUAGES).map((language) => (
+                <Link
+                  key={language.code}
+                  href={`/${language.code}`}
+                  className={`language-card language-card--${language.code} hero-lang-card`}
+                >
+                  <h3>{language.displayName}</h3>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
-
-      <div className="section">
-        <h2 className="section-heading">Choose a language to practice</h2>
-        <div className="language-cards">
-          {Object.values(LANGUAGES).map((language) => (
-            <Link
-              key={language.code}
-              href={`/${language.code}`}
-              className={`language-card language-card--${language.code}`}
-            >
-              <h3>{language.displayName}</h3>
-            </Link>
-          ))}
         </div>
       </div>
 

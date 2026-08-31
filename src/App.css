@@ -378,6 +378,32 @@
   line-height: 1.6;
 }
 
+.hero-lang-label {
+  margin-top: 32px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-lang-picker {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.hero-lang-card {
+  width: 180px;
+  box-shadow: 0 10px 28px rgba(10, 30, 20, 0.35);
+}
+
+.hero-lang-card h3 {
+  text-align: center;
+}
+
 .section {
   padding: 56px 24px;
 }
@@ -2185,6 +2211,10 @@ a.language-card:hover {
   .cookie-consent-banner {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .cookie-consent-text {
+    flex: 1 1 auto;
   }
 
   .cookie-consent-actions {
