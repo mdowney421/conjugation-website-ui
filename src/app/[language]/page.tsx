@@ -54,12 +54,20 @@ const HomePage = async ({ params }: PageProps) => {
           <ActionCard
             to={`/${language}/verbs`}
             title="Look up verbs"
-            description="Browse the verb list and find a conjugation fast."
+            description={
+              definition.hasVerbs
+                ? "Browse the verb list and find a conjugation fast."
+                : "Coming soon."
+            }
           />
           <ActionCard
             to={`/${language}/conjugate`}
             title="Conjugate verbs"
-            description="Quiz yourself on the tenses and verb types you choose."
+            description={
+              definition.hasVerbs
+                ? "Quiz yourself on the tenses and verb types you choose."
+                : "Coming soon."
+            }
           />
           <ActionCard
             to={`/${language}/flashcards`}

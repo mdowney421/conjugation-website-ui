@@ -230,6 +230,7 @@
   font-weight: 600;
   border: 1.5px solid transparent;
   cursor: pointer;
+  text-decoration: none;
   transition: transform 0.12s ease, box-shadow 0.12s ease,
     background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
@@ -951,6 +952,40 @@ a.language-card:hover {
   text-align: center;
   color: var(--color-text-muted);
   padding: 48px 24px;
+}
+
+.empty-state .btn {
+  margin-top: 16px;
+}
+
+.coming-soon-emoji {
+  display: inline-block;
+  font-size: 3rem;
+  line-height: 1;
+  animation: coming-soon-wobble 2.4s ease-in-out infinite;
+}
+
+.coming-soon-heading {
+  margin-top: 12px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+@keyframes coming-soon-wobble {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coming-soon-emoji {
+    animation: none;
+  }
 }
 
 /* ---------- Practice flow ---------- */

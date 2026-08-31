@@ -48,10 +48,6 @@ const LanguagePickerPage = () => {
               <h3>{language.displayName}</h3>
             </Link>
           ))}
-          <div className="language-card language-card--fr disabled">
-            <h3>French</h3>
-            <span className="language-card-badge">Coming soon</span>
-          </div>
         </div>
       </div>
 
