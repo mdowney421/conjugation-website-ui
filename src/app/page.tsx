@@ -69,8 +69,8 @@ const LanguagePickerPage = () => {
             description="Build your vocabulary by drilling the most common words with flashcards."
           />
           <FeatureItem
-            title="Built around common words"
-            description="Focused on the common words you'll actually use, not an overwhelming list."
+            title="Grammar concepts"
+            description="Clear explanations for the ideas that actually trip learners up, not just verb tables."
           />
         </div>
       </div>

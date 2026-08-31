@@ -29,9 +29,13 @@ type SetupStep =
 type ConjugateClientProps = {
   code: string;
   definition: LanguageDefinition;
+  // Pre-checks these on the tense-selection step (e.g. arriving from a
+  // grammar topic's "practice these tenses" link) -- the user still
+  // confirms the step themselves rather than skipping straight past it.
+  initialTenses?: Tense[];
 };
 
-const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
+const ConjugateClient = ({ code, definition, initialTenses }: ConjugateClientProps) => {
   const tenseList = useMemo(() => definition.availableTenses, [definition]);
   const steps = useMemo<SetupStep[]>(
     () => [
@@ -47,14 +51,26 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
     [definition],
   );
 
-  const [useIrregularVerbs, setUseIrregularVerbs] = useState<
-    boolean | undefined
-  >();
-  const [toggleAnswers, setToggleAnswers] = useState<Record<string, boolean>>({});
-  const [moodSelection, setMoodSelection] = useState<MoodChoice | undefined>();
-  const [tenseSelection, setTenseSelection] = useState<Tense[]>([]);
+  // Arriving with tenses already picked (from a grammar topic's practice
+  // link) skips the setup wizard entirely rather than just pre-checking
+  // the tense step -- indicative mood, irregular verbs on, regional
+  // variants off, straight into the first question.
+  const skipSetup = (initialTenses?.length ?? 0) > 0;
+
+  const [useIrregularVerbs, setUseIrregularVerbs] = useState<boolean | undefined>(
+    skipSetup ? true : undefined,
+  );
+  const [toggleAnswers, setToggleAnswers] = useState<Record<string, boolean>>(() =>
+    skipSetup
+      ? Object.fromEntries(definition.extraToggles.map((toggle) => [toggle.key, false]))
+      : {},
+  );
+  const [moodSelection, setMoodSelection] = useState<MoodChoice | undefined>(
+    skipSetup ? "indicative" : undefined,
+  );
+  const [tenseSelection, setTenseSelection] = useState<Tense[]>(initialTenses ?? []);
   const [randomVerb, setRandomVerb] = useState<VerbConjugation | null>(null);
-  const [stepIndex, setStepIndex] = useState<number>(0);
+  const [stepIndex, setStepIndex] = useState<number>(() => (skipSetup ? steps.length : 0));
   const [isCorrectAnswer, setIsCorrectAnswer] = useState<string>("");
   const [userGuess, setUserGuess] = useState<string>("");
   const [showHint, setShowHint] = useState<boolean>(false);
@@ -107,6 +123,15 @@ const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
       clearTimeout(confettiTimeout);
     };
   }, [isTimeUp]);
+
+  useEffect(() => {
+    if (skipSetup) {
+      fetchRandomVerbConjugation();
+    }
+    // Only ever runs once, on mount -- the initial setup state it reads
+    // (irregular verbs, mood, tenses) doesn't change afterward.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (correctCount === 0) return;

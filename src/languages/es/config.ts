@@ -1,5 +1,6 @@
 import type { Tense } from "../types";
 import type { LanguageDefinition } from "../registry";
+import { esGrammarTopics, esUpcomingGrammarTopics } from "./grammar";
 
 export const es: LanguageDefinition = {
   code: "es",
@@ -43,4 +44,6 @@ export const es: LanguageDefinition = {
   extraToggles: [
     { key: "useRegionalVariant", prompt: 'Do you want to include "vosotros"?' },
   ],
+  grammarTopics: esGrammarTopics,
+  upcomingGrammarTopics: esUpcomingGrammarTopics,
 };

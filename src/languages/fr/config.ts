@@ -1,5 +1,6 @@
 import type { Tense } from "../types";
 import type { LanguageDefinition } from "../registry";
+import { frGrammarTopics, frUpcomingGrammarTopics } from "./grammar";
 
 export const fr: LanguageDefinition = {
   code: "fr",
@@ -42,4 +43,6 @@ export const fr: LanguageDefinition = {
   hasSubjunctive: true,
   accentChars: ["à", "â", "ç", "é", "è", "ê", "î", "ï", "ô", "û", "ù", "œ"],
   extraToggles: [],
+  grammarTopics: frGrammarTopics,
+  upcomingGrammarTopics: frUpcomingGrammarTopics,
 };

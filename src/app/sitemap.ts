@@ -23,8 +23,17 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
       { url: `${base}/verbs`, priority: definition.hasVerbs ? 0.8 : 0.4, lastModified },
       { url: `${base}/conjugate`, priority: definition.hasVerbs ? 0.6 : 0.4, lastModified },
       { url: `${base}/flashcards`, priority: 0.8, lastModified },
+      { url: `${base}/grammar`, priority: definition.grammarTopics.length ? 0.7 : 0.4, lastModified },
       { url: `${base}/about`, priority: 0.5, lastModified },
     );
+
+    for (const topic of definition.grammarTopics) {
+      entries.push({
+        url: `${base}/grammar/${topic.slug}`,
+        priority: 0.6,
+        lastModified,
+      });
+    }
 
     if (definition.hasVerbs) {
       try {

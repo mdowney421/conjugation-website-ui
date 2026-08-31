@@ -26,13 +26,7 @@ const VerbsPage = async ({ params }: PageProps) => {
   const definition = LANGUAGES[language];
   if (!definition) return null;
   if (!definition.hasVerbs) {
-    return (
-      <ComingSoon
-        title="Verbs"
-        displayName={definition.displayName}
-        flashcardsHref={`/${language}/flashcards`}
-      />
-    );
+    return <ComingSoon title="Verbs" language={language} definition={definition} />;
   }
 
   const verbs = await fetchAllVerbs(definition.code);

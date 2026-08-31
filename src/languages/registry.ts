@@ -1,4 +1,4 @@
-import type { Tense } from "./types";
+import type { GrammarTopic, GrammarTopicPreview, Tense } from "./types";
 import { es } from "./es/config";
 import { fr } from "./fr/config";
 
@@ -22,6 +22,14 @@ export type LanguageDefinition = {
   hasSubjunctive: boolean;
   accentChars: string[];
   extraToggles: { key: string; prompt: string }[];
+  // Explanatory grammar concept pages -- hand-authored per language, so
+  // this is empty (rather than absent) for a language that isn't built
+  // out yet; the grammar routes fall back to ComingSoon in that case.
+  grammarTopics: GrammarTopic[];
+  // Topics on the roadmap but not written yet -- rendered as inactive
+  // rows on the grammar list page so it reflects the full plan, not just
+  // what's shipped.
+  upcomingGrammarTopics: GrammarTopicPreview[];
 };
 
 export const LANGUAGES: Record<string, LanguageDefinition> = { es, fr };
