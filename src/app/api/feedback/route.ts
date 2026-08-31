@@ -8,6 +8,24 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const MAX_MESSAGE_LENGTH = 5000;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Best-effort per-instance rate limit: this map is wiped on cold start and
+// isn't shared across serverless instances, so it won't stop a distributed
+// flood, but it's enough to blunt a single script hammering the endpoint.
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 5;
+const requestLog = new Map<string, number[]>();
+
+const isRateLimited = (ip: string): boolean => {
+  const now = Date.now();
+  const timestamps = (requestLog.get(ip) ?? []).filter(
+    (t) => now - t < RATE_LIMIT_WINDOW_MS,
+  );
+  timestamps.push(now);
+  requestLog.set(ip, timestamps);
+  return timestamps.length > RATE_LIMIT_MAX_REQUESTS;
+};
 
 type FeedbackPayload = {
   type?: string;
@@ -17,6 +35,15 @@ type FeedbackPayload = {
 };
 
 export async function POST(request: Request) {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "Too many submissions. Please try again later." },
+      { status: 429 },
+    );
+  }
+
   let body: FeedbackPayload;
   try {
     body = await request.json();
@@ -40,6 +67,9 @@ export async function POST(request: Request) {
 
   const type = body.type && body.type in TYPE_LABELS ? body.type : "comment";
   const email = body.email?.trim();
+  if (email && !EMAIL_PATTERN.test(email)) {
+    return NextResponse.json({ error: "Please enter a valid email." }, { status: 400 });
+  }
 
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.CONTACT_EMAIL;

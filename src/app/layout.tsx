@@ -9,6 +9,7 @@ import Footer from "../components/Footer";
 import FeedbackWidget from "../components/FeedbackWidget";
 import CookieConsentBanner from "../components/CookieConsentBanner";
 import { ThemeProvider } from "../context/ThemeContext";
+import { jsonLdScript } from "../lib/jsonLd";
 
 const SITE_DESCRIPTION =
   "DialecTrek — look up verb conjugations and practice with flashcards to build your vocabulary.";
@@ -82,7 +83,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_JSON_LD) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(WEBSITE_JSON_LD) }}
       />
       <Script id="gtag-consent-default" strategy="beforeInteractive">
         {`window.dataLayer = window.dataLayer || [];
