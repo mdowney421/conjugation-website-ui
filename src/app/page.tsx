@@ -3,11 +3,17 @@ import Image from "next/image";
 import Link from "next/link";
 import FeatureItem from "../components/FeatureItem";
 import { LANGUAGES } from "../languages/registry";
+import { pageMetadata } from "../lib/seo";
 
 export const metadata: Metadata = {
+  ...pageMetadata({
+    title: "DialecTrek — Learn a Language",
+    ogTitle: "DialecTrek — Learn a Language",
+    description:
+      "DialecTrek — look up verb conjugations and practice with flashcards to build your vocabulary.",
+    path: "/",
+  }),
   title: { absolute: "DialecTrek — Learn a Language" },
-  description:
-    "DialecTrek — look up verb conjugations and practice with flashcards to build your vocabulary.",
 };
 
 const LanguagePickerPage = () => {

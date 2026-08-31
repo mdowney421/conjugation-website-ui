@@ -16,6 +16,7 @@ import {
   fetchImperativeConjugation,
   fetchVerbConjugation,
 } from "../../../../languages/api";
+import { pageMetadata } from "../../../../lib/seo";
 
 type PageProps = { params: Promise<{ language: string; verb: string }> };
 
@@ -62,10 +63,11 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
   const table = await fetchVerbConjugation(definition.code, verb, "indicative", "present");
   if (!table) return { title: verb };
 
-  return {
+  return pageMetadata({
     title: `${table.infinitive_target} Conjugation`,
     description: `See how to conjugate "${table.infinitive_target}" (${table.infinitive_english}) in ${definition.displayName} across every tense, mood, and the imperative.`,
-  };
+    path: `/${language}/verbs/${verb}`,
+  });
 };
 
 const VerbDetailPage = async ({ params }: PageProps) => {
@@ -86,8 +88,39 @@ const VerbDetailPage = async ({ params }: PageProps) => {
     groups[IMPERATIVE_AFTER_INDEX]?.indicative ??
     groups.flatMap((group) => [group.indicative, group.subjunctive]).find(Boolean);
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dialectrek.com";
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: definition.displayName,
+        item: `${siteUrl}/${definition.code}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: "Verbs",
+        item: `${siteUrl}/${definition.code}/verbs`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        name: infinitiveTable?.infinitive_target ?? verb,
+        item: `${siteUrl}/${definition.code}/verbs/${verb}`,
+      },
+    ],
+  };
+
   return (
     <div className="page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <PageHeader
         title={infinitiveTable?.infinitive_target ?? verb}
         subtitle={infinitiveTable?.infinitive_english ?? "Verb conjugations"}

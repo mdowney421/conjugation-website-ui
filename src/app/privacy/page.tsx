@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import PageHeader from "../../components/PageHeader";
+import { pageMetadata } from "../../lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Privacy Policy",
   description: "How DialecTrek handles cookies and analytics data.",
-};
+  path: "/privacy",
+});
 
 const PrivacyPage = () => {
   return (

@@ -10,6 +10,9 @@ import FeedbackWidget from "../components/FeedbackWidget";
 import CookieConsentBanner from "../components/CookieConsentBanner";
 import { ThemeProvider } from "../context/ThemeContext";
 
+const SITE_DESCRIPTION =
+  "DialecTrek — look up verb conjugations and practice with flashcards to build your vocabulary.";
+
 export const metadata: Metadata = {
   metadataBase: process.env.NEXT_PUBLIC_SITE_URL
     ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
@@ -18,13 +21,39 @@ export const metadata: Metadata = {
     default: "DialecTrek",
     template: "%s | DialecTrek",
   },
-  description:
-    "DialecTrek — look up verb conjugations and practice with flashcards to build your vocabulary.",
+  description: SITE_DESCRIPTION,
   manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",
     apple: "/logo192.png",
   },
+  openGraph: {
+    siteName: "DialecTrek",
+    locale: "en_US",
+    type: "website",
+    title: "DialecTrek",
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/DialecTrekHeroImage.png",
+        alt: "A traveler pauses on a mountain trail marked with icons for reading, conversation, and practice, following it toward a flag at the summit",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DialecTrek",
+    description: SITE_DESCRIPTION,
+    images: ["/DialecTrekHeroImage.png"],
+  },
+};
+
+const WEBSITE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "DialecTrek",
+  description: SITE_DESCRIPTION,
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://dialectrek.com",
 };
 
 export const viewport: Viewport = {
@@ -50,6 +79,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => (
       <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
         rel="stylesheet"
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_JSON_LD) }}
       />
       <Script id="gtag-consent-default" strategy="beforeInteractive">
         {`window.dataLayer = window.dataLayer || [];

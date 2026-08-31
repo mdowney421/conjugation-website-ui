@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import ActionCard from "../../components/ActionCard";
 import { LANGUAGES } from "../../languages/registry";
+import { pageMetadata } from "../../lib/seo";
 
 type PageProps = { params: Promise<{ language: string }> };
 
@@ -11,10 +12,11 @@ export const generateMetadata = async ({
   const { language } = await params;
   const definition = LANGUAGES[language];
   if (!definition) return {};
-  return {
+  return pageMetadata({
     title: `${definition.displayName} Verb Conjugation`,
     description: `Look up and practice ${definition.displayName} verb conjugations across every tense.`,
-  };
+    path: `/${language}`,
+  });
 };
 
 const HomePage = async ({ params }: PageProps) => {
