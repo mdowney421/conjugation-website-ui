@@ -14,6 +14,10 @@ export type LanguageDefinition = {
   verbCount: number;
   wordCount: number;
   tenseLabels: Record<Tense, string>;
+  // Which tenses this language's conjugation engine actually supports --
+  // narrower than tenseLabels' keys while a language is still being built
+  // out, so the practice setup only ever offers tenses that won't 422.
+  availableTenses: Tense[];
   indicativeOnlyTenses: Tense[];
   hasSubjunctive: boolean;
   accentChars: string[];
