@@ -17,6 +17,7 @@ import {
   fetchVerbConjugation,
 } from "../../../../languages/api";
 import { pageMetadata } from "../../../../lib/seo";
+import { jsonLdScript } from "../../../../lib/jsonLd";
 
 type PageProps = { params: Promise<{ language: string; verb: string }> };
 
@@ -119,7 +120,7 @@ const VerbDetailPage = async ({ params }: PageProps) => {
     <div className="page">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbJsonLd) }}
       />
       <PageHeader
         title={infinitiveTable?.infinitive_target ?? verb}
