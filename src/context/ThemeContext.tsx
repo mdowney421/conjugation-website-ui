@@ -23,13 +23,14 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 // An inline script in the root layout (see app/layout.tsx) resolves
 // data-theme on <html> -- from localStorage, falling back to the OS
 // preference -- before the browser paints, so there's no flash of the
-// wrong theme on a hard load. This initializer resolves the theme the
-// same way the script does: on the server it always returns "light"
-// (deterministic, no window), and on the client -- including the
-// hydration render, which runs in the browser -- it lands on the same
-// value the script already applied.
+// wrong theme on a hard load. It runs before React hydrates, so `theme`
+// below has to start as "light" (matching the server's default) rather
+// than reading this same resolution logic during render: doing that would
+// make the hydration render itself diverge from the server-rendered
+// markup (e.g. the theme-toggle button's aria-label) and trip React's
+// hydration mismatch warning. Instead, the effect below picks up the
+// value the script already applied to <html> once mounted.
 const getInitialTheme = (): Theme => {
-  if (typeof window === "undefined") return "light";
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") {
     return stored;
@@ -40,21 +41,29 @@ const getInitialTheme = (): Theme => {
 };
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const [theme, setTheme] = useState<Theme>("light");
 
-  // useLayoutEffect (not useEffect) so this also re-applies the attribute
-  // after React Strict Mode's dev-only remount, which otherwise resets
-  // <html> to only the attributes React itself rendered.
+  // useLayoutEffect (not useEffect) so this resolves before paint -- both
+  // on first mount and after React Strict Mode's dev-only remount, which
+  // otherwise resets <html> to only the attributes React itself rendered.
   useLayoutEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme]);
+    const resolved =
+      (document.documentElement.getAttribute("data-theme") as Theme | null) ??
+      getInitialTheme();
+    document.documentElement.setAttribute("data-theme", resolved);
+    setTheme(resolved);
+  }, []);
 
   const value = useMemo(
     () => ({
       theme,
       toggleTheme: () =>
-        setTheme((current) => (current === "light" ? "dark" : "light")),
+        setTheme((current) => {
+          const next = current === "light" ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", next);
+          localStorage.setItem(STORAGE_KEY, next);
+          return next;
+        }),
     }),
     [theme],
   );

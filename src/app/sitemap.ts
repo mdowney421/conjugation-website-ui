@@ -5,9 +5,13 @@ import { fetchAllVerbs } from "../languages/api";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
+  // Build time doubles as a freshness signal for search engines -- every
+  // entry gets it since this sitemap always reflects the latest deploy.
+  const lastModified = new Date();
+
   const entries: MetadataRoute.Sitemap = [
-    { url: SITE_URL, priority: 1 },
-    { url: `${SITE_URL}/privacy`, priority: 0.3 },
+    { url: SITE_URL, priority: 1, lastModified },
+    { url: `${SITE_URL}/privacy`, priority: 0.3, lastModified },
   ];
 
   for (const definition of Object.values(LANGUAGES)) {
@@ -15,11 +19,11 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
 
     const base = `${SITE_URL}/${definition.code}`;
     entries.push(
-      { url: base, priority: 0.9 },
-      { url: `${base}/verbs`, priority: definition.hasVerbs ? 0.8 : 0.4 },
-      { url: `${base}/conjugate`, priority: definition.hasVerbs ? 0.6 : 0.4 },
-      { url: `${base}/flashcards`, priority: 0.8 },
-      { url: `${base}/about`, priority: 0.5 },
+      { url: base, priority: 0.9, lastModified },
+      { url: `${base}/verbs`, priority: definition.hasVerbs ? 0.8 : 0.4, lastModified },
+      { url: `${base}/conjugate`, priority: definition.hasVerbs ? 0.6 : 0.4, lastModified },
+      { url: `${base}/flashcards`, priority: 0.8, lastModified },
+      { url: `${base}/about`, priority: 0.5, lastModified },
     );
 
     if (definition.hasVerbs) {
@@ -29,6 +33,7 @@ const sitemap = async (): Promise<MetadataRoute.Sitemap> => {
           entries.push({
             url: `${base}/verbs/${encodeURIComponent(target)}`,
             priority: 0.7,
+            lastModified,
           });
         }
       } catch {

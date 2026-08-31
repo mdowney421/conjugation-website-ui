@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import PageHeader from "../../../components/PageHeader";
 import { LANGUAGES } from "../../../languages/registry";
+import { pageMetadata } from "../../../lib/seo";
 
 type PageProps = { params: Promise<{ language: string }> };
 
@@ -8,10 +9,11 @@ export const generateMetadata = async ({ params }: PageProps): Promise<Metadata>
   const { language } = await params;
   const definition = LANGUAGES[language];
   if (!definition) return {};
-  return {
+  return pageMetadata({
     title: "About DialecTrek",
     description: `A tool for learning ${definition.displayName}.`,
-  };
+    path: `/${language}/about`,
+  });
 };
 
 const AboutPage = async ({ params }: PageProps) => {
