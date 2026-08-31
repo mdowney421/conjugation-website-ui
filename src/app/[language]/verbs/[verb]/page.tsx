@@ -102,6 +102,7 @@ const VerbDetailPage = async ({ params }: PageProps) => {
                 group={group}
                 data={groups[index]}
                 displayName={definition.displayName}
+                label={definition.tenseLabels[group.tense]}
               />
               {index === IMPERATIVE_AFTER_INDEX && imperativeTable && (
                 <div className="conjugation-section">

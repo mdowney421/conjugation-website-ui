@@ -22,6 +22,10 @@ export const es: LanguageDefinition = {
     pluperfect: "Pluperfect",
     imperative: "Imperative",
   } satisfies Record<Tense, string>,
+  availableTenses: [
+    "present", "preterite", "imperfect", "perfect", "future", "future_perfect",
+    "conditional", "conditional_perfect", "preterite_perfect", "pluperfect", "imperative",
+  ],
   // Preterite, future, conditional (simple and perfect), and preterite
   // perfect have no subjunctive form in Spanish at all. Imperfect,
   // perfect, and pluperfect do (and this app supports them), so they're

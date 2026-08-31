@@ -147,16 +147,22 @@ export const TenseGroupSection = ({
   group,
   data,
   displayName,
+  label,
 }: {
   group: TenseGroupConfig;
   data: GroupData;
   displayName: string;
+  // Overrides group.label's generic English name with this language's own
+  // term for the tense (e.g. French's "perfect" is "Passé Composé", not
+  // "Present Perfect") -- falls back to group.label if a language hasn't
+  // customized it.
+  label?: string;
 }) => {
   if (!data.indicative) return null;
 
   return (
     <div className="conjugation-section">
-      <h2 className="conjugation-section-heading">{group.label}</h2>
+      <h2 className="conjugation-section-heading">{label ?? group.label}</h2>
       <MergedConjugationTable
         indicative={data.indicative}
         subjunctive={data.subjunctive}

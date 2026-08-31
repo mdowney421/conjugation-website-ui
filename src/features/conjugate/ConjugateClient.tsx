@@ -32,10 +32,7 @@ type ConjugateClientProps = {
 };
 
 const ConjugateClient = ({ code, definition }: ConjugateClientProps) => {
-  const tenseList = useMemo(
-    () => Object.keys(definition.tenseLabels) as Tense[],
-    [definition],
-  );
+  const tenseList = useMemo(() => definition.availableTenses, [definition]);
   const steps = useMemo<SetupStep[]>(
     () => [
       { kind: "irregular" },
