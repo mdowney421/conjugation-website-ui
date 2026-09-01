@@ -130,12 +130,9 @@ export type GrammarTopic = {
   shiftTableIntro?: string;
   shiftTable?: GrammarShiftRow[];
   quiz?: GrammarQuizQuestion[];
-  // Pre-selects these tenses on the conjugate page's tense-selection step
-  // when set; a topic not centered on a specific pair of tenses (e.g. a
-  // future ser-vs-estar topic) can leave this unset and link to /conjugate
-  // plain.
-  practiceTenses?: Tense[];
-  practiceCta: { heading: string; body: string; buttonLabel: string };
+  // Copy for the card shown before the on-page quiz, inviting the reader
+  // to test themselves rather than just read past it.
+  quizCta: { heading: string; body: string; buttonLabel: string };
 };
 
 // A topic that's been picked but not written up yet -- shown on the
