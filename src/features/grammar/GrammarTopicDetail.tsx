@@ -1,6 +1,6 @@
-import Link from "next/link";
-import GrammarQuiz from "./GrammarQuiz";
+import GrammarQuizSection from "./GrammarQuizSection";
 import GrammarText from "./GrammarText";
+import { collisionDiagrams } from "./CollisionDiagrams";
 import type { GrammarTopic } from "../../languages/types";
 
 const ShiftFormCell = ({
@@ -18,44 +18,11 @@ const ShiftFormCell = ({
 
 type GrammarTopicDetailProps = {
   topic: GrammarTopic;
-  practiceHref: string;
 };
 
-// A gentle wave for the ongoing ("tone b") action, cut by a single point
-// for the interrupting ("tone a") one -- the shape is illustrative rather
-// than tied to any topic's specific wording, so it's the same for every
-// topic that has a collision example.
-const CollisionDiagram = () => (
-  <svg
-    className="grammar-collision-diagram"
-    viewBox="0 0 640 130"
-    role="img"
-    aria-label="A wavy line representing an ongoing action, interrupted partway through by a single point representing a second action."
-  >
-    <path
-      d="M 20 65 C 60 45, 100 85, 140 65 C 180 45, 220 85, 260 65 C 300 45, 340 85, 380 65"
-      fill="none"
-      stroke="var(--color-accent-4)"
-      strokeWidth="3"
-      strokeLinecap="round"
-    />
-    <line
-      x1="380"
-      y1="65"
-      x2="620"
-      y2="65"
-      stroke="var(--color-border)"
-      strokeWidth="2"
-      strokeDasharray="2 6"
-      strokeLinecap="round"
-    />
-    <line x1="380" y1="65" x2="380" y2="30" stroke="var(--color-accent-3)" strokeWidth="2" />
-    <circle cx="380" cy="65" r="7" fill="var(--color-accent-3)" />
-  </svg>
-);
-
-const GrammarTopicDetail = ({ topic, practiceHref }: GrammarTopicDetailProps) => {
+const GrammarTopicDetail = ({ topic }: GrammarTopicDetailProps) => {
   const [sideA, sideB] = topic.compare;
+  const CollisionDiagram = collisionDiagrams[topic.slug];
 
   return (
     <div className="grammar-detail">
@@ -109,7 +76,7 @@ const GrammarTopicDetail = ({ topic, practiceHref }: GrammarTopicDetailProps) =>
               <GrammarText parts={topic.collision.parts} />
             </p>
             <p className="grammar-collision-gloss">{topic.collision.gloss}</p>
-            <CollisionDiagram />
+            {CollisionDiagram && <CollisionDiagram />}
             <p className="grammar-collision-note">{topic.collision.note}</p>
           </div>
         </section>
@@ -145,19 +112,14 @@ const GrammarTopicDetail = ({ topic, practiceHref }: GrammarTopicDetailProps) =>
       {topic.quiz && topic.quiz.length > 0 && (
         <section>
           <div className="grammar-section-label">Test yourself</div>
-          <GrammarQuiz questions={topic.quiz} sideA={sideA} sideB={sideB} />
+          <GrammarQuizSection
+            questions={topic.quiz}
+            sideA={sideA}
+            sideB={sideB}
+            cta={topic.quizCta}
+          />
         </section>
       )}
-
-      <div className="grammar-cta-row">
-        <div>
-          <h3>{topic.practiceCta.heading}</h3>
-          <p>{topic.practiceCta.body}</p>
-        </div>
-        <Link href={practiceHref} className="btn btn-primary">
-          {topic.practiceCta.buttonLabel}
-        </Link>
-      </div>
     </div>
   );
 };

@@ -101,7 +101,7 @@ const GrammarQuiz = ({ questions, sideA, sideB }: GrammarQuizProps) => {
         <span className="grammar-quiz-progress">
           Question {index + 1} of {order.length}
         </span>
-        <CounterStat count={correctCount} total={index} label="correct" />
+        <CounterStat count={correctCount} total={index + (isAnswered ? 1 : 0)} label="correct" />
       </div>
 
       <QuestionCard animationKey={index}>

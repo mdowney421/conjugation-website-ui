@@ -42,10 +42,6 @@ const GrammarTopicPage = async ({ params }: PageProps) => {
   const topic = findTopic(language, slug);
   if (!topic) notFound();
 
-  const practiceHref = topic.practiceTenses?.length
-    ? `/${language}/conjugate?tenses=${topic.practiceTenses.join(",")}`
-    : `/${language}/conjugate`;
-
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dialectrek.com";
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -84,7 +80,7 @@ const GrammarTopicPage = async ({ params }: PageProps) => {
         backTo={{ to: `/${language}/grammar`, label: "← All grammar topics" }}
       />
       <div className="grammar-page-body">
-        <GrammarTopicDetail topic={topic} practiceHref={practiceHref} />
+        <GrammarTopicDetail topic={topic} />
       </div>
     </div>
   );

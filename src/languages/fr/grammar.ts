@@ -172,11 +172,10 @@ export const frGrammarTopics: GrammarTopic[] = [
         explanation: "\"Avant\" plus a repeated routine describes a habit -- imparfait.",
       },
     ],
-    practiceTenses: ["perfect", "imperfect"],
-    practiceCta: {
-      heading: "Ready to master it?",
-      body: "Quiz yourself on passé composé and imparfait side by side.",
-      buttonLabel: "Practice these tenses",
+    quizCta: {
+      heading: "Think you've got it?",
+      body: "Take the quiz and see if you can tell passé composé and imparfait apart in context.",
+      buttonLabel: "Take the quiz",
     },
   },
 ];
