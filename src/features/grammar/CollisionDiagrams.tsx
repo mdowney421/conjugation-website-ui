@@ -162,6 +162,90 @@ const GustarDiagram = () => (
   </DiagramFrame>
 );
 
+// Être vs. avoir: a wide cluster of small circles (most verbs) funneling
+// into the avoir arrow, and a smaller cluster (movement and reflexive
+// verbs) funneling into the être arrow below it -- with one dot breaking
+// off the être cluster and curving back up toward avoir, for the handful
+// of movement verbs that switch auxiliaries the moment they take a direct
+// object.
+const AvoirEtreDiagram = () => (
+  <DiagramFrame label="A wide cluster of small circles representing most verbs converging on a single avoir arrow, and a smaller cluster representing movement and reflexive verbs converging on a separate être arrow below it, with one circle breaking off the être cluster and curving back up toward the avoir arrow.">
+    {[20, 45, 70, 95, 120].map((x) => (
+      <circle key={`a-${x}`} cx={x} cy="30" r="6" fill={NEUTRAL} />
+    ))}
+    {[20, 45, 70, 95, 120].map((x) => (
+      <line key={`al-${x}`} x1={x} y1="30" x2="180" y2="30" stroke={NEUTRAL} strokeWidth="1" />
+    ))}
+    <line x1="180" y1="30" x2="590" y2="30" stroke={TONE_A} strokeWidth="3" strokeLinecap="round" />
+    <Arrowhead baseX={590} tipX={614} y={30} halfHeight={8} color={TONE_A} />
+
+    {[20, 45, 70].map((x) => (
+      <circle key={`b-${x}`} cx={x} cy="95" r="6" fill={NEUTRAL} />
+    ))}
+    {[20, 45, 70].map((x) => (
+      <line key={`bl-${x}`} x1={x} y1="95" x2="150" y2="95" stroke={NEUTRAL} strokeWidth="1" />
+    ))}
+    <line x1="150" y1="95" x2="430" y2="95" stroke={TONE_B} strokeWidth="3" strokeLinecap="round" />
+    <Arrowhead baseX={430} tipX={454} y={95} halfHeight={8} color={TONE_B} />
+
+    <path d="M 150 95 C 220 95, 260 40, 300 32" fill="none" stroke={TONE_B} strokeWidth="2" strokeDasharray="3 5" />
+    <circle cx="300" cy="32" r="5" fill="none" stroke={TONE_A} strokeWidth="2" />
+  </DiagramFrame>
+);
+
+// Object pronoun order: the same verb bar in both rows, preceded by two
+// pronoun tokens -- the le/la/les token (mid tone) sits closest to the
+// verb when paired with me/te/nous/vous (top row), but jumps to the front
+// of the pair when paired with lui/leur instead (bottom row).
+const ObjectPronounOrderDiagram = () => (
+  <DiagramFrame label="Two identical verb bars, each preceded by two pronoun tokens. In the top row the me/te/nous/vous token leads, followed by the le/la/les token closest to the verb. In the bottom row the le/la/les token leads instead, followed by the lui/leur token closest to the verb.">
+    <rect x="345" y="22" width="170" height="24" rx="12" fill="none" stroke={NEUTRAL} strokeWidth="2" />
+    <rect x="125" y="22" width="90" height="24" rx="12" fill={TONE_A} />
+    <rect x="235" y="22" width="90" height="24" rx="12" fill={NEUTRAL} />
+
+    <rect x="345" y="86" width="170" height="24" rx="12" fill="none" stroke={NEUTRAL} strokeWidth="2" />
+    <rect x="125" y="86" width="90" height="24" rx="12" fill={NEUTRAL} />
+    <rect x="235" y="86" width="90" height="24" rx="12" fill={TONE_B} />
+  </DiagramFrame>
+);
+
+// Partitive articles: negation (the no-entry icon on the arrow) shrinks
+// the du/de la/des token down to a plain de in the top row -- but when
+// the negated verb is être making an identity claim rather than denying
+// the noun's existence, that same negation has no effect and the token
+// survives unchanged (bottom row), matching the ce n'est pas exception
+// in the collision sentence.
+const PartitiveArticlesDiagram = () => (
+  <DiagramFrame label="Two rows, each starting from the same pill-shaped token representing du, de la, or des. In the top row, an arrow marked with a no-entry icon for negation leads to a smaller circle representing the reduced de. In the bottom row, the same arrow carries no such marking, and the pill-shaped token survives unchanged on the other side, representing the exception when the negated verb is être.">
+    <rect x="62" y="24" width="70" height="22" rx="11" fill={TONE_A} />
+    <line x1="152" y1="35" x2="462" y2="35" stroke={NEUTRAL} strokeWidth="2.5" strokeLinecap="round" />
+    <Arrowhead baseX={462} tipX={482} y={35} halfHeight={8} color={NEUTRAL} />
+    <circle cx="307" cy="35" r="10" fill="none" stroke={TONE_B} strokeWidth="2" />
+    <line x1="300" y1="28" x2="314" y2="42" stroke={TONE_B} strokeWidth="2" strokeLinecap="round" />
+    <circle cx="542" cy="35" r="11" fill={TONE_B} />
+
+    <rect x="62" y="87" width="70" height="22" rx="11" fill={TONE_A} />
+    <line x1="152" y1="98" x2="462" y2="98" stroke={NEUTRAL} strokeWidth="2.5" strokeLinecap="round" />
+    <Arrowhead baseX={462} tipX={482} y={98} halfHeight={8} color={NEUTRAL} />
+    <rect x="507" y="87" width="70" height="22" rx="11" fill={TONE_A} />
+  </DiagramFrame>
+);
+
+// Gender & adjective agreement: one adjective splitting into a masculine
+// line and a feminine line, with a short dashed branch off the masculine
+// line for the special third form used only before a vowel sound.
+const GenderAgreementDiagram = () => (
+  <DiagramFrame label="A central node branching into a masculine line and a feminine line, with a short additional dashed branch off the masculine line representing the special form used before a vowel sound.">
+    <circle cx="60" cy="65" r="10" fill={NEUTRAL} />
+    <line x1="70" y1="65" x2="300" y2="35" stroke={TONE_A} strokeWidth="3" strokeLinecap="round" />
+    <circle cx="300" cy="35" r="7" fill={TONE_A} />
+    <DashedLine d="M 300 35 L 470 20" color={TONE_A} />
+    <circle cx="470" cy="20" r="6" fill="none" stroke={TONE_A} strokeWidth="2" />
+    <line x1="70" y1="65" x2="300" y2="98" stroke={TONE_B} strokeWidth="3" strokeLinecap="round" />
+    <circle cx="300" cy="98" r="7" fill={TONE_B} />
+  </DiagramFrame>
+);
+
 export const collisionDiagrams: Record<string, () => React.JSX.Element> = {
   "preterite-vs-imperfect": PreteriteImperfectDiagram,
   "ser-vs-estar": SerEstarDiagram,
@@ -170,4 +254,8 @@ export const collisionDiagrams: Record<string, () => React.JSX.Element> = {
   "object-pronoun-placement": ObjectPronounPlacementDiagram,
   "personal-a": PersonalADiagram,
   "gustar-type-verbs": GustarDiagram,
+  "etre-vs-avoir": AvoirEtreDiagram,
+  "object-pronoun-order": ObjectPronounOrderDiagram,
+  "partitive-articles": PartitiveArticlesDiagram,
+  "gender-adjective-agreement": GenderAgreementDiagram,
 };
