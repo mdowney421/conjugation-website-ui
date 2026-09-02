@@ -10,7 +10,7 @@ import {
   TenseGroupSection,
   type GroupData,
 } from "../../../../features/verbs/ConjugationTables";
-import { LANGUAGES } from "../../../../languages/registry";
+import { LANGUAGES, type LanguageDefinition } from "../../../../languages/registry";
 import {
   fetchAllVerbs,
   fetchImperativeConjugation,
@@ -43,13 +43,14 @@ export const generateStaticParams = async () => {
   return params;
 };
 
-const loadGroups = (code: string, verb: string) =>
+const loadGroups = (definition: LanguageDefinition, verb: string) =>
   Promise.all(
     TENSE_GROUPS.map(async (group): Promise<GroupData> => {
+      const hasSubjunctive = !definition.indicativeOnlyTenses.includes(group.tense);
       const [indicative, subjunctive] = await Promise.all([
-        fetchVerbConjugation(code, verb, "indicative", group.tense),
-        group.hasSubjunctive
-          ? fetchVerbConjugation(code, verb, "subjunctive", group.tense)
+        fetchVerbConjugation(definition.code, verb, "indicative", group.tense),
+        hasSubjunctive
+          ? fetchVerbConjugation(definition.code, verb, "subjunctive", group.tense)
           : Promise.resolve(undefined),
       ]);
       return { indicative: indicative ?? null, subjunctive: subjunctive ?? null };
@@ -77,7 +78,7 @@ const VerbDetailPage = async ({ params }: PageProps) => {
   if (!definition) return null;
 
   const [groups, imperativeTable] = await Promise.all([
-    loadGroups(definition.code, verb),
+    loadGroups(definition, verb),
     fetchImperativeConjugation(definition.code, verb),
   ]);
 
@@ -137,6 +138,7 @@ const VerbDetailPage = async ({ params }: PageProps) => {
                 data={groups[index]}
                 displayName={definition.displayName}
                 label={definition.tenseLabels[group.tense]}
+                hasSubjunctive={!definition.indicativeOnlyTenses.includes(group.tense)}
               />
               {index === IMPERATIVE_AFTER_INDEX && imperativeTable && (
                 <div className="conjugation-section">

@@ -115,23 +115,24 @@ export const ImperativeTable = ({ table }: { table: ImperativeConjugationTable }
   </table>
 );
 
-export type TenseGroupConfig = { tense: Tense; label: string; hasSubjunctive: boolean };
+export type TenseGroupConfig = { tense: Tense; label: string };
 
 // Every tense this app supports, ordered furthest-in-the-past to
-// furthest-in-the-future. Tenses with a subjunctive counterpart show
-// indicative and subjunctive side by side; the rest are indicative-only
-// (Spanish has no subjunctive preterite, future, or conditional).
+// furthest-in-the-future. Whether a given tense has a subjunctive
+// counterpart varies by language (e.g. Spanish has a subjunctive
+// imperfect/pluperfect, French doesn't) -- that's decided per-language
+// from `indicativeOnlyTenses`, not fixed here.
 export const TENSE_GROUPS: TenseGroupConfig[] = [
-  { tense: "pluperfect", label: "Pluperfect", hasSubjunctive: true },
-  { tense: "preterite_perfect", label: "Preterite Perfect", hasSubjunctive: false },
-  { tense: "imperfect", label: "Imperfect", hasSubjunctive: true },
-  { tense: "preterite", label: "Preterite", hasSubjunctive: false },
-  { tense: "perfect", label: "Present Perfect", hasSubjunctive: true },
-  { tense: "present", label: "Present", hasSubjunctive: true },
-  { tense: "conditional", label: "Conditional", hasSubjunctive: false },
-  { tense: "conditional_perfect", label: "Conditional Perfect", hasSubjunctive: false },
-  { tense: "future", label: "Future", hasSubjunctive: false },
-  { tense: "future_perfect", label: "Future Perfect", hasSubjunctive: false },
+  { tense: "pluperfect", label: "Pluperfect" },
+  { tense: "preterite_perfect", label: "Preterite Perfect" },
+  { tense: "imperfect", label: "Imperfect" },
+  { tense: "preterite", label: "Preterite" },
+  { tense: "perfect", label: "Present Perfect" },
+  { tense: "present", label: "Present" },
+  { tense: "conditional", label: "Conditional" },
+  { tense: "conditional_perfect", label: "Conditional Perfect" },
+  { tense: "future", label: "Future" },
+  { tense: "future_perfect", label: "Future Perfect" },
 ];
 
 // The imperative is built out of present-indicative and present-subjunctive
@@ -148,6 +149,7 @@ export const TenseGroupSection = ({
   data,
   displayName,
   label,
+  hasSubjunctive,
 }: {
   group: TenseGroupConfig;
   data: GroupData;
@@ -157,6 +159,9 @@ export const TenseGroupSection = ({
   // "Present Perfect") -- falls back to group.label if a language hasn't
   // customized it.
   label?: string;
+  // Whether this language has a subjunctive form of this tense at all --
+  // caller derives it from the language's own `indicativeOnlyTenses`.
+  hasSubjunctive: boolean;
 }) => {
   if (!data.indicative) return null;
 
@@ -166,7 +171,7 @@ export const TenseGroupSection = ({
       <MergedConjugationTable
         indicative={data.indicative}
         subjunctive={data.subjunctive}
-        hasSubjunctive={group.hasSubjunctive}
+        hasSubjunctive={hasSubjunctive}
         displayName={displayName}
       />
     </div>
