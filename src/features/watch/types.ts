@@ -15,6 +15,19 @@ export type Video = {
 
 export type SortMode = "easiest" | "hardest" | "most-liked" | "random";
 
+const DIFFICULTY_LEVELS: readonly DifficultyLevel[] = ["a1", "a2", "b1", "b2", "c1", "c2"];
+const SORT_MODES: readonly SortMode[] = ["easiest", "hardest", "most-liked", "random"];
+
+// Shared between the server-rendered page (validating searchParams for the
+// initial fetch) and the client component (validating the same params after
+// a client-side navigation) so the two can't drift and disagree on what a
+// valid value is.
+export const isDifficultyLevel = (value: string | null | undefined): value is DifficultyLevel =>
+  (DIFFICULTY_LEVELS as string[]).includes(value ?? "");
+
+export const isSortMode = (value: string | null | undefined): value is SortMode =>
+  (SORT_MODES as string[]).includes(value ?? "");
+
 export const levelForScore = (score: number): DifficultyLevel => {
   if (score < 700) return "a1";
   if (score < 850) return "a2";

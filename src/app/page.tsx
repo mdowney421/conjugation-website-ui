@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: "DialecTrek — Learn a Language",
     ogTitle: "DialecTrek — Learn a Language",
     description:
-      "DialecTrek — look up verb conjugations and practice with flashcards to build your vocabulary.",
+      "DialecTrek — watch videos from real native speakers, look up verb conjugations, and practice with flashcards to build your vocabulary.",
     path: "/",
   }),
   title: { absolute: "DialecTrek — Learn a Language" },
@@ -57,20 +57,24 @@ const LanguagePickerPage = () => {
       <div className="section">
         <div className="feature-grid">
           <FeatureItem
-            title="Quick lookups"
-            description="Find verb conjugations in seconds, no clutter."
+            title="Watch videos"
+            description="Learn from real native speakers on YouTube, sorted to match your level."
           />
           <FeatureItem
-            title="Targeted practice"
-            description="Choose exactly which tenses and verb types to master."
+            title="Look up verbs"
+            description="Browse the verb list and find a conjugation fast."
           />
           <FeatureItem
-            title="Vocabulary flashcards"
-            description="Build your vocabulary by drilling the most common words with flashcards."
+            title="Conjugate verbs"
+            description="Quiz yourself on the tenses and verb types you choose."
           />
           <FeatureItem
-            title="Grammar concepts"
-            description="Clear explanations for the ideas that actually trip learners up, not just verb tables."
+            title="Study flashcards"
+            description="Flip through the most common words until they stick."
+          />
+          <FeatureItem
+            title="Learn grammar"
+            description="Understand the concepts behind the conjugations."
           />
         </div>
       </div>

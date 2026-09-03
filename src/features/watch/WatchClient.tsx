@@ -9,8 +9,22 @@ import type { LanguageDefinition } from "../../languages/registry";
 import { compareVideos, dislikeVideo, fetchVideos, likeVideo } from "./api";
 import DifficultyBadge from "./DifficultyBadge";
 import { ChevronDownIcon, PlayIcon, ThumbsDownIcon, ThumbsUpIcon } from "./icons";
-import { getSessionId } from "./session";
-import { formatDuration, levelLabel, type DifficultyLevel, type SortMode, type Video } from "./types";
+import {
+  getSessionId,
+  persistDislikedIds,
+  persistLikedIds,
+  readDislikedIds,
+  readLikedIds,
+} from "./session";
+import {
+  formatDuration,
+  isDifficultyLevel,
+  isSortMode,
+  levelLabel,
+  type DifficultyLevel,
+  type SortMode,
+  type Video,
+} from "./types";
 import VideoCard from "./VideoCard";
 import WatchIntroModal from "./WatchIntroModal";
 import YouTubePlayer from "./YouTubePlayer";
@@ -18,25 +32,34 @@ import YouTubePlayer from "./YouTubePlayer";
 type WatchClientProps = {
   code: string;
   definition: LanguageDefinition;
+  // The first page of videos, fetched server-side in page.tsx for whatever
+  // filter/sort the URL asked for -- lets the grid ship with real content
+  // in the initial HTML instead of an empty shell that only fills in once
+  // the client re-fetches, which crawlers that don't run JS never see.
+  initialVideos?: Video[];
+  initialHasMore?: boolean;
+  initialSeed?: number;
 };
 
-const LEVEL_PARAM_VALUES = new Set(["a1", "a2", "b1", "b2", "c1", "c2"]);
-const SORT_PARAM_VALUES = new Set(["easiest", "hardest", "most-liked", "random"]);
-
-const WatchClient = ({ code, definition }: WatchClientProps) => {
+const WatchClient = ({ code, definition, initialVideos, initialHasMore, initialSeed }: WatchClientProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const hasInitialData = initialVideos !== undefined;
 
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [videos, setVideos] = useState<Video[]>(initialVideos ?? []);
+  const [isLoading, setIsLoading] = useState(!hasInitialData);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore, setHasMore] = useState(initialHasMore ?? false);
   const [isMutating, setIsMutating] = useState(false);
   // One random seed per browsing session (new filters, new sort, fresh
   // page load), reused across every "load more" page so sort=random stays
   // a stable order while paging through it instead of reshuffling per page.
-  const seedRef = useRef(0);
+  const seedRef = useRef(initialSeed ?? 0);
+  // The server already fetched a page matching the URL's filters on this
+  // load -- skips the client effect's own fetch the one time it would
+  // otherwise immediately discard that data and re-request the same thing.
+  const skipNextFetchRef = useRef(hasInitialData);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [lastWatchedId, setLastWatchedId] = useState<string | null>(null);
   const [trackedVideoId, setTrackedVideoId] = useState<string | null>(null);
@@ -51,11 +74,9 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
   // leaving the page entirely.
   const activeVideoId = searchParams.get("video");
   const rawLevel = searchParams.get("level");
-  const filterLevel: DifficultyLevel | "all" = LEVEL_PARAM_VALUES.has(rawLevel ?? "")
-    ? (rawLevel as DifficultyLevel)
-    : "all";
+  const filterLevel: DifficultyLevel | "all" = isDifficultyLevel(rawLevel) ? rawLevel : "all";
   const rawSort = searchParams.get("sort");
-  const sortMode: SortMode = SORT_PARAM_VALUES.has(rawSort ?? "") ? (rawSort as SortMode) : "random";
+  const sortMode: SortMode = isSortMode(rawSort) ? rawSort : "random";
   const randomVideoLabel =
     filterLevel === "all" ? "Watch random video" : `Watch random ${levelLabel[filterLevel].toLowerCase()} video`;
 
@@ -66,10 +87,24 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
     setConfirmation(null);
   }, [activeVideoId]);
 
+  // Picks up whatever this browser already liked/disliked in a previous
+  // visit -- without this, likedIds/dislikedIds start empty on every reload
+  // even though the backend still remembers the vote against this session
+  // id, so the button would show as un-toggled and then flip the vote the
+  // wrong way on the next click.
+  useEffect(() => {
+    setLikedIds(readLikedIds());
+    setDislikedIds(readDislikedIds());
+  }, []);
+
   // Filtering and sorting happen server-side now (see watch.py). A new
   // seed here means a fresh shuffle for sort=random each time the filters
   // actually change, while "load more" below keeps reusing this same seed.
   useEffect(() => {
+    if (skipNextFetchRef.current) {
+      skipNextFetchRef.current = false;
+      return;
+    }
     let cancelled = false;
     seedRef.current = Math.floor(Math.random() * 1_000_000_000);
     setIsLoading(true);
@@ -208,21 +243,19 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
       setVideos((prev) => prev.map((video) => (video.id === id ? updated : video)));
       // A video can only be liked or disliked at once -- liking always
       // clears any standing dislike, mirroring the backend's toggle.
-      setDislikedIds((prev) => {
-        if (!prev.has(id)) return prev;
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-      setLikedIds((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) {
-          next.delete(id);
-        } else {
-          next.add(id);
-        }
-        return next;
-      });
+      const nextDisliked = new Set(dislikedIds);
+      nextDisliked.delete(id);
+      setDislikedIds(nextDisliked);
+      persistDislikedIds(nextDisliked);
+
+      const nextLiked = new Set(likedIds);
+      if (nextLiked.has(id)) {
+        nextLiked.delete(id);
+      } else {
+        nextLiked.add(id);
+      }
+      setLikedIds(nextLiked);
+      persistLikedIds(nextLiked);
     }
     setIsMutating(false);
   };
@@ -233,21 +266,19 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
     const updated = await dislikeVideo(code, id, getSessionId());
     if (updated) {
       setVideos((prev) => prev.map((video) => (video.id === id ? updated : video)));
-      setLikedIds((prev) => {
-        if (!prev.has(id)) return prev;
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-      setDislikedIds((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) {
-          next.delete(id);
-        } else {
-          next.add(id);
-        }
-        return next;
-      });
+      const nextLiked = new Set(likedIds);
+      nextLiked.delete(id);
+      setLikedIds(nextLiked);
+      persistLikedIds(nextLiked);
+
+      const nextDisliked = new Set(dislikedIds);
+      if (nextDisliked.has(id)) {
+        nextDisliked.delete(id);
+      } else {
+        nextDisliked.add(id);
+      }
+      setDislikedIds(nextDisliked);
+      persistDislikedIds(nextDisliked);
     }
     setIsMutating(false);
   };

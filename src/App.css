@@ -416,8 +416,9 @@
 }
 
 .action-cards {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 20px;
   max-width: 1240px;
   margin: 0 auto;
@@ -425,14 +426,7 @@
 
 @media (max-width: 860px) {
   .action-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     max-width: 720px;
-  }
-}
-
-@media (max-width: 640px) {
-  .action-cards {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -454,6 +448,22 @@
   overflow: hidden;
   transition: transform 0.15s ease, box-shadow 0.15s ease,
     border-color 0.15s ease;
+  flex: 1 1 calc(33.333% - 13.333px);
+  max-width: calc(33.333% - 13.333px);
+}
+
+@media (max-width: 860px) {
+  .action-card {
+    flex-basis: calc(50% - 10px);
+    max-width: calc(50% - 10px);
+  }
+}
+
+@media (max-width: 640px) {
+  .action-card {
+    flex-basis: 100%;
+    max-width: 100%;
+  }
 }
 
 .action-card::before {
@@ -580,28 +590,33 @@ a.language-card:hover {
 }
 
 .feature-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 24px;
   max-width: var(--container-width);
   margin: 0 auto;
 }
 
+.feature {
+  text-align: center;
+  padding: 8px;
+  flex: 1 1 calc(33.333% - 16px);
+  max-width: calc(33.333% - 16px);
+}
+
 @media (max-width: 900px) {
-  .feature-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .feature {
+    flex-basis: calc(50% - 12px);
+    max-width: calc(50% - 12px);
   }
 }
 
 @media (max-width: 480px) {
-  .feature-grid {
-    grid-template-columns: 1fr;
+  .feature {
+    flex-basis: 100%;
+    max-width: 100%;
   }
-}
-
-.feature {
-  text-align: center;
-  padding: 8px;
 }
 
 .feature::before {
@@ -2814,6 +2829,7 @@ a.language-card:hover {
   padding: 16px 18px 18px;
   display: flex;
   flex-direction: column;
+  flex: 1;
   gap: 6px;
 }
 
@@ -2830,7 +2846,8 @@ a.language-card:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 6px;
+  margin-top: auto;
+  padding-top: 6px;
 }
 
 .watch-card-likes {
