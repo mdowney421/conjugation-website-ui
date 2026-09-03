@@ -54,6 +54,11 @@ const HomePage = async ({ params }: PageProps) => {
         <h2 className="section-heading">Where to next?</h2>
         <div className="action-cards">
           <ActionCard
+            to={`/${language}/watch`}
+            title="Watch videos"
+            description="Watch videos sorted by difficulty and vote on how hard they were."
+          />
+          <ActionCard
             to={`/${language}/verbs`}
             title="Look up verbs"
             description={

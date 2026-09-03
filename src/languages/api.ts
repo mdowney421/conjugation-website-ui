@@ -15,7 +15,7 @@ import type {
 // local development, and server-rendered pages (generateStaticParams,
 // generateMetadata, the verb/verbs list pages) need a real URL to fetch
 // from at build/request time.
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
 
 // During static generation, Next.js's dynamic route params for the verb
 // detail page sometimes reach the page body already percent-encoded (e.g.
