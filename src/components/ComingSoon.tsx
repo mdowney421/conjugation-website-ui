@@ -39,7 +39,7 @@ const ComingSoon = ({ title, language, definition }: ComingSoonProps) => {
         </span>
         <p className="coming-soon-heading">Under construction</p>
         <p className="coming-soon-message">
-          We haven&apos;t built {title.toLowerCase()} for {definition.displayName} yet
+          We haven&apos;t built {title} for {definition.displayName} yet
           {features.length > 0 && (
             <>, but {joinWithAnd(features.map((feature) => feature.label))} {features.length === 1 ? "is" : "are"} ready to go in the meantime</>
           )}

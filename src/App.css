@@ -661,6 +661,14 @@ a.language-card:hover {
   font-size: 0.9rem;
   font-weight: 500;
   margin-bottom: 16px;
+  /* Resets browser default <button> chrome (border/background/padding) so
+     this looks identical whether it renders as a Link or a button -- see
+     BackLink.tsx. */
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
 }
 
 .back-link:hover {
@@ -2685,17 +2693,19 @@ a.language-card:hover {
   flex-wrap: wrap;
 }
 
-.watch-filter-row.chip-grid {
-  justify-content: flex-start;
-  margin-bottom: 0;
+.watch-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.watch-sort-wrap {
+.watch-select-wrap {
   position: relative;
   display: inline-flex;
 }
 
-.watch-sort-select {
+.watch-select {
   appearance: none;
   -webkit-appearance: none;
   padding: 9px 38px 9px 16px;
@@ -2709,17 +2719,17 @@ a.language-card:hover {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.watch-sort-select:hover {
+.watch-select:hover {
   border-color: var(--color-primary);
 }
 
-.watch-sort-select:focus {
+.watch-select:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
-.watch-sort-chevron {
+.watch-select-chevron {
   position: absolute;
   top: 50%;
   right: 14px;
@@ -2839,22 +2849,32 @@ a.language-card:hover {
   font-weight: 600;
 }
 
-.difficulty-badge--novice {
-  background: var(--color-accent-3-light);
-  color: var(--color-accent-3);
-}
-
-.difficulty-badge--beginner {
+.difficulty-badge--a1 {
   background: var(--color-success-light);
   color: var(--color-success);
 }
 
-.difficulty-badge--intermediate {
+.difficulty-badge--a2 {
+  background: var(--color-accent-3-light);
+  color: var(--color-accent-3);
+}
+
+.difficulty-badge--b1 {
+  background: var(--color-accent-4-light);
+  color: var(--color-accent-4);
+}
+
+.difficulty-badge--b2 {
+  background: color-mix(in srgb, var(--color-accent) 20%, var(--color-surface));
+  color: var(--color-accent-dark);
+}
+
+.difficulty-badge--c1 {
   background: var(--color-accent-2-light);
   color: var(--color-accent-2);
 }
 
-.difficulty-badge--advanced {
+.difficulty-badge--c2 {
   background: var(--color-danger-light);
   color: var(--color-danger);
 }
@@ -2866,12 +2886,6 @@ a.language-card:hover {
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.watch-back {
-  align-self: flex-start;
-  background: none;
-  border: none;
 }
 
 .watch-player-frame {
@@ -2891,9 +2905,9 @@ a.language-card:hover {
   height: 64px;
 }
 
-/* The YouTube widget replaces this element's container div with an iframe
-   and carries the class over, so this targets the iframe itself rather
-   than a child of it. */
+/* This class stays on the wrapper React owns; the YouTube widget gets an
+   unstyled inner div to replace with its iframe, which it sizes itself via
+   the player's width/height options. */
 .watch-player-embed {
   position: absolute;
   inset: 0;
@@ -2904,19 +2918,9 @@ a.language-card:hover {
 
 .watch-player-info {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.watch-player-heading {
-  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-}
-
-.watch-player-heading h2 {
-  font-size: 1.3rem;
 }
 
 .watch-like-button {
@@ -2936,14 +2940,51 @@ a.language-card:hover {
 }
 
 .watch-like-button:hover {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.watch-like-button.liked {
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.watch-vote-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.watch-dislike-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 8px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.watch-dislike-button:hover {
   border-color: var(--color-danger);
   color: var(--color-danger);
 }
 
-.watch-like-button.liked {
+.watch-dislike-button.disliked {
   background: var(--color-danger-light);
   border-color: var(--color-danger);
   color: var(--color-danger);
+}
+
+.watch-random-row {
+  display: flex;
+  justify-content: center;
 }
 
 .watch-compare {
@@ -2967,4 +3008,61 @@ a.language-card:hover {
 
 .watch-load-sentinel {
   height: 1px;
+}
+
+.watch-intro-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 36, 26, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+}
+
+.watch-intro-modal {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.watch-intro-modal h3 {
+  margin: 0;
+  padding-right: 24px;
+}
+
+.watch-intro-modal p {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.watch-intro-modal .btn {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+.watch-intro-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.watch-intro-close:hover {
+  color: var(--color-text);
 }

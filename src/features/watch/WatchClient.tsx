@@ -6,12 +6,13 @@ import Button from "../../components/Button";
 import EmptyState from "../../components/EmptyState";
 import PageHeader from "../../components/PageHeader";
 import type { LanguageDefinition } from "../../languages/registry";
-import { compareVideos, fetchVideos, likeVideo } from "./api";
+import { compareVideos, dislikeVideo, fetchVideos, likeVideo } from "./api";
 import DifficultyBadge from "./DifficultyBadge";
-import { ChevronDownIcon, HeartIcon, PlayIcon } from "./icons";
+import { ChevronDownIcon, PlayIcon, ThumbsDownIcon, ThumbsUpIcon } from "./icons";
 import { getSessionId } from "./session";
 import { formatDuration, levelLabel, type DifficultyLevel, type SortMode, type Video } from "./types";
 import VideoCard from "./VideoCard";
+import WatchIntroModal from "./WatchIntroModal";
 import YouTubePlayer from "./YouTubePlayer";
 
 type WatchClientProps = {
@@ -19,7 +20,7 @@ type WatchClientProps = {
   definition: LanguageDefinition;
 };
 
-const LEVEL_PARAM_VALUES = new Set(["novice", "beginner", "intermediate", "advanced"]);
+const LEVEL_PARAM_VALUES = new Set(["a1", "a2", "b1", "b2", "c1", "c2"]);
 const SORT_PARAM_VALUES = new Set(["easiest", "hardest", "most-liked", "random"]);
 
 const WatchClient = ({ code, definition }: WatchClientProps) => {
@@ -38,8 +39,11 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
   const seedRef = useRef(0);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [lastWatchedId, setLastWatchedId] = useState<string | null>(null);
+  const [trackedVideoId, setTrackedVideoId] = useState<string | null>(null);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
+  const [dislikedIds, setDislikedIds] = useState<Set<string>>(new Set());
   const [confirmation, setConfirmation] = useState<string | null>(null);
+  const [isFindingRandom, setIsFindingRandom] = useState(false);
 
   // Filter, sort, and which video is open all live in the URL rather than
   // component state -- that's what makes the browser's back button land
@@ -52,6 +56,8 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
     : "all";
   const rawSort = searchParams.get("sort");
   const sortMode: SortMode = SORT_PARAM_VALUES.has(rawSort ?? "") ? (rawSort as SortMode) : "random";
+  const randomVideoLabel =
+    filterLevel === "all" ? "Watch random video" : `Watch random ${levelLabel[filterLevel].toLowerCase()} video`;
 
   // Clears any leftover confirmation whenever the video in the URL changes
   // -- including when it's cleared by the back button -- so a stale
@@ -139,6 +145,17 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
     }
   };
 
+  // Whichever video was active just before this one automatically becomes
+  // the baseline for comparison -- watching a video is what sets up the
+  // "compared to X" box for the next one, no explicit opt-in needed. There's
+  // no baseline yet for the very first video of the session, so the box
+  // shows a placeholder prompting one more video instead of the compare
+  // buttons until there's a second video to compare it to.
+  if (activeVideoId !== trackedVideoId) {
+    if (trackedVideoId) setLastWatchedId(trackedVideoId);
+    setTrackedVideoId(activeVideoId);
+  }
+
   const activeVideo = videos.find((video) => video.id === activeVideoId) ?? null;
   const lastVideo =
     lastWatchedId && lastWatchedId !== activeVideoId
@@ -151,7 +168,37 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
   // what lets the browser back button pop back to the browse view.
   const openVideo = (id: string) => updateParams({ video: id }, true);
 
-  const backToBrowse = () => router.back();
+  // Always lands on the grid, no matter how many videos deep the history
+  // stack is (e.g. several "watch random video" clicks in a row) -- unlike
+  // the browser's own back button, which steps through that history one
+  // video at a time, this button's job is to always mean "take me to the
+  // grid" in one click.
+  const backToBrowse = () => updateParams({ video: null }, true);
+
+  // Fetches a fresh, freshly-shuffled page for the current level filter
+  // rather than picking from `videos` (which is just whatever's been
+  // paged into the browse grid so far), so this can land on a video the
+  // user hasn't loaded into the grid at all. Added to `videos` on the way
+  // in so the player lookup below finds it.
+  const watchRandomVideo = async () => {
+    if (!activeVideo || isFindingRandom) return;
+    setIsFindingRandom(true);
+    const result = await fetchVideos(code, {
+      level: filterLevel === "all" ? undefined : filterLevel,
+      sort: "random",
+      seed: Math.floor(Math.random() * 1_000_000_000),
+    });
+    const candidates = result.items.filter((video) => video.id !== activeVideo.id);
+    setIsFindingRandom(false);
+    if (candidates.length === 0) return;
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    setVideos((prev) => (prev.some((video) => video.id === pick.id) ? prev : [...prev, pick]));
+    // Pushed, same as picking a video from the grid -- the back button
+    // should step through watch history one video at a time (this random
+    // video, then whatever was playing before it, and so on) before
+    // finally landing back on the browse grid.
+    openVideo(pick.id);
+  };
 
   const toggleLike = async (id: string) => {
     if (isMutating) return;
@@ -159,7 +206,40 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
     const updated = await likeVideo(code, id, getSessionId());
     if (updated) {
       setVideos((prev) => prev.map((video) => (video.id === id ? updated : video)));
+      // A video can only be liked or disliked at once -- liking always
+      // clears any standing dislike, mirroring the backend's toggle.
+      setDislikedIds((prev) => {
+        if (!prev.has(id)) return prev;
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
       setLikedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+        return next;
+      });
+    }
+    setIsMutating(false);
+  };
+
+  const toggleDislike = async (id: string) => {
+    if (isMutating) return;
+    setIsMutating(true);
+    const updated = await dislikeVideo(code, id, getSessionId());
+    if (updated) {
+      setVideos((prev) => prev.map((video) => (video.id === id ? updated : video)));
+      setLikedIds((prev) => {
+        if (!prev.has(id)) return prev;
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      setDislikedIds((prev) => {
         const next = new Set(prev);
         if (next.has(id)) {
           next.delete(id);
@@ -185,7 +265,6 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
           return video;
         }),
       );
-      setLastWatchedId(activeVideo.id);
       setConfirmation(
         direction === "same"
           ? "Noted as about the same difficulty."
@@ -195,125 +274,146 @@ const WatchClient = ({ code, definition }: WatchClientProps) => {
     setIsMutating(false);
   };
 
-  const markBaseline = () => {
-    if (!activeVideo) return;
-    setLastWatchedId(activeVideo.id);
-    setConfirmation("Got it -- this is your baseline for comparing what you watch next.");
-  };
-
   return (
     <div className="page">
-      <PageHeader
-        title="Watch"
-        subtitle={`Watch ${definition.displayName} videos, then vote on how hard they were to follow.`}
-      />
-
+      <WatchIntroModal />
       {activeVideo ? (
-        <div className="watch-player">
-          <button type="button" className="back-link watch-back" onClick={backToBrowse}>
-            ← All videos
-          </button>
+        <>
+          <PageHeader
+            title={activeVideo.title}
+            subtitle={`${activeVideo.channel} · ${formatDuration(activeVideo.durationSeconds)}`}
+            backTo={{ onClick: backToBrowse, label: "← All videos" }}
+          />
 
-          <div className="watch-player-frame">
-            {/* Guards against a row with no real video behind it (a
-                "placeholder-*" id) -- falls back to the static icon instead
-                of asking YouTube to embed a video that doesn't exist. */}
-            {activeVideo.youtubeId.startsWith("placeholder-") ? (
-              <PlayIcon />
+          <div className="watch-player">
+            <div className="watch-player-frame">
+              {/* Guards against a row with no real video behind it (a
+                  "placeholder-*" id) -- falls back to the static icon instead
+                  of asking YouTube to embed a video that doesn't exist. */}
+              {activeVideo.youtubeId.startsWith("placeholder-") ? (
+                <PlayIcon />
+              ) : (
+                <YouTubePlayer videoId={activeVideo.youtubeId} />
+              )}
+            </div>
+
+            <div className="watch-player-info">
+              <div className="watch-vote-buttons">
+                <button
+                  type="button"
+                  className={`watch-like-button${likedIds.has(activeVideo.id) ? " liked" : ""}`}
+                  onClick={() => toggleLike(activeVideo.id)}
+                  aria-pressed={likedIds.has(activeVideo.id)}
+                  disabled={isMutating}
+                >
+                  <ThumbsUpIcon filled={likedIds.has(activeVideo.id)} />
+                  {activeVideo.likeCount}
+                </button>
+                <button
+                  type="button"
+                  className={`watch-dislike-button${dislikedIds.has(activeVideo.id) ? " disliked" : ""}`}
+                  onClick={() => toggleDislike(activeVideo.id)}
+                  aria-pressed={dislikedIds.has(activeVideo.id)}
+                  aria-label="Dislike"
+                  disabled={isMutating}
+                >
+                  <ThumbsDownIcon filled={dislikedIds.has(activeVideo.id)} />
+                </button>
+              </div>
+              <DifficultyBadge score={activeVideo.difficultyScore} />
+            </div>
+
+            <div className="watch-random-row">
+              <Button variant="outline" onClick={watchRandomVideo} disabled={isFindingRandom}>
+                {isFindingRandom ? "Finding a video..." : randomVideoLabel}
+              </Button>
+            </div>
+
+            {!confirmation && (lastVideo ? (
+              <div className="watch-compare">
+                <p>
+                  Compared to <strong>{lastVideo.title}</strong>, was this one...
+                </p>
+                <div className="watch-compare-actions">
+                  <Button variant="outline" onClick={() => castComparisonVote("easier")} disabled={isMutating}>
+                    Easier
+                  </Button>
+                  <Button variant="outline" onClick={() => castComparisonVote("same")} disabled={isMutating}>
+                    About the same
+                  </Button>
+                  <Button variant="outline" onClick={() => castComparisonVote("harder")} disabled={isMutating}>
+                    Harder
+                  </Button>
+                </div>
+              </div>
             ) : (
-              <YouTubePlayer videoId={activeVideo.youtubeId} />
+              <div className="watch-compare">
+                <p>Watch at least one more video to start ranking.</p>
+              </div>
+            ))}
+
+            {confirmation && (
+              <div className="watch-compare">
+                <p>{confirmation}</p>
+                <Button onClick={backToBrowse}>Back to browsing</Button>
+              </div>
             )}
           </div>
-
-          <div className="watch-player-info">
-            <div className="watch-player-heading">
-              <h2>{activeVideo.title}</h2>
-              <button
-                type="button"
-                className={`watch-like-button${likedIds.has(activeVideo.id) ? " liked" : ""}`}
-                onClick={() => toggleLike(activeVideo.id)}
-                aria-pressed={likedIds.has(activeVideo.id)}
-                disabled={isMutating}
-              >
-                <HeartIcon filled={likedIds.has(activeVideo.id)} />
-                {activeVideo.likeCount}
-              </button>
-            </div>
-            <p className="watch-card-channel">
-              {activeVideo.channel} · {formatDuration(activeVideo.durationSeconds)}
-            </p>
-            <DifficultyBadge score={activeVideo.difficultyScore} />
-          </div>
-
-          {!confirmation && lastVideo && (
-            <div className="watch-compare">
-              <p>
-                Compared to <strong>{lastVideo.title}</strong>, was this one...
-              </p>
-              <div className="watch-compare-actions">
-                <Button variant="outline" onClick={() => castComparisonVote("easier")} disabled={isMutating}>
-                  Easier
-                </Button>
-                <Button variant="outline" onClick={() => castComparisonVote("same")} disabled={isMutating}>
-                  About the same
-                </Button>
-                <Button variant="outline" onClick={() => castComparisonVote("harder")} disabled={isMutating}>
-                  Harder
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {!confirmation && !lastVideo && (
-            <div className="watch-compare">
-              <p>Watch another video after this to start comparing difficulty.</p>
-              <Button onClick={markBaseline}>Continue</Button>
-            </div>
-          )}
-
-          {confirmation && (
-            <div className="watch-compare">
-              <p>{confirmation}</p>
-              <Button onClick={backToBrowse}>Back to browsing</Button>
-            </div>
-          )}
-        </div>
+        </>
       ) : (
         <>
-          <div className="watch-toolbar">
-            <div className="chip-grid watch-filter-row">
-              {(["all", "novice", "beginner", "intermediate", "advanced"] as const).map((level) => (
-                <button
-                  key={level}
-                  type="button"
-                  className={`chip${filterLevel === level ? " selected" : ""}`}
-                  onClick={() => updateParams({ level: level === "all" ? null : level }, false)}
-                >
-                  {level === "all" ? "All levels" : levelLabel[level]}
-                </button>
-              ))}
-            </div>
+          <PageHeader
+            title="Watch"
+            subtitle={`Native ${definition.displayName} speakers on YouTube, sorted by level -- so you can actually keep up.`}
+          />
 
-            <div className="watch-sort-wrap">
-              <select
-                className="watch-sort-select"
-                value={sortMode}
-                onChange={(event) =>
-                  updateParams(
-                    { sort: event.target.value === "random" ? null : event.target.value },
-                    false,
-                  )
-                }
-                aria-label="Sort videos"
-              >
-                <option value="random">Random</option>
-                <option value="easiest">Easiest first</option>
-                <option value="hardest">Hardest first</option>
-                <option value="most-liked">Most liked</option>
-              </select>
-              <span className="watch-sort-chevron">
-                <ChevronDownIcon />
-              </span>
+          <div className="watch-toolbar">
+            <div className="watch-filters">
+              <div className="watch-select-wrap">
+                <select
+                  className="watch-select"
+                  value={filterLevel}
+                  onChange={(event) =>
+                    updateParams(
+                      { level: event.target.value === "all" ? null : event.target.value },
+                      false,
+                    )
+                  }
+                  aria-label="Filter by level"
+                >
+                  <option value="all">All levels</option>
+                  {(["a1", "a2", "b1", "b2", "c1", "c2"] as const).map((level) => (
+                    <option key={level} value={level}>
+                      {levelLabel[level]}
+                    </option>
+                  ))}
+                </select>
+                <span className="watch-select-chevron">
+                  <ChevronDownIcon />
+                </span>
+              </div>
+
+              <div className="watch-select-wrap">
+                <select
+                  className="watch-select"
+                  value={sortMode}
+                  onChange={(event) =>
+                    updateParams(
+                      { sort: event.target.value === "random" ? null : event.target.value },
+                      false,
+                    )
+                  }
+                  aria-label="Sort videos"
+                >
+                  <option value="random">Random</option>
+                  <option value="easiest">Easiest first</option>
+                  <option value="hardest">Hardest first</option>
+                  <option value="most-liked">Most liked</option>
+                </select>
+                <span className="watch-select-chevron">
+                  <ChevronDownIcon />
+                </span>
+              </div>
             </div>
           </div>
 

@@ -38,15 +38,22 @@ const loadYouTubeApi = (): Promise<typeof YT> => {
 };
 
 const YouTubePlayer = ({ videoId }: YouTubePlayerProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  // The YouTube API doesn't render inside the element it's given -- it
+  // replaces that element with its iframe. So this ref stays on a wrapper
+  // React always owns, and the API gets a plain div created outside React's
+  // tree to swap out; otherwise React tries to remove a node YouTube already
+  // replaced on unmount and throws a removeChild error.
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YT.Player | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    const target = document.createElement("div");
+    wrapperRef.current?.appendChild(target);
 
     loadYouTubeApi().then((YTApi) => {
-      if (cancelled || !containerRef.current) return;
-      playerRef.current = new YTApi.Player(containerRef.current, {
+      if (cancelled) return;
+      playerRef.current = new YTApi.Player(target, {
         videoId,
         width: "100%",
         height: "100%",
@@ -66,7 +73,7 @@ const YouTubePlayer = ({ videoId }: YouTubePlayerProps) => {
     };
   }, [videoId]);
 
-  return <div className="watch-player-embed" ref={containerRef} />;
+  return <div className="watch-player-embed" ref={wrapperRef} />;
 };
 
 export default YouTubePlayer;

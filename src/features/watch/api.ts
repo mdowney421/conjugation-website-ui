@@ -66,6 +66,22 @@ export const likeVideo = async (
   }
 };
 
+export const dislikeVideo = async (
+  language: string,
+  videoId: string,
+  sessionId: string,
+): Promise<Video | undefined> => {
+  try {
+    const response = await axios.post<ApiVideo>(`${BASE_URL}/${language}/videos/${videoId}/dislike`, {
+      session_id: sessionId,
+    });
+    return toVideo(response.data);
+  } catch (error) {
+    console.error("error disliking video:", error);
+    return undefined;
+  }
+};
+
 export const compareVideos = async (
   language: string,
   videoId: string,

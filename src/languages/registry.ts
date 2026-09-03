@@ -11,6 +11,10 @@ export type LanguageDefinition = {
   // needs its own rule engine) -- languages with hasVerbs: false still get
   // flashcards, but the verbs/conjugate routes and nav links are hidden.
   hasVerbs: boolean;
+  // Whether the prod DB actually has videos for this language yet -- the
+  // watch route falls back to ComingSoon while it's false, same as the
+  // grammar/verbs routes do for their own missing content.
+  hasWatch: boolean;
   verbCount: number;
   wordCount: number;
   tenseLabels: Record<Tense, string>;

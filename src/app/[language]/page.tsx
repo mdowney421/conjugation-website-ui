@@ -56,7 +56,7 @@ const HomePage = async ({ params }: PageProps) => {
           <ActionCard
             to={`/${language}/watch`}
             title="Watch videos"
-            description="Watch videos sorted by difficulty and vote on how hard they were."
+            description="Learn from real native speakers on YouTube, sorted to match your level."
           />
           <ActionCard
             to={`/${language}/verbs`}

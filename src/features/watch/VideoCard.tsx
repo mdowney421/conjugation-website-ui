@@ -1,6 +1,6 @@
 import { useState } from "react";
 import DifficultyBadge from "./DifficultyBadge";
-import { HeartIcon, PlayIcon } from "./icons";
+import { PlayIcon, ThumbsUpIcon } from "./icons";
 import { formatDuration, type Video } from "./types";
 
 type VideoCardProps = {
@@ -39,7 +39,7 @@ const VideoCard = ({ video, onSelect }: VideoCardProps) => {
         <div className="watch-card-meta">
           <DifficultyBadge score={video.difficultyScore} />
           <span className="watch-card-likes">
-            <HeartIcon filled={false} />
+            <ThumbsUpIcon filled={false} />
             {video.likeCount}
           </span>
         </div>
