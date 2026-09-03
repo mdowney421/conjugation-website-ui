@@ -64,7 +64,7 @@ export const viewport: Viewport = {
 };
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
-  <html lang="en" data-theme="light" suppressHydrationWarning>
+  <html lang="en" data-theme="light" data-scroll-behavior="smooth" suppressHydrationWarning>
     <head>
       {/* Runs before first paint so the resolved theme (saved preference,
           falling back to the OS setting) applies immediately instead of
