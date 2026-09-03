@@ -1,0 +1,59 @@
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import ComingSoon from "../../../components/ComingSoon";
+import { fetchVideos } from "../../../features/watch/api";
+import { isDifficultyLevel, isSortMode } from "../../../features/watch/types";
+import WatchClient from "../../../features/watch/WatchClient";
+import { LANGUAGES } from "../../../languages/registry";
+import { pageMetadata } from "../../../lib/seo";
+
+type PageProps = {
+  params: Promise<{ language: string }>;
+  searchParams: Promise<{ level?: string; sort?: string }>;
+};
+
+export const generateMetadata = async ({ params }: PageProps): Promise<Metadata> => {
+  const { language } = await params;
+  const definition = LANGUAGES[language];
+  if (!definition) return {};
+  return pageMetadata({
+    title: `Watch ${definition.displayName} Videos`,
+    description: definition.hasWatch
+      ? `Learn ${definition.displayName} from real native speakers on YouTube, with videos sorted to match your level.`
+      : `Watch ${definition.displayName} videos are coming soon.`,
+    path: `/${language}/watch`,
+  });
+};
+
+const WatchPage = async ({ params, searchParams }: PageProps) => {
+  const { language } = await params;
+  const definition = LANGUAGES[language];
+  if (!definition) return null;
+  if (!definition.hasWatch) {
+    return <ComingSoon title="Watch" language={language} definition={definition} />;
+  }
+
+  // Fetches the first page server-side, matching whatever filter/sort the
+  // URL asked for, so the grid ships with real video titles and links in
+  // the initial HTML -- crawlers and link previews that don't run JS would
+  // otherwise only ever see the "Loading videos..." placeholder.
+  const { level: rawLevel, sort: rawSort } = await searchParams;
+  const level = isDifficultyLevel(rawLevel) ? rawLevel : undefined;
+  const sort = isSortMode(rawSort) ? rawSort : "random";
+  const seed = Math.floor(Math.random() * 1_000_000_000);
+  const initial = await fetchVideos(definition.code, { level, sort, seed });
+
+  return (
+    <Suspense fallback={null}>
+      <WatchClient
+        code={definition.code}
+        definition={definition}
+        initialVideos={initial.items}
+        initialHasMore={initial.hasMore}
+        initialSeed={seed}
+      />
+    </Suspense>
+  );
+};
+
+export default WatchPage;

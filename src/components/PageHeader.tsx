@@ -1,18 +1,14 @@
-import Link from "next/link";
+import BackLink from "./BackLink";
 
 type PageHeaderProps = {
   title: string;
   subtitle?: string;
-  backTo?: { to: string; label: string };
+  backTo?: { to: string; label: string } | { onClick: () => void; label: string };
 };
 
 const PageHeader = ({ title, subtitle, backTo }: PageHeaderProps) => (
   <div className="page-header">
-    {backTo && (
-      <Link href={backTo.to} className="back-link">
-        {backTo.label}
-      </Link>
-    )}
+    {backTo && <BackLink {...backTo} />}
     <h1>{title}</h1>
     {subtitle && <p>{subtitle}</p>}
   </div>
